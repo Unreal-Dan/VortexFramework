@@ -17,6 +17,9 @@ public:
   virtual void play() override;
 
 private:
+  void playOrbit();
+  void playNormal();
+
   // the speed for the step timer in x100 ms chunks, so a value of 10
   // will be 1000ms
   uint8_t m_stepSpeed;
