@@ -1,9 +1,13 @@
 #include "ColorSelect.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Time/TimeControl.h"
+#include "../../Patterns/PatternBuilder.h"
 #include "../../Patterns/Pattern.h"
 #include "../../Colors/Colorset.h"
 #include "../../Buttons/Button.h"
+#include "../../Random/Random.h"
 #include "../../Time/Timings.h"
 #include "../../Menus/Menus.h"
 #include "../../Modes/Modes.h"
@@ -32,6 +36,8 @@ ColorSelect::~ColorSelect()
 {
   // revert the hsv to rgb algorithm to normal
   g_hsv_rgb_alg = HSV_TO_RGB_GENERIC;
+  // make sure force sleep is re-enabled when we leave
+  VortexEngine::toggleForceSleep(true);
 }
 
 bool ColorSelect::init()
@@ -44,9 +50,11 @@ bool ColorSelect::init()
     // cannot work with an empty mode
     return false;
   }
+#if VORTEX_SLIM == 0
   if (cur->isMultiLed()) {
     bypassLedSelection(MAP_LED(LED_MULTI));
   }
+#endif
   m_state = STATE_INIT;
   DEBUG_LOG("Entered color select");
   return true;
@@ -187,12 +195,12 @@ void ColorSelect::showSlotSelection()
   const RGBColor &col = m_colorset[m_curSelection];
   if (withinNumColors && holdDurationCheck && holdDurationModCheck) {
     // breath red for delete slot
-    Leds::breatheIndex(LED_ALL, 0, holdDur);
+    Leds::blinkIndex(LED_0, 50, 100, col);
+    Leds::breatheIndex(LED_1, 0, holdDur);
   } else if (withinNumColors) {
     if (col.empty()) {
-      Leds::setAll(RGB_WHITE0);
+      Leds::setIndex(LED_0, RGB_WHITE0);
     }
-    // blink the selected slot color
     Leds::blinkAll(150, 650, col);
   } else if (exitIndex < MAX_COLOR_SLOTS) {
     if (m_curSelection == exitIndex) {
@@ -202,7 +210,13 @@ void ColorSelect::showSlotSelection()
     exitIndex++;
   }
   if (m_curSelection == exitIndex) {
+    // display the full set
     showFullSet(50, 100);
+    // set LED_1 to green to indicate save and exit
+    Leds::setIndex(LED_1, RGB_GREEN2);
+    // if not on exitIndex or add new color set LED_1 based on button state
+  } else if (m_curSelection != m_colorset.numColors() && !holdDurationCheck) {
+    Leds::setIndex(LED_1, g_pButton->isPressed() ? RGB_OFF : RGB_WHITE2);
   }
 }
 
@@ -221,12 +235,8 @@ void ColorSelect::showSelection(ColorSelectState mode)
     return;
   case STATE_PICK_HUE1:
     hue = m_curSelection * (255 / 4);
-    MAP_FOREACH_LED(MAP_PAIR_EVENS) {
-      Leds::breatheIndex(pos, hue, (now / 2), 22, 255, 180);
-    }
-    MAP_FOREACH_LED(MAP_PAIR_ODDS) {
-      Leds::breatheIndex(pos, hue, (now / 2) + 125, 22, 255, 180);
-    }
+    Leds::breatheIndex(LED_0, hue, (now / 2), 22, 255, 180);
+    Leds::breatheIndex(LED_1, hue, (now / 2) + 125, 22, 255, 180);
     // force sat at hue level1
     sat = 255;
     // NOTE: return here
@@ -239,9 +249,11 @@ void ColorSelect::showSelection(ColorSelectState mode)
     break;
   case STATE_PICK_SAT:
     sat = sats[m_curSelection];
+    Leds::breatheIndexSat(LED_1, hue, (now / 3), 100, 150, 150);
     break;
   case STATE_PICK_VAL:
     val = vals[m_curSelection];
+    Leds::breatheIndexVal(LED_1, hue, (now / 3), 100, sat, 150);
     break;
   }
   Leds::setMap(MAP_PAIR_EVENS, HSVColor(hue, sat, val));
@@ -258,12 +270,5 @@ void ColorSelect::showFullSet(uint8_t offMs, uint8_t onMs)
   if ((now % offOnMs) < MS_TO_TICKS(onMs)) {
     Leds::setAll(m_colorset.get((now / offOnMs) % numCols));
   }
-}
-
-bool ColorSelect::isValidLedSelection(LedMap selection) const
-{
-  // if we have a multi-led pattern then we can only select LED_MULTI otherwise
-  // if we don't have a multi-led pattern then we can't select multi
-  bool selectedMulti =  (selection == MAP_LED(LED_MULTI));
-  return selectedMulti == m_previewMode.isMultiLed();
+  Leds::setIndex(LED_1, RGB_GREEN0);
 }

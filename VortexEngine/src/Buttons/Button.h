@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+#include "../VortexConfig.h"
+
 // although there is only one button on the VortexFramework
 // I am still opting for a non-static button class
 class Button
@@ -22,6 +24,11 @@ public:
   bool check();
   // poll the button pin and update the state of the button object
   void update();
+
+#ifdef VORTEX_EMBEDDED
+  // enable the button-wake trigger to wake the device on press
+  void enableWake();
+#endif
 
   // whether the button was pressed this tick
   bool onPress() const { return m_newPress; }
@@ -54,9 +61,6 @@ public:
   uint8_t releaseCount() const { return m_releaseCount; }
 
 private:
-  // the pin number that is read
-  uint8_t m_pinNum;
-
   // ========================================
   // state data that is populated each check
 

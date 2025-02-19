@@ -36,8 +36,12 @@ bool Modes::init()
   return true;
 #endif
   ByteStream headerBuffer;
-  Storage::read(0, headerBuffer);
-  unserializeSaveHeader(headerBuffer);
+  if (!Storage::read(0, headerBuffer) || !unserializeSaveHeader(headerBuffer)) {
+    // cannot read or load header? corrupted header?
+    // just mark this as a new firmware and it will trigger a fresh header
+    // write later in the main loop when modes get loaded
+    m_globalFlags |= MODES_FLAG_NEW_FIRMWARE;
+  }
   m_loaded = false;
 #ifdef VORTEX_LIB
   // enable the adv menus by default in vortex lib
@@ -81,8 +85,16 @@ void Modes::play()
     DEBUG_LOG("Error failed to load any modes!");
     return;
   }
-  // shortclick cycles to the next mode
+  // shortclick either turns off the lights, cycles to the next mode
+  // or possibly locks the lights based on the situation
   if (g_pButton->onShortClick()) {
+    if (Modes::oneClickModeEnabled()) {
+      // enter sleep doesn't return on arduino, but it does on vortexlib
+      // so we need to return right after -- we can't just use an else
+      // don't need to save when switching on/off in one click mode
+      VortexEngine::enterSleep(false);
+      return;
+    }
     nextMode();
   }
   // play the current mode
@@ -92,18 +104,7 @@ void Modes::play()
 // full save/load to/from buffer
 bool Modes::saveToBuffer(ByteStream &modesBuffer)
 {
-  // first write out the header
-  if (!serializeSaveHeader(modesBuffer)) {
-    return false;
-  }
-  // serialize all modes data into the modesBuffer
-  if (!serialize(modesBuffer)) {
-    return false;
-  }
-  DEBUG_LOGF("Serialized all modes, uncompressed size: %u", modesBuffer.size());
-  if (!modesBuffer.compress()) {
-    return false;
-  }
+  // This API is removed for the DUO
   return true;
 }
 
@@ -114,7 +115,6 @@ bool Modes::loadFromBuffer(ByteStream &modesBuffer)
     // failed to decompress?
     return false;
   }
-  // read out the header first
   if (!unserializeSaveHeader(modesBuffer)) {
     return false;
   }
@@ -133,10 +133,6 @@ bool Modes::saveHeader()
 {
   ByteStream headerBuffer(MAX_MODE_SIZE);
   if (!serializeSaveHeader(headerBuffer)) {
-    return false;
-  }
-  // serialize the number of modes
-  if (!headerBuffer.serialize8(m_numModes)) {
     return false;
   }
   if (!Storage::write(0, headerBuffer)) {
@@ -260,8 +256,6 @@ bool Modes::serializeSaveHeader(ByteStream &saveBuffer)
   if (!VortexEngine::serializeVersion(saveBuffer)) {
     return false;
   }
-  // NOTE: instead of global brightness the duo uses this to store the
-  //       startup mode ID. The duo doesn't offer a global brightness option
   if (!saveBuffer.serialize8(m_globalFlags)) {
     return false;
   }
@@ -269,6 +263,20 @@ bool Modes::serializeSaveHeader(ByteStream &saveBuffer)
   if (!saveBuffer.serialize8((uint8_t)Leds::getBrightness())) {
     return false;
   }
+  // the number of modes
+  if (!saveBuffer.serialize8(m_numModes)) {
+    return false;
+  }
+  // only on the duo just save some extra stuff to the header slot
+#ifdef VORTEX_EMBEDDED
+  // Duo also saves the build number to the save header so the chromalink can
+  // read it out, other devices just have the version hardcoded into their
+  // editor connection hello message. Don't do this in VortexLib because
+  // it will alter the savefile format and break compatibility
+  if (!saveBuffer.serialize8((uint8_t)VORTEX_BUILD_NUMBER)) {
+    return false;
+  }
+#endif
   DEBUG_LOGF("Serialized all modes, uncompressed size: %u", saveBuffer.size());
   return true;
 }
@@ -296,9 +304,6 @@ bool Modes::unserializeSaveHeader(ByteStream &saveHeader)
     ERROR_LOGF("Incompatible savefile version: %u.%u", major, minor);
     return false;
   }
-  // NOTE: instead of global brightness the duo uses this to store the
-  //       startup mode ID. The duo doesn't offer a global brightness option
-  // unserialize the global brightness
   if (!saveHeader.unserialize8(&m_globalFlags)) {
     return false;
   }
@@ -388,10 +393,12 @@ bool Modes::setDefaults()
 {
   clearModes();
   // add each default mode with each of the given colors
-  for (uint8_t i = 0; i < num_default_modes; ++i) {
-    const default_mode_entry &def = default_modes[i];
-    Colorset set(def.numColors, def.cols);
-    addMode(def.patternID, nullptr, &set);
+  for (uint8_t i = 0; i < MAX_MODES; ++i) {
+    Mode defMode(defaultModes[i]);
+    if (!addMode(&defMode)) {
+      ERROR_LOGF("Failed to add default mode %u", i);
+      return false;
+    }
   }
   return true;
 }
@@ -677,15 +684,15 @@ void Modes::clearModes()
 
 void Modes::setStartupMode(uint8_t index)
 {
-  // zero out the upper nibble to disable
+  // zero out the upper nibble to clear it
   m_globalFlags &= 0x0F;
-  // or in the index value shifted into the upper nibble
+  // OR in the index value shifted into the upper nibble
   m_globalFlags |= (index << 4) & 0xF0;
 }
 
 uint8_t Modes::startupMode()
 {
-  // zero out the upper nibble to disable
+  // return the upper nibble of the global flags
   return (m_globalFlags & 0xF0) >> 4;
 }
 

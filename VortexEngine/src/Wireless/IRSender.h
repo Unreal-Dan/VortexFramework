@@ -34,6 +34,11 @@ private:
   // send a mark/space by turning PWM on/off
   static void sendMark(uint16_t time);
   static void sendSpace(uint16_t time);
+  // Pulse-Width Modulator (IR Transmitter)
+  static void initPWM();
+  // turn the IR transmitter on/off in realtime
+  static void startPWM();
+  static void stopPWM();
 
   // the serial buffer for the data
   static ByteStream m_serialBuf;

@@ -105,6 +105,9 @@ public:
 #endif
 
 private:
+#ifdef VORTEX_EMBEDDED
+  static void initMCUTime();
+#endif
 
 #if VARIABLE_TICKRATE == 1
   // the number of ticks per second
@@ -114,13 +117,13 @@ private:
   // global tick counter
   static uint32_t m_curTick;
 
+#ifdef VORTEX_LIB
   // the last frame timestamp
   static uint32_t m_prevTime;
 
   // the first timestamp
   static uint32_t m_firstTime;
 
-#ifdef VORTEX_LIB
   // the current simulation offset, simulations are
   // used to fastforward patterns and colorsets by
   // simulating tick changes and running pattern logic
