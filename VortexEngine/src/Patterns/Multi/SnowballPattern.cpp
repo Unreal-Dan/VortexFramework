@@ -2,7 +2,7 @@
 
 #include "../../Leds/Leds.h"
 
-#define WORM_SIZE 6
+#define WORM_SIZE LED_COUNT / 3
 
 SnowballPattern::SnowballPattern(const PatternArgs &args) :
   BlinkStepPattern(args),

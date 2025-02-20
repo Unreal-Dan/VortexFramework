@@ -11,6 +11,7 @@
 #include "../Storage/Storage.h"
 #include "../Buttons/Buttons.h"
 #include "../Time/Timings.h"
+#include "../Menus/Menus.h"
 #include "../Modes/Mode.h"
 #include "../Leds/Leds.h"
 #include "../Log/Log.h"
@@ -82,8 +83,16 @@ void Modes::play()
     return;
   }
   // shortclick cycles to the next mode
-  if (g_pButton->onShortClick()) {
+  if (g_pButtonR->onShortClick()) {
     nextMode();
+  }
+  // shortclick cycles to the next mode
+  //if (g_pButtonM->onShortClick()) {
+  //  Menus::openMenuSelection();
+  //}
+  // shortclick cycles to the next mode
+  if (g_pButtonL->onShortClick()) {
+    previousMode();
   }
   // play the current mode
   m_pCurModeLink->play();

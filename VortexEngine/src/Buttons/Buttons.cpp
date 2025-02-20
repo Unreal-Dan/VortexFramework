@@ -13,18 +13,28 @@
 // still allowing for a second instance to be added.  I wish there was a more
 // elegant way to make the button accessible but not global.
 // This will simply point at Buttons::m_button.
-Button *g_pButton = nullptr;
+
+// Button Left
+Button *g_pButtonL = nullptr;
+// Button Mid
+Button *g_pButtonM = nullptr;
+// Button Right
+Button *g_pButtonR = nullptr;
 
 // static members
 Button Buttons::m_buttons[NUM_BUTTONS];
 
 bool Buttons::init()
 {
-  // initialize the button on pin 1
-  if (!m_buttons[0].init(1)) {
+  // initialize the button on pins 5/6/7
+  if (!m_buttons[0].init(5) ||
+      !m_buttons[1].init(6) ||
+      !m_buttons[2].init(7)) {
     return false;
   }
-  g_pButton = &m_buttons[0];
+  g_pButtonL = &m_buttons[0];
+  g_pButtonM = &m_buttons[1];
+  g_pButtonR = &m_buttons[2];
   return true;
 }
 

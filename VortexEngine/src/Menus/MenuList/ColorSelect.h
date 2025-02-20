@@ -18,8 +18,8 @@ public:
   void onLedSelected() override;
 
   // handlers for clicks
-  void onShortClick() override;
-  void onLongClick() override;
+  void onShortClickM() override;
+  void onLongClickM() override;
 
 private:
   // override the led selection api to choose which led maps can be selected

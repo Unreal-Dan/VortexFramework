@@ -11,6 +11,10 @@
 #include "VortexLib.h"
 #endif
 
+#ifdef VORTEX_EMBEDDED
+#include <Arduino.h>
+#endif
+
 // the serial buffer for the data
 ByteStream IRSender::m_serialBuf;
 // a bit walker for the serial data
@@ -32,6 +36,9 @@ uint32_t IRSender::m_writeCounter = 0;
 
 bool IRSender::init()
 {
+#ifdef VORTEX_EMBEDDED
+  initPWM();
+#endif
   return true;
 }
 
@@ -144,6 +151,9 @@ void IRSender::sendMark(uint16_t time)
 #ifdef VORTEX_LIB
   // send mark timing over socket
   Vortex::vcallbacks()->infraredWrite(true, time);
+#else
+  startPWM();
+  Time::delayMicroseconds(time);
 #endif
 }
 
@@ -152,7 +162,34 @@ void IRSender::sendSpace(uint16_t time)
 #ifdef VORTEX_LIB
   // send space timing over socket
   Vortex::vcallbacks()->infraredWrite(false, time);
+#else
+  stopPWM();
+  Time::delayMicroseconds(time);
 #endif
 }
+
+#ifdef VORTEX_EMBEDDED
+const uint32_t pwmFrequency = 39062; // Actual frequency with divider = 8
+const uint8_t pwmResolution = 8;
+const uint32_t pwmDutyCycle = 85;
+
+void IRSender::initPWM()
+{
+  // Configure the PWM on the specified pin with initial duty cycle of 0
+  ledcAttach(IR_SEND_PWM_PIN, pwmFrequency, pwmResolution);
+}
+
+void IRSender::startPWM()
+{
+  // Start PWM with the specified duty cycle
+  ledcWrite(IR_SEND_PWM_PIN, pwmDutyCycle);
+}
+
+void IRSender::stopPWM()
+{
+  // Stop PWM by setting the duty cycle to 0
+  ledcWrite(IR_SEND_PWM_PIN, 0);
+}
+#endif
 
 #endif

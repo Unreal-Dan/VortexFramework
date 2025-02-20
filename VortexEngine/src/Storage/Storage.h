@@ -18,6 +18,9 @@ public:
   static bool init();
   static void cleanup();
 
+  // set the global storage page, the chromadeck has 8 pages of 16 slots each
+  static void setStoragePage(uint8_t page);
+
   // store a serial buffer to storage
   static bool write(uint16_t slot, ByteStream &buffer);
   // read a serial buffer from storage
@@ -38,6 +41,9 @@ private:
 
   // the size of the last save
   static uint32_t m_lastSaveSize;
+
+  // the curren storage page
+  static uint8_t m_storagePage;
 };
 
 #endif

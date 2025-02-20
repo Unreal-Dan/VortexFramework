@@ -97,7 +97,11 @@ private:
 #endif
 };
 
-// See Button.cpp for info about this
-extern Button *g_pButton;
+// Button Left
+extern Button *g_pButtonL;
+// Button Mid
+extern Button *g_pButtonM;
+// Button Right
+extern Button *g_pButtonR;
 
 #endif

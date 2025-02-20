@@ -30,12 +30,12 @@ void WarpPattern::init()
 void WarpPattern::blinkOn()
 {
   Leds::setAll(m_colorset.cur());
-  Leds::setPair((Pair)m_progress, m_colorset.peekNext());
+  Leds::setIndex((LedPos)m_progress, m_colorset.peekNext());
 }
 
 void WarpPattern::poststep()
 {
-  m_progress = (m_progress + 1) % PAIR_COUNT;
+  m_progress = (m_progress + 1) % LED_COUNT;
   if (m_progress == 0) {
     m_colorset.getNext();
   }

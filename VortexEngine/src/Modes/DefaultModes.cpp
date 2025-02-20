@@ -122,6 +122,27 @@ const default_mode_entry default_modes[MAX_MODES] = {
       RGB_GREEN,
       RGB_BLUE
     }
+  },
+  {
+    PATTERN_STROBE, 2, {
+      RGB_RED,
+      RGB_GREEN,
+    }
+  },
+  {
+    PATTERN_DRIP, 4, {
+      RGB_RED,
+      RGB_GREEN,
+      RGB_BLUE,
+      RGB_YELLOW
+    }
+  },
+  {
+    PATTERN_DASHCYCLE, 3, {
+      RGB_RED,
+      RGB_GREEN,
+      RGB_BLUE
+    }
   }
 };
 

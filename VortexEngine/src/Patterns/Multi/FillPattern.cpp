@@ -28,13 +28,13 @@ void FillPattern::init()
 
 void FillPattern::blinkOn()
 {
-  Leds::setPairs(PAIR_FIRST, (Pair)m_progress, m_colorset.peekNext());
-  Leds::setPairs((Pair)m_progress, PAIR_COUNT, m_colorset.cur());
+  Leds::setRange(LED_FIRST, (LedPos)m_progress, m_colorset.peekNext());
+  Leds::setRange((LedPos)m_progress, LED_LAST, m_colorset.cur());
 }
 
 void FillPattern::poststep()
 {
-  m_progress = (m_progress + 1) % PAIR_COUNT;
+  m_progress = (m_progress + 1) % LED_COUNT;
   if (m_progress == 0) {
     m_colorset.getNext();
   }

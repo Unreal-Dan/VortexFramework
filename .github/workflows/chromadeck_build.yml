@@ -1,0 +1,181 @@
+name: Chromadeck Build
+
+on:
+  push:
+    branches: [ "chromadeck" ]
+  pull_request:
+    branches: [ "chromadeck" ]
+  workflow_dispatch: # manual trigger
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      vortex_version_major: ${{ steps.set_version.outputs.vortex_version_major }}
+      vortex_version_minor: ${{ steps.set_version.outputs.vortex_version_minor }}
+      vortex_build_number: ${{ steps.set_version.outputs.vortex_build_number }}
+      vortex_version_number: ${{ steps.set_version.outputs.vortex_version_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches all history for all branches and tags
+      - name: Determine Version and Build Number
+        id: set_version
+        run: |
+          BRANCH_SUFFIX="c"
+          # Fetch all tags
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          # Get the latest tag that matches the branch suffix
+          LATEST_TAG=$(git tag --list "*${BRANCH_SUFFIX}" | sort -V | tail -n1)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No matching tags found. Setting default version."
+            VERSION_MAJOR="0"
+            VERSION_MINOR="1"
+            BUILD_NUMBER="0"
+          else
+            echo "Found latest tag: $LATEST_TAG"
+            VERSION_NUMBER=$(echo $LATEST_TAG | sed "s/${BRANCH_SUFFIX}//g")
+            VERSION_MAJOR=$(echo $VERSION_NUMBER | cut -d. -f1)
+            VERSION_MINOR=$(echo $VERSION_NUMBER | cut -d. -f2)
+            BUILD_NUMBER=$(git rev-list --count $LATEST_TAG..HEAD)
+          fi
+          FULL_VERSION="$VERSION_MAJOR.$VERSION_MINOR.$BUILD_NUMBER"
+          echo "vortex_version_major=$VERSION_MAJOR" >> $GITHUB_OUTPUT
+          echo "vortex_version_minor=$VERSION_MINOR" >> $GITHUB_OUTPUT
+          echo "vortex_build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "vortex_version_number=$FULL_VERSION" >> $GITHUB_OUTPUT
+          echo "Version Number: $FULL_VERSION"
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+      - name: Update Package Lists
+        run: sudo apt-get update
+      - name: Install Dependencies
+        run: sudo apt-get install valgrind g++ make --fix-missing
+      - name: Build
+        run: |
+          export VORTEX_VERSION_MAJOR=${{ needs.setup.outputs.vortex_version_major }}
+          export VORTEX_VERSION_MINOR=${{ needs.setup.outputs.vortex_version_minor }}
+          export VORTEX_BUILD_NUMBER=${{ needs.setup.outputs.vortex_build_number }}
+          export VORTEX_VERSION_NUMBER=${{ needs.setup.outputs.vortex_version_number }}
+          make -j
+        working-directory: VortexEngine
+      - name: Set execute permissions for test script
+        run: chmod +x ./runtests.sh
+        working-directory: VortexEngine/tests
+      - name: Run general tests
+        run: ./runtests.sh --general
+        working-directory: VortexEngine/tests
+
+  embedded:
+    needs: [setup, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install Dependencies
+        run: make install
+      - name: Build Binary
+        run: |
+          export VORTEX_VERSION_MAJOR=${{ needs.setup.outputs.vortex_version_major }}
+          export VORTEX_VERSION_MINOR=${{ needs.setup.outputs.vortex_version_minor }}
+          export VORTEX_BUILD_NUMBER=${{ needs.setup.outputs.vortex_build_number }}
+          export VORTEX_VERSION_NUMBER=${{ needs.setup.outputs.vortex_version_number }}
+          make build
+      - name: Zip firmware files
+        run: |
+          zip ChromadeckFirmware.zip \
+            build/VortexEngine.ino.bootloader.bin \
+            build/VortexEngine.ino.partitions.bin \
+            ~/.arduino15/packages/esp32/hardware/esp32/3.0.4/tools/partitions/boot_app0.bin \
+            build/VortexEngine.ino.bin
+      - name: Archive firmware zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromadeck-firmware-zip
+          path: ChromadeckFirmware.zip
+
+  wasm:
+    needs: [setup, test, embedded]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+      - name: Update Package Lists
+        run: sudo apt-get update
+      - name: Install Emscripten
+        run: |
+          sudo apt install -y cmake python3
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+        working-directory: VortexEngine/VortexLib
+      - name: Build Webassembly
+        run: |
+          source ./emsdk/emsdk_env.sh
+          export VORTEX_VERSION_MAJOR=${{ needs.setup.outputs.vortex_version_major }}
+          export VORTEX_VERSION_MINOR=${{ needs.setup.outputs.vortex_version_minor }}
+          export VORTEX_BUILD_NUMBER=${{ needs.setup.outputs.vortex_build_number }}
+          export VORTEX_VERSION_NUMBER=${{ needs.setup.outputs.vortex_version_number }}
+          make -j wasm
+        working-directory: VortexEngine/VortexLib
+
+  docs:
+    #todo: fix the depends to be setup, test, embedded, wasm
+    needs: [setup, test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/chromadeck'
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+      - name: Update Package Lists
+        run: sudo apt-get update
+      - name: Install Dependencies
+        run: sudo apt-get install doxygen graphviz texlive --fix-missing
+      - name: Checkout doxygen-awesome
+        run: git clone https://github.com/jothepro/doxygen-awesome-css.git doxygen-awesome-css
+      - name: Generate Documentation
+        run: |
+          mkdir -p docs/chromadeck
+          doxygen Doxyfile
+          echo "Listing contents of docs/chromadeck:"
+          ls -R docs/chromadeck || echo "No files found in docs/chromadeck"
+      - name: Upload Doxygen Documentation as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-docs-chromadeck
+          path: docs/chromadeck
+
+  deploy:
+    needs: [setup, test, embedded, wasm, docs]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/chromadeck'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: chromadeck-firmware-zip
+          path: build
+      - name: Rename and Deploy Firmware
+        run: |
+          DEVICE_TYPE="chromadeck"
+          VERSIONED_FILENAME="VortexEngine-${DEVICE_TYPE}-${{ needs.setup.outputs.vortex_version_number }}.zip"
+          mv build/ChromadeckFirmware.zip build/$VERSIONED_FILENAME
+          echo "Version is ${{ needs.setup.outputs.vortex_version_number }}"
+          echo "Filename is $VERSIONED_FILENAME"
+          curl -X POST \
+            -F "file=@build/$VERSIONED_FILENAME" \
+            -F "device=$DEVICE_TYPE" \
+            -F "version=${{ needs.setup.outputs.vortex_version_number }}" \
+            -F "category=firmware" \
+            -F "clientApiKey=${{ secrets.VORTEX_COMMUNITY_API_KEY }}" \
+            https://vortex.community/firmware/upload
+

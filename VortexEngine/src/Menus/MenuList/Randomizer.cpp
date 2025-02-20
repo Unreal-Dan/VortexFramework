@@ -104,7 +104,7 @@ Menu::MenuAction Randomizer::run()
   return MENU_CONTINUE;
 }
 
-void Randomizer::onShortClick()
+void Randomizer::onShortClickM()
 {
   if (m_needToSelect) {
     if (m_flags == RANDOMIZE_BOTH) {
@@ -115,7 +115,7 @@ void Randomizer::onShortClick()
     return;
   }
   // if the user fast-clicks 3 times then toggle automode
-  if (m_autoCycle || g_pButton->onConsecutivePresses(AUTO_CYCLE_RANDOMIZER_CLICKS)) {
+  if (m_autoCycle || g_pButtonM->onConsecutivePresses(AUTO_CYCLE_RANDOMIZER_CLICKS)) {
     // toggle the auto cycle flag
     m_autoCycle = !m_autoCycle;
     // display a quick flash of either green or red to indicate whether auto mode is on or not
@@ -126,7 +126,7 @@ void Randomizer::onShortClick()
   reRoll();
 }
 
-void Randomizer::onLongClick()
+void Randomizer::onLongClickM()
 {
   // if done the randomization selection part
   if (m_needToSelect) {

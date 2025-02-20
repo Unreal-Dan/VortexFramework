@@ -21,10 +21,17 @@ void SparkleTracePattern::blinkOn()
   Leds::setAll(m_colorset.get(0));
 }
 
+void SparkleTracePattern::blinkOff()
+{
+  //this empty overriden function must be here to prevent the base
+  //blinkOff function from causing the ribbon in the blinkOn function 
+  //to strobe instead
+}
+
 void SparkleTracePattern::poststep()
 {
-  for (uint8_t dot = 0; dot < 4; ++dot) {
-    Leds::setPair((Pair)m_randCtx.next8(PAIR_FIRST, PAIR_LAST), m_colorset.cur());
+  for (uint8_t dot = 0; dot < LED_COUNT / 6; ++dot) {
+    Leds::setIndex((LedPos)m_randCtx.next8(LED_FIRST, LED_LAST), m_colorset.cur());
   }
   m_colorset.skip();
   if (m_colorset.curIndex() == 0) {

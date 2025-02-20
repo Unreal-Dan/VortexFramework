@@ -8,6 +8,10 @@
 #include "VortexLib.h"
 #endif
 
+#ifdef VORTEX_EMBEDDED
+#include <Arduino.h>
+#endif
+
 Button::Button() :
   m_pinNum(0),
   m_pressTime(0),
@@ -46,12 +50,19 @@ bool Button::init(uint8_t pin)
   m_longClick = false;
 
   m_pinNum = pin;
+#ifdef VORTEX_EMBEDDED
+  pinMode(m_pinNum, INPUT_PULLUP);
+#endif
   return true;
 }
 
 bool Button::check()
 {
+#ifdef VORTEX_EMBEDDED
+  return digitalRead(m_pinNum) == LOW;
+#else
   return (Vortex::vcallbacks()->checkPinHook(m_pinNum) == 0);
+#endif
 }
 
 void Button::update()

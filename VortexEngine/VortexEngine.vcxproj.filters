@@ -127,6 +127,12 @@
     <Filter Include="Source Files\Wireless">
       <UniqueIdentifier>{53027bd8-836b-491d-9b40-25ea0061bce9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UPDI">
+      <UniqueIdentifier>{358f1fe9-69d8-4d92-8e1f-a7a448f525ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UPDI">
+      <UniqueIdentifier>{37d407a1-9a53-43a6-894d-6df585846653}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\VortexEngine.cpp">
@@ -326,6 +332,15 @@
     </ClCompile>
     <ClCompile Include="src\Wireless\VLSender.cpp">
       <Filter>Source Files\Wireless</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\MainMenu.cpp">
+      <Filter>Source Files\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UPDI\updi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modes\DuoDefaultModes.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -550,6 +565,15 @@
     </ClInclude>
     <ClInclude Include="src\Wireless\VLSender.h">
       <Filter>Header Files\Wireless</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Menus\MainMenu.h">
+      <Filter>Header Files\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UPDI\updi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Modes\DuoDefaultModes.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
