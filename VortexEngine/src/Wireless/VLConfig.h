@@ -42,6 +42,6 @@
 #define VL_DIVIDER_SPACE_MAX VL_HEADER_MARK_MAX
 
 #define VL_SEND_PWM_PIN 0
-#define VL_RECEIVER_PIN 0
+#define VL_RECEIVER_PIN 1
 
 #endif

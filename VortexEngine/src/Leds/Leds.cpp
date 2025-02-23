@@ -12,6 +12,12 @@
 #include "../../VortexLib/VortexLib.h"
 #endif
 
+#ifdef VORTEX_EMBEDDED
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#include <FastLED.h>
+#define LED_PIN     0
+#endif
+
 // global brightness
 uint8_t Leds::m_brightness = DEFAULT_BRIGHTNESS;
 // array of led color values
@@ -19,6 +25,10 @@ RGBColor Leds::m_ledColors[LED_COUNT] = { RGB_OFF };
 
 bool Leds::init()
 {
+#ifdef VORTEX_EMBEDDED
+  FastLED.addLeds<WS2812B, LED_PIN, RGB>((CRGB *)m_ledColors, LED_COUNT);
+  FastLED.setMaxRefreshRate(0);
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsInit(m_ledColors, LED_COUNT);
 #endif
@@ -74,8 +84,10 @@ void Leds::setRangeEvens(Pair first, Pair last, RGBColor col)
 
 void Leds::setAllEvens(RGBColor col)
 {
-  for (Pair pos = PAIR_FIRST; pos <= PAIR_LAST; pos++) {
-    setIndex(pairEven(pos), col);
+  for (LedPos pos = LED_FIRST; pos <= LED_LAST; pos++) {
+    if (isEven(pos)) {
+      setIndex(pos, col);
+    }
   }
 }
 
@@ -88,8 +100,10 @@ void Leds::setRangeOdds(Pair first, Pair last, RGBColor col)
 
 void Leds::setAllOdds(RGBColor col)
 {
-  for (Pair pos = PAIR_FIRST; pos <= PAIR_LAST; pos++) {
-    setIndex(pairOdd(pos), col);
+  for (LedPos pos = LED_FIRST; pos <= LED_LAST; pos++) {
+    if (isOdd(pos)) {
+      setIndex(pos, col);
+    }
   }
 }
 
@@ -102,8 +116,10 @@ void Leds::clearRangeEvens(Pair first, Pair last)
 
 void Leds::clearAllEvens()
 {
-  for (Pair pos = PAIR_FIRST; pos <= PAIR_LAST; pos++) {
-    clearIndex(pairEven(pos));
+  for (LedPos pos = LED_FIRST; pos <= LED_LAST; pos++) {
+    if (isEven(pos)) {
+      clearIndex(pos);
+    }
   }
 }
 
@@ -116,8 +132,10 @@ void Leds::clearRangeOdds(Pair first, Pair last)
 
 void Leds::clearAllOdds()
 {
-  for (Pair pos = PAIR_FIRST; pos <= PAIR_LAST; pos++) {
-    clearIndex(pairOdd(pos));
+  for (LedPos pos = LED_FIRST; pos <= LED_LAST; pos++) {
+    if (isOdd(pos)) {
+      clearIndex(pos);
+    }
   }
 }
 
@@ -260,6 +278,9 @@ void Leds::holdAll(RGBColor col)
 
 void Leds::update()
 {
+#ifdef VORTEX_EMBEDDED
+  FastLED.show(m_brightness);
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsShow();
 #endif

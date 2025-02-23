@@ -9,6 +9,10 @@
 #include "../Modes/Mode.h"
 #include "../Log/Log.h"
 
+#ifdef VORTEX_EMBEDDED
+#include <Arduino.h>
+#endif
+
 BitStream IRReceiver::m_irData;
 IRReceiver::RecvState IRReceiver::m_recvState = WAITING_HEADER_MARK;
 uint32_t IRReceiver::m_prevTime = 0;
@@ -17,6 +21,9 @@ uint32_t IRReceiver::m_previousBytes = 0;
 
 bool IRReceiver::init()
 {
+#ifdef VORTEX_EMBEDDED
+  pinMode(IR_RECEIVER_PIN, INPUT_PULLUP);
+#endif
   m_irData.init(IR_RECV_BUF_SIZE);
   return true;
 }
@@ -83,12 +90,18 @@ bool IRReceiver::receiveMode(Mode *pMode)
 
 bool IRReceiver::beginReceiving()
 {
+#ifdef VORTEX_EMBEDDED
+  attachInterrupt(digitalPinToInterrupt(IR_RECEIVER_PIN), IRReceiver::recvPCIHandler, CHANGE);
+#endif
   resetIRState();
   return true;
 }
 
 bool IRReceiver::endReceiving()
 {
+#ifdef VORTEX_EMBEDDED
+  detachInterrupt(digitalPinToInterrupt(IR_RECEIVER_PIN));
+#endif
   resetIRState();
   return true;
 }
@@ -138,7 +151,7 @@ void IRReceiver::recvPCIHandler()
   // check previous time for validity
   if (!m_prevTime || m_prevTime > now) {
     m_prevTime = now;
-    DEBUG_LOG("Bad first time diff, resetting...");
+    //DEBUG_LOG("Bad first time diff, resetting...");
     resetIRState();
     return;
   }
@@ -155,7 +168,7 @@ void IRReceiver::handleIRTiming(uint32_t diff)
 {
   // if the diff is too long or too short then it's not useful
   if ((diff > IR_HEADER_MARK_MAX && m_recvState < READING_DATA_MARK) || diff < IR_TIMING_MIN) {
-    DEBUG_LOGF("bad delay: %u, resetting...", diff);
+    //DEBUG_LOGF("bad delay: %u, resetting...", diff);
     resetIRState();
     return;
   }
@@ -164,7 +177,7 @@ void IRReceiver::handleIRTiming(uint32_t diff)
     if (diff >= IR_HEADER_MARK_MIN && diff <= IR_HEADER_MARK_MAX) {
       m_recvState = WAITING_HEADER_SPACE;
     } else {
-      DEBUG_LOGF("Bad header mark %u, resetting...", diff);
+      //DEBUG_LOGF("Bad header mark %u, resetting...", diff);
       resetIRState();
     }
     break;
@@ -172,7 +185,7 @@ void IRReceiver::handleIRTiming(uint32_t diff)
     if (diff >= IR_HEADER_SPACE_MIN && diff <= IR_HEADER_SPACE_MAX) {
       m_recvState = READING_DATA_MARK;
     } else {
-      DEBUG_LOGF("Bad header space %u, resetting...", diff);
+      //DEBUG_LOGF("Bad header space %u, resetting...", diff);
       resetIRState();
     }
     break;
@@ -186,7 +199,7 @@ void IRReceiver::handleIRTiming(uint32_t diff)
     m_recvState = READING_DATA_MARK;
     break;
   default: // ??
-    DEBUG_LOGF("Bad receive state: %u", m_recvState);
+    //DEBUG_LOGF("Bad receive state: %u", m_recvState);
     break;
   }
 }
@@ -197,7 +210,7 @@ void IRReceiver::resetIRState()
   m_recvState = WAITING_HEADER_MARK;
   // zero out the receive buffer and reset bit receiver position
   m_irData.reset();
-  DEBUG_LOG("IR State Reset");
+  //DEBUG_LOG("IR State Reset");
 }
 
 #endif

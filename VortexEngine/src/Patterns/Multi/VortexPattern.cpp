@@ -33,14 +33,16 @@ void VortexPattern::init()
 void VortexPattern::blinkOn()
 {
   // Sets an LED at opposite ends of the strip and progresses towards the center
-  Leds::setIndex((LedPos)m_progress, m_colorset.peekNext());
-  Leds::setIndex((LedPos)(LED_LAST - m_progress), m_colorset.peekNext());
+  if (MIDDLE_POINT + m_progress != LED_COUNT) {
+    Leds::setIndex((LedPos)(MIDDLE_POINT + m_progress), m_colorset.cur());
+  }
+  Leds::setIndex((LedPos)(MIDDLE_POINT - m_progress), m_colorset.cur());
 }
 
 void VortexPattern::poststep()
 {
   // step till the middle point
-  m_progress = (m_progress + 1) % MIDDLE_POINT;
+  m_progress = (m_progress + 1) % (MIDDLE_POINT + 1);
   // each cycle progress to the next color
   if (m_progress == 0) {
     m_colorset.getNext();

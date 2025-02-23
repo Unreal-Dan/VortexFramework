@@ -5,7 +5,9 @@
 #include "../../Serial/Serial.h"
 #include "../../Storage/Storage.h"
 #include "../../Wireless/VLSender.h"
+#include "../../Wireless/VLReceiver.h"
 #include "../../Time/TimeControl.h"
+#include "../../Time/Timings.h"
 #include "../../Colors/Colorset.h"
 #include "../../Modes/Modes.h"
 #include "../../Modes/Mode.h"
@@ -14,9 +16,13 @@
 
 #include <string.h>
 
+#define FIRMWARE_TRANSFER_BLOCK_SIZE 512
+
 EditorConnection::EditorConnection(const RGBColor &col, bool advanced) :
   Menu(col, advanced),
   m_state(STATE_DISCONNECTED),
+  m_timeOutStartTime(0),
+  m_chromaModeIdx(0),
   m_allowReset(true),
   m_previousModeIndex(0),
   m_numModesToReceive(0),
@@ -37,6 +43,7 @@ bool EditorConnection::init()
   // skip led selection
   m_ledSelected = true;
   clearDemo();
+
   DEBUG_LOG("Entering Editor Connection");
   return true;
 }
@@ -172,7 +179,7 @@ void EditorConnection::handleState()
     // parse the receive buffer for any commands from the editor
     handleCommand();
     // watch for disconnects
-    if (!SerialComs::isConnected()) {
+    if (!SerialComs::isConnectedReal()) {
       Leds::holdAll(RGB_RED);
       leaveMenu(true);
     }
@@ -277,6 +284,21 @@ void EditorConnection::handleState()
   case STATE_TRANSMIT_MODE_VL_DONE:
     // done transmitting
     SerialComs::write(EDITOR_VERB_TRANSMIT_VL_ACK);
+    m_state = STATE_IDLE;
+    break;
+
+  // -------------------------------
+  //  Receive Mode from Duo
+  case STATE_LISTEN_MODE_VL:
+    showReceiveModeVL();
+    if (receiveModeVL() == RV_WAIT) {
+      break;
+    }
+    m_state = STATE_LISTEN_MODE_VL_DONE;
+    break;
+  case STATE_LISTEN_MODE_VL_DONE:
+    // done transmitting
+    SerialComs::write(EDITOR_VERB_LISTEN_VL_ACK);
     m_state = STATE_IDLE;
     break;
 
@@ -455,6 +477,15 @@ void EditorConnection::sendCurModeVL()
 #endif
 }
 
+void EditorConnection::listenModeVL()
+{
+#if VL_ENABLE_SENDER == 1
+  // immediately load the mode and send it now
+  VLReceiver::beginReceiving();
+#endif
+  m_state = STATE_LISTEN_MODE_VL;
+}
+
 ReturnCode EditorConnection::sendBrightness()
 {
   ByteStream brightnessBuf;
@@ -547,6 +578,47 @@ ReturnCode EditorConnection::receiveMode()
     return RV_FAIL;
   }
   return RV_OK;
+}
+
+ReturnCode EditorConnection::receiveModeVL()
+{
+  // if reveiving new data set our last data time
+  if (VLReceiver::onNewData()) {
+    m_timeOutStartTime = Time::getCurtime();
+    // if our last data was more than time out duration reset the recveiver
+  } else if (m_timeOutStartTime > 0 && (m_timeOutStartTime + MAX_TIMEOUT_DURATION) < Time::getCurtime()) {
+    VLReceiver::resetVLState();
+    m_timeOutStartTime = 0;
+    return RV_WAIT;
+  }
+  // check if the VLReceiver has a full packet available
+  if (!VLReceiver::dataReady()) {
+    // nothing available yet
+    return RV_WAIT;
+  }
+  DEBUG_LOG("Mode ready to receive! Receiving...");
+  // receive the VL mode into the current mode
+  if (!VLReceiver::receiveMode(&m_previewMode)) {
+    ERROR_LOG("Failed to receive mode");
+    return RV_FAIL;
+  }
+  DEBUG_LOGF("Success receiving mode: %u", m_previewMode.getPatternID());
+  Modes::updateCurMode(&m_previewMode);
+  ByteStream modeBuffer;
+  m_previewMode.saveToBuffer(modeBuffer);
+  SerialComs::write(modeBuffer);
+  return RV_OK;
+}
+
+void EditorConnection::showReceiveModeVL()
+{
+  if (VLReceiver::isReceiving()) {
+    // using uint32_t to avoid overflow, the result should be within 10 to 255
+    //Leds::setAll(RGBColor(0, VLReceiver::percentReceived(), 0));
+    Leds::setRange(LED_0, (LedPos)(VLReceiver::percentReceived() / 10), RGB_GREEN6);
+  } else {
+    Leds::setAll(RGB_WHITE0);
+  }
 }
 
 ReturnCode EditorConnection::receiveDemoMode()

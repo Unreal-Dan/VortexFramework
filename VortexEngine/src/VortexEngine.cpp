@@ -30,12 +30,12 @@ bool VortexEngine::m_autoCycle = false;
 bool VortexEngine::init()
 {
   // all of the global controllers
-  if (!SerialComs::init()) {
-    DEBUG_LOG("Serial failed to initialize");
+  if (!Time::init()) {
+    //DEBUG_LOG("Time failed to initialize");
     return false;
   }
-  if (!Time::init()) {
-    DEBUG_LOG("Time failed to initialize");
+  if (!SerialComs::init()) {
+    DEBUG_LOG("Serial failed to initialize");
     return false;
   }
   if (!Storage::init()) {
@@ -167,6 +167,13 @@ void VortexEngine::runMainLogic()
   if (!Modes::load()) {
     // don't do anything if modes couldn't load
     return;
+  }
+
+  // check for serial first before anything runs, but as a result if we open
+  // editor we have to call modes load inside here
+  if ((Menus::curMenuID() != MENU_EDITOR_CONNECTION) && SerialComs::checkSerial()) {
+    // directly open the editor connection menu because we are connected to USB serial
+    Menus::openMenu(MENU_EDITOR_CONNECTION);
   }
 
   // if the menus are open and running then just return

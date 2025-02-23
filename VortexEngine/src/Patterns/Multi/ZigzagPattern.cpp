@@ -8,17 +8,19 @@
 // The lights runs across evens, then back across odds.
 // Index this array with m_step in order to get correct LedPos
 const LedPos ZigzagPattern::ledStepPositions[] = {
-  LED_1,
+  LED_0,
   LED_3,
-  LED_5,
-  LED_7,
-  LED_9,
-
-  LED_8,
-  LED_6,
+  LED_1,
   LED_4,
   LED_2,
+
+  LED_5,
+  LED_3,
   LED_0,
+  LED_4,
+  LED_1,
+  LED_5,
+  LED_2
 };
 
 // There just happens to be LED_COUNT steps in the pattern

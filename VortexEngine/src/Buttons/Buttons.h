@@ -29,7 +29,7 @@ private:
   static Button m_buttons[NUM_BUTTONS];
 };
 
-// best way I think
+// Button Mid
 extern Button *g_pButton;
 
 #endif

@@ -19,10 +19,6 @@ enum LedPos : uint8_t
   LED_3,
   LED_4,
   LED_5,
-  LED_6,
-  LED_7,
-  LED_8,
-  LED_9,
 
   // the number of entries above
   LED_COUNT,
@@ -71,8 +67,6 @@ enum Pair : uint8_t
   PAIR_0 = PAIR_FIRST,
   PAIR_1,
   PAIR_2,
-  PAIR_3,
-  PAIR_4,
 
   PAIR_COUNT,
   PAIR_LAST = (PAIR_COUNT - 1),
@@ -80,6 +74,14 @@ enum Pair : uint8_t
 
 // Compile-time check on the number of pairs and leds
 static_assert(LED_COUNT == (PAIR_COUNT * 2), "Incorrect number of Pairs for Leds! Adjust the Led enum or Pair enum to match");
+
+// map other leds for multi compatibility
+#define LED_6 LED_0
+#define LED_7 LED_1
+#define LED_8 LED_2
+#define LED_9 LED_3
+#define PAIR_3 PAIR_0
+#define PAIR_4 PAIR_1
 
 // check if an led is even or odd
 #define isEven(pos) ((pos % 2) == 0)
@@ -152,12 +154,20 @@ inline LedPos ledmapGetNextLed(LedMap map, LedPos pos)
 #define MAP_PAIR_EVENS (((1 << LED_COUNT) - 1) & 0x55555555)
 #define MAP_PAIR_ODDS (((1 << LED_COUNT) - 1) & 0xAAAAAAAA)
 
+#define MAP_OUTER_RING ((((1 << LED_COUNT) - 1) >> (LED_COUNT / 2)) << (LED_COUNT / 2))
+#define MAP_INNER_RING ((((1 << LED_COUNT) - 1) << (LED_COUNT / 2)) >> (LED_COUNT / 2))
+
 // Some preset bitmaps for pair groupings
 #define MAP_PAIR_ODD_EVENS (MAP_PAIR_EVEN(PAIR_0) | MAP_PAIR_EVEN(PAIR_2) | MAP_PAIR_EVEN(PAIR_4))
 #define MAP_PAIR_ODD_ODDS (MAP_PAIR_ODD(PAIR_0) | MAP_PAIR_ODD(PAIR_2) | MAP_PAIR_ODD(PAIR_4))
 
 #define MAP_PAIR_EVEN_EVENS (MAP_PAIR_EVEN(PAIR_3) | MAP_PAIR_EVEN(PAIR_1))
 #define MAP_PAIR_EVEN_ODDS (MAP_PAIR_ODD(PAIR_3) | MAP_PAIR_ODD(PAIR_1))
+
+// bitmaps specific to Sparks
+#define MAP_OPPOSITES_1 (MAP_LED(LED_0) | MAP_LED(LED_3))
+#define MAP_OPPOSITES_2 (MAP_LED(LED_1) | MAP_LED(LED_4))
+#define MAP_OPPOSITES_3 (MAP_LED(LED_2) | MAP_LED(LED_5))
 
 // set a single led
 inline void ledmapSetLed(LedMap &map, LedPos pos)

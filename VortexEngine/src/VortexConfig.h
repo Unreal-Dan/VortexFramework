@@ -38,7 +38,7 @@
 
 // the engine flavour, this should change for each device/flavour
 // of the engine that branches off from the main indefinitely
-#define VORTEX_NAME "Core"
+#define VORTEX_NAME "Spark"
 
 // the full name of this build for ex:
 //    Vortex Engine v1.0 'Igneous' (built Tue Jan 31 19:03:55 2023)
@@ -51,6 +51,10 @@
 // multi-led patterns take up too much space and the compression
 // uses too much stack space to run on smaller devices
 #define VORTEX_SLIM           0
+
+// Turn on this flag to change from Spark Orbit pins to Spark Handle pins 
+// TODO: remove this once the spark orbit and handle have matching hardware
+#define SPARK_HANDLE          0
 
 // ===================================================================
 //  Numeric Configurations
@@ -158,7 +162,7 @@
 //
 // The starting default global brightness if there is no savefile
 // present The maximum value is 255
-#define DEFAULT_BRIGHTNESS    185
+#define DEFAULT_BRIGHTNESS    255
 
 // Max Modes
 //
@@ -176,7 +180,7 @@
 // This should not be set to 0, it should be a specific maximum for
 // each separate device
 //
-#define MAX_MODES             13
+#define MAX_MODES             16
 
 // Default Tickrate in Ticks Per Second (TPS)
 //
@@ -314,7 +318,7 @@
 // Serial Baud Rate
 //
 // The serial connection baud rate for the editor and anything else serial
-#define SERIAL_BAUD_RATE            9600
+#define SERIAL_BAUD_RATE            115200
 
 // ===================================================================
 //  Boolean Configurations (0 or 1)

@@ -2,7 +2,7 @@
 
 #include "../Time/TimeControl.h"
 #include "../Time/Timings.h"
-#include "../Buttons/Button.h"
+#include "../Buttons/Buttons.h"
 #include "../Menus/Menus.h"
 #include "../Modes/Modes.h"
 #include "../Modes/Mode.h"
@@ -131,18 +131,27 @@ void Menu::nextBulbSelection()
       // do not allow multi led to select anything else
       //break;
     }
-    m_targetLeds = MAP_LED(LED_FIRST);
+    m_targetLeds = MAP_LED(LED_MULTI);
     break;
-  case MAP_LED(LED_LAST):
+  case MAP_LED(LED_MULTI):
     m_targetLeds = MAP_PAIR_EVENS;
     break;
   case MAP_PAIR_EVENS:
     m_targetLeds = MAP_PAIR_ODDS;
     break;
   case MAP_PAIR_ODDS:
-    m_targetLeds = MAP_LED(LED_MULTI);
+    m_targetLeds = MAP_OPPOSITES_1;
     break;
-  case MAP_LED(LED_MULTI):
+  case MAP_OPPOSITES_1:
+    m_targetLeds = MAP_OPPOSITES_2;
+    break;
+  case MAP_OPPOSITES_2:
+    m_targetLeds = MAP_OPPOSITES_3;
+    break;
+  case MAP_OPPOSITES_3:
+    m_targetLeds = MAP_LED(LED_FIRST);
+    break;
+  case MAP_LED(LED_LAST):
     m_targetLeds = MAP_LED_ALL;
     break;
   default: // LED_FIRST through LED_LAST
