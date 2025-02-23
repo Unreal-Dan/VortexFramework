@@ -17,6 +17,9 @@ public:
   // whether serial is initialized
   static bool isConnected();
 
+  // why do I need this
+  static bool isConnectedReal();
+
   // check for any serial connection or messages
   static bool checkSerial();
 
@@ -36,6 +39,7 @@ private:
   // whether serial communications are initialized
   static bool m_serialConnected;
   static uint32_t m_lastCheck;
+  static uint32_t m_lastConnected;
 };
 
 #endif

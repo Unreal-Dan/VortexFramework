@@ -14,6 +14,26 @@
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
+static LedMap maps[] = {
+  MAP_ALL_FACE,
+  MAP_ALL_BOT,
+  MAP_ALL_TOP,
+  MAP_LINE_1,
+  MAP_LINE_2,
+  MAP_QUADRANT_1,
+  MAP_QUADRANT_2,
+  MAP_QUADRANT_3,
+  MAP_QUADRANT_4,
+  MAP_RINGS_EVEN,
+  MAP_RINGS_ODD,
+  MAP_RING_INNER,
+  MAP_RING_MIDDLE,
+  MAP_RING_OUTER,
+  MAP_RING_EDGE
+};
+
+#define NUM_MAPS (sizeof(maps) / sizeof(maps[0]))
+
 Randomizer::Randomizer(const RGBColor &col, bool advanced) :
   Menu(col, advanced),
   m_lastRandomization(0),
@@ -176,6 +196,11 @@ void Randomizer::showRandomizationSelect()
 #if VORTEX_SLIM == 0
 bool Randomizer::reRollMulti()
 {
+  // 50% chance to roll a 'split multi' which is a random mapping of singles half
+  // being one pattern/color and the other half being another pattern/color
+  if (m_multiRandCtx.next8() > 128) {
+    return splitMultiRandomize();
+  }
   if (m_flags & RANDOMIZE_PATTERN) {
     // TODO: Roll custom multi pattern?
     //if (m_advanced) {
@@ -201,6 +226,40 @@ bool Randomizer::reRollMulti()
 PatternID Randomizer::rollMultiLedPatternID(Random &ctx)
 {
   return (PatternID)ctx.next8(PATTERN_MULTI_FIRST, PATTERN_MULTI_LAST);
+}
+
+bool Randomizer::splitMultiRandomize()
+{
+  // clear any existing patterns just in case a multi is set
+  m_previewMode.clearPattern();
+  // generate random bitmap of which leds to set
+  LedMap randomMap = maps[m_multiRandCtx.next8(0, (NUM_MAPS - 1))];
+  // roll all of one side of the map one way
+  if (!rollSinglesLedMap(m_multiRandCtx, randomMap)) {
+    ERROR_LOG("Failed to roll first half of split multi map");
+    return false;
+  }
+  // roll the flipped map with new singles
+  if (!rollSinglesLedMap(m_multiRandCtx, MAP_INVERSE(randomMap))) {
+    ERROR_LOG("Failed to roll first half of split multi map");
+    return false;
+  }
+  return true;
+}
+
+bool Randomizer::rollSinglesLedMap(Random &ctx, LedMap map)
+{
+  // apply pattern2 and colorset2 to the inverse bitmap
+  PatternID pat = rollSingleLedPatternID(ctx);
+  Colorset set = rollColorset(ctx);
+  MAP_FOREACH_LED(map) {
+    // apply the pattern and colorset
+    if (!m_previewMode.setPattern(pat, pos, nullptr, &set)) {
+      ERROR_LOG("Failed to apply pattern or colorset");
+      return false;
+    }
+  }
+  return true;
 }
 #endif
 

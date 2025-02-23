@@ -39,10 +39,6 @@ private:
     uint8_t m_fadeAmount;
     uint8_t m_changeBoundary;
   };
-
-  // path for leds to take, index this with m_step up to LED_COUNT steps
-  static const LedPos ledStepPositions[];
-
   // blink on duration
   uint8_t m_onDuration;
   // blink off duration

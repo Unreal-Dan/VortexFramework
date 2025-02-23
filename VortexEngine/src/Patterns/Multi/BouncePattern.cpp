@@ -6,7 +6,7 @@
 #include "../../Log/Log.h"
 
 // safety to prevent divide by 0
-#define TOTAL_STEPS (((PAIR_COUNT * 2) - 2) ? ((PAIR_COUNT * 2) - 2) : 1)
+#define TOTAL_STEPS ((((PAIR_COUNT + 2) * 2) - 2) ? (((PAIR_COUNT + 2) * 2) - 2) : 1)
 #define HALF_STEPS (TOTAL_STEPS / 2)
 
 BouncePattern::BouncePattern(const PatternArgs &args) :
@@ -36,10 +36,12 @@ void BouncePattern::init()
 void BouncePattern::blinkOn()
 {
   Leds::setAll(m_colorset.cur());
-  if (m_progress < PAIR_COUNT) {
-    Leds::setPair((Pair)m_progress, m_colorset.peekNext());
-  } else {
-    Leds::setPair((Pair)(TOTAL_STEPS - m_progress), m_colorset.peekNext());
+  if (m_progress != 0 && m_progress != HALF_STEPS) {
+    if (m_progress < (PAIR_COUNT + 1)) {
+      Leds::setPair((Pair)(m_progress - 1), m_colorset.peekNext());
+    } else {
+      Leds::setPair((Pair)(TOTAL_STEPS - (m_progress + 1)), m_colorset.peekNext());
+    }
   }
 }
 

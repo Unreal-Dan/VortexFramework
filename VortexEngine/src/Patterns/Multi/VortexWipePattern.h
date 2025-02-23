@@ -19,9 +19,6 @@ protected:
   virtual void poststep() override;
 
 private:
-  // path for leds to take, index this with m_step up to LED_COUNT steps
-  static const LedPos ledStepPositions[];
-
   // how much the fill has progressed
   uint8_t m_progress;
 };

@@ -14,7 +14,9 @@ public:
 
   // handlers for clicks
   void onShortClick() override;
+  void onShortClick2() override;
   void onLongClick() override;
+  void onLongClick2() override;
 
 private:
   void beginSendingVL();
@@ -38,6 +40,10 @@ private:
 
   // the start time when checking for timing out
   uint32_t m_timeOutStartTime;
+  uint32_t m_lastSendTime;
+
+  // whether to end the next send and go back to receive
+  bool m_shouldEndSend;
 };
 
 #endif

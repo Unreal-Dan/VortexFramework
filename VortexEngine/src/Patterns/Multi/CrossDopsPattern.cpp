@@ -19,7 +19,7 @@ void CrossDopsPattern::init()
 {
   BlinkStepPattern::init();
   // Alternating evens and odds mapping of leds to turn on/off
-  m_ledMap = MAP_PAIR_EVENS;
+  m_ledMap = MAP_LINE_1;
   // start colorset at index 0 so cur() works
   m_colorset.setCurIndex(0);
 }

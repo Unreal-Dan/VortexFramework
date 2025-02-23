@@ -169,6 +169,9 @@ void VortexEngine::runMainLogic()
     return;
   }
 
+  // check if the device has been plugged in
+  SerialComs::checkSerial();
+
   // if the menus are open and running then just return
   if (Menus::run()) {
     return;

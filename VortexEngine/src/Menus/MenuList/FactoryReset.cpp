@@ -3,9 +3,10 @@
 #include "../../VortexEngine.h"
 #include "../../Modes/DefaultModes.h"
 #include "../../Time/TimeControl.h"
-#include "../../Patterns/Pattern.h"
-#include "../../Buttons/Button.h"
 #include "../../Time/Timings.h"
+#include "../../Colors/Colorset.h"
+#include "../../Buttons/Button.h"
+#include "../../Modes/DefaultModes.h"
 #include "../../Modes/Modes.h"
 #include "../../Modes/Mode.h"
 #include "../../Leds/Leds.h"
@@ -41,8 +42,14 @@ bool FactoryReset::init()
     // skip led selection
     m_ledSelected = true;
   }
-  // Start on exit by default
-  m_curSelection = false;
+  // start on exit by default
+  m_curSelection = QUADRANT_LAST;
+  // bypass led selection for fac reset if a multi was set on
+  // the current slot because it doesn't make sense to pick
+  if (Modes::curMode()->isMultiLed()) {
+    m_ledSelected = true;
+    m_targetLeds = MAP_LED(LED_MULTI);
+  }
   DEBUG_LOG("Entered factory reset");
   return true;
 }
@@ -53,21 +60,45 @@ Menu::MenuAction FactoryReset::run()
   if (result != MENU_CONTINUE) {
     return result;
   }
+
+  // show the reset menu
   showReset();
+
+  // blink the selection
+  blinkSelection();
+
+  // continue
   return MENU_CONTINUE;
 }
 
 void FactoryReset::onShortClick()
 {
-  m_curSelection = (uint8_t)!m_curSelection;
+  if (m_curSelection == QUADRANT_LAST) {
+    m_curSelection = QUADRANT_COUNT;
+  } else {
+    m_curSelection = QUADRANT_LAST;
+  }
+}
+
+void FactoryReset::onShortClick2()
+{
+  onShortClick();
 }
 
 void FactoryReset::onLongClick()
 {
-  if (m_curSelection == 0) {
-    // if the selection isn't actually on factory reset then just leave
+  switch (m_curSelection) {
+  case QUADRANT_LAST:
+  default:
     leaveMenu();
     return;
+  case QUADRANT_COUNT:
+    // must wait till all empty + one white blink
+    if (g_pButton->holdDuration() > (FACTORY_RESET_THRESHOLD_TICKS + MS_TO_TICKS(700))) {
+      Modes::setDefaults();
+      leaveMenu(true);
+    }
+    break;
   }
   // if the button hasn't been held long enough just return
   if (g_pButton->holdDuration() <= (FACTORY_RESET_THRESHOLD_TICKS + MS_TO_TICKS(10))) {
@@ -94,34 +125,56 @@ void FactoryReset::onLongClick()
   leaveMenu(true);
 }
 
+void FactoryReset::onLongClick2()
+{
+  leaveMenu();
+}
+
 void FactoryReset::showReset()
 {
-  if (m_curSelection == 0) {
-    Leds::clearAll();
-    Leds::blinkAll(350, 350, RGB_WHITE0);
+  // if we're on the thumb just set the rest to blank
+  if (m_curSelection == QUADRANT_LAST) {
+    Leds::setRange(LED_FIRST, LED_LAST, RGB_WHITE0);
     return;
   }
-  bool isPressed = g_pButton->isPressed();
-  if (!isPressed) {
-    Leds::clearAll();
-    Leds::blinkAll(50, 50, RGB_RED4);
+  // otherwise we're not on thumb, if the button isn't pressed
+  if (!g_pButton->isPressed()) {
+    // just idle blink from clear to blank
+    Leds::clearRange(LED_FIRST, LED_LAST);
+    Leds::blinkRange(LED_FIRST, LED_LAST, 250, 150, RGB_RED0);
     return;
   }
-  // don't start the fill until the button has been held for a bit
-  uint32_t holdDur = g_pButton->holdDuration();
-  if (holdDur < MS_TO_TICKS(100)) {
+
+  // the button is pressed so show the reset countdown timer
+
+  // the progress is how long the hold duration has been held
+  // relative to the factory reset threshold time
+  float progress = (float)g_pButton->holdDuration() / FACTORY_RESET_THRESHOLD_TICKS;
+  // prevents the countdown timer from showing unless button is held longer than 3% of the reset Threshold (this is for short clicks)
+  if (progress < 0.03) {
     return;
   }
-  uint16_t progress = ((holdDur * 100) / FACTORY_RESET_THRESHOLD_TICKS);
-  DEBUG_LOGF("progress: %d", progress);
-  if (progress >= 100) {
-    Leds::setAll(RGB_WHITE);
+  // the ledProgress is just an LED from pinky tip to index top based on progress
+  LedPos ledProgress = (LedPos)(progress * LED_LAST);
+  // max the led progress at index top (don't include thumb)
+  if (ledProgress > LED_LAST) {
+    // when we reach the end of the progress bar just blink white
+    Leds::blinkRange(LED_FIRST, LED_LAST, 80, 60, RGB_WHITE6);
     return;
   }
-  uint8_t offMs = 100;
-  uint8_t onMs = (progress > 60) ? 30 : 100;
-  uint8_t sat = (uint8_t)((progress * 5) >> 1); // Using bit shift for division by 2
-  Leds::clearAll();
-  Leds::blinkAll(offMs, onMs, HSVColor(0, 255 - sat, 180));
+
+  // the off/on ms blink faster based on the progress
+  uint32_t offMs = 150 - ((65 / LED_COUNT) * ledProgress);
+  uint32_t onMs = 200 - ((25 / LED_COUNT) * ledProgress);
+  // the 'endled' is the tip of the reset progress bar, since the progress
+  // bar starts full red and empties down to the pinky that means it is
+  // inverted from the 'ledProgress' which starts at 0 and grows
+  LedPos endLed = (LedPos)(LED_LAST - ledProgress);
+  // clear all the leds so that 'blinkRange' will blink from off to the designated color
+  Leds::clearRange(LED_FIRST, LED_LAST);
+  // blink to the calculated redish hue from pinky to the end led
+  Leds::blinkRange(LED_FIRST, endLed, offMs, onMs, HSVColor(0, 255 - (progress * 170), 180));
+  // and blink the background the regular blank color
+  Leds::blinkRange((LedPos)(endLed + 1), LED_LAST, offMs, onMs, RGB_WHITE0);
 }
 

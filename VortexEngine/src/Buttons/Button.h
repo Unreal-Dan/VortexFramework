@@ -99,5 +99,6 @@ private:
 
 // See Button.cpp for info about this
 extern Button *g_pButton;
+extern Button *g_pButton2;
 
 #endif

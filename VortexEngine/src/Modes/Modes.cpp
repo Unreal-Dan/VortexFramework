@@ -85,6 +85,10 @@ void Modes::play()
   if (g_pButton->onShortClick()) {
     nextMode();
   }
+  // shortclick on button 2 cycles to the previous mode
+  if (g_pButton2->onShortClick()) {
+    previousMode();
+  }
   // play the current mode
   m_pCurModeLink->play();
 }
@@ -390,8 +394,16 @@ bool Modes::setDefaults()
   // add each default mode with each of the given colors
   for (uint8_t i = 0; i < num_default_modes; ++i) {
     const default_mode_entry &def = default_modes[i];
-    Colorset set(def.numColors, def.cols);
-    addMode(def.patternID, nullptr, &set);
+    Colorset set1(def.numColors, def.cols);
+    if (isMultiLedPatternID(def.patternID)) {
+      addMode(def.patternID, nullptr, &set1);
+    } else {
+      Mode tempMode;
+      tempMode.setPatternMap(def.map, def.patternID, nullptr, &set1);
+      Colorset set2(def.numColors2, def.cols2);
+      tempMode.setPatternMap(def.map2, def.patternID2, nullptr, &set2);
+      addMode(&tempMode);
+    }
   }
   return true;
 }

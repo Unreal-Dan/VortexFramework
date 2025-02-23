@@ -16,7 +16,9 @@
 ModeSharing::ModeSharing(const RGBColor &col, bool advanced) :
   Menu(col, advanced),
   m_sharingMode(ModeShareState::SHARE_RECEIVE),
-  m_timeOutStartTime(0)
+  m_timeOutStartTime(0),
+  m_lastSendTime(0),
+  m_shouldEndSend(false)
 {
 }
 
@@ -78,6 +80,29 @@ void ModeSharing::onShortClick()
     beginSendingIR();
     DEBUG_LOG("Switched to send mode");
     break;
+  case ModeShareState::SHARE_SEND_IR:
+    if (!IRSender::isSending()) {
+      beginReceivingIR();
+      DEBUG_LOG("Switched to send mode");
+    } else {
+      m_shouldEndSend = true;
+    }
+    break;
+  default:
+    break;
+  }
+  Leds::clearAll();
+}
+
+void ModeSharing::onShortClick2()
+{
+  switch (m_sharingMode) {
+  case ModeShareState::SHARE_RECEIVE:
+    // click while on receive -> end receive, start sending
+    IRReceiver::endReceiving();
+    beginSendingVL();
+    DEBUG_LOG("Switched to send mode");
+    break;
   default:
     break;
   }
@@ -88,6 +113,11 @@ void ModeSharing::onLongClick()
 {
   Modes::updateCurMode(&m_previewMode);
   leaveMenu(true);
+}
+
+void ModeSharing::onLongClick2()
+{
+  leaveMenu();
 }
 
 void ModeSharing::beginSendingVL()
@@ -115,12 +145,14 @@ void ModeSharing::beginSendingIR()
     return;
   }
   m_sharingMode = ModeShareState::SHARE_SEND_IR;
+  Leds::clearAll();
+  Leds::update();
   // initialize it with the current mode data
   IRSender::loadMode(Modes::curMode());
   // send the first chunk of data, leave if we're done
   if (!IRSender::send()) {
-    // when send has completed, stores time that last action was completed to calculate interval between sends
-    beginReceivingIR();
+    // just set the last time and wait
+    m_lastSendTime = Time::getCurtime();
   }
 }
 
@@ -140,11 +172,19 @@ void ModeSharing::continueSendingIR()
 {
   // if the sender isn't sending then nothing to do
   if (!IRSender::isSending()) {
+    if (m_lastSendTime && m_lastSendTime < (Time::getCurtime() + MS_TO_TICKS(350))) {
+      if (m_shouldEndSend) {
+        beginReceivingIR();
+        m_shouldEndSend = false;
+      } else {
+        beginSendingIR();
+      }
+    }
     return;
   }
   if (!IRSender::send()) {
-    // when send has completed, stores time that last action was completed to calculate interval between sends
-    beginReceivingIR();
+    // just set the last time and wait
+    m_lastSendTime = Time::getCurtime();
   }
 }
 
@@ -193,7 +233,7 @@ void ModeSharing::showSendModeVL()
 void ModeSharing::showSendModeIR()
 {
   // show a dim color when not sending
-  Leds::clearAll();
+  Leds::setAll(RGB_CYAN1);
 }
 
 void ModeSharing::showReceiveMode()

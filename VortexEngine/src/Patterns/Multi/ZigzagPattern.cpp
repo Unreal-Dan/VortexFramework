@@ -4,25 +4,8 @@
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-// Mapping of LED positions to steps.
-// The lights runs across evens, then back across odds.
-// Index this array with m_step in order to get correct LedPos
-const LedPos ZigzagPattern::ledStepPositions[] = {
-  LED_1,
-  LED_3,
-  LED_5,
-  LED_7,
-  LED_9,
-
-  LED_8,
-  LED_6,
-  LED_4,
-  LED_2,
-  LED_0,
-};
-
 // There just happens to be LED_COUNT steps in the pattern
-#define NUM_ZIGZAG_STEPS (sizeof(ledStepPositions) / sizeof(ledStepPositions[0]))
+#define NUM_ZIGZAG_STEPS LED_COUNT
 #define HALF_ZIGZAG_STEPS (NUM_ZIGZAG_STEPS / 2)
 
 ZigzagPattern::ZigzagPattern(const PatternArgs &args) :
@@ -60,8 +43,8 @@ void ZigzagPattern::init()
   m_stepTimer.start();
 
   // initialize the snakes with dops timing
-  m_snake1.init(m_onDuration, m_offDuration, m_colorset, 0, 0, m_snakeSize, m_fadeAmount, 3);
-  m_snake2.init(m_onDuration, m_offDuration, m_colorset, 1, HALF_ZIGZAG_STEPS, m_snakeSize, m_fadeAmount, 8);
+  m_snake1.init(m_onDuration, m_offDuration, m_colorset, 0, 0, m_snakeSize, m_fadeAmount, 4);
+  m_snake2.init(m_onDuration, m_offDuration, m_colorset, 1, HALF_ZIGZAG_STEPS, m_snakeSize, m_fadeAmount, 7);
 }
 
 // pure virtual must override the play function
@@ -159,7 +142,7 @@ void ZigzagPattern::Snake::drawSnake()
       col.adjustBrightness(m_fadeAmount * segment);
     }
     // lookup the target in the step positions array and turn it on with given color/brightness
-    Leds::setIndex(ledStepPositions[segment_position], col);
+    Leds::setIndex((LedPos)segment_position, col);
     // if this segment is on the step where the color changes
     if (segment_position == m_changeBoundary) {
       // then decrement the color index for the rest of the snake so that the

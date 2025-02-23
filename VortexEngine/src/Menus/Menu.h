@@ -32,17 +32,19 @@ public:
 
   // optional handlers for clicks
   virtual void onShortClick();
+  virtual void onShortClick2();
   virtual void onLongClick();
+  virtual void onLongClick2();
 
   // close the current menu
   virtual void leaveMenu(bool doSave = false);
 
 protected:
   void showBulbSelection();
-  void showExit();
+  virtual void showExit();
 
-  // iterate to next bulb selection
-  void nextBulbSelection();
+  // blink the selected finger
+  virtual void blinkSelection(uint32_t offMs = 250, uint32_t onMs = 500);
 
   // skip led selection
   void bypassLedSelection(LedMap map);
@@ -57,8 +59,10 @@ protected:
   // tracks the targetted leds for this menu
   // note this is an led map
   LedMap m_targetLeds;
-  // all menus have a 'current selection'
-  uint8_t m_curSelection;
+  // current index of led maps
+  uint16_t m_ledSelection;
+  // all menus have a 'current selection which can point at any led
+  Quadrant m_curSelection;
   // true once a an led is selected
   bool m_ledSelected;
   // whether advanced menu was activated
@@ -67,6 +71,8 @@ protected:
 private:
   // internal flag to close the menu
   bool m_shouldClose;
+  // add to the current selection of leds
+  void addSelectionMask();
 
 #ifdef VORTEX_LIB
   friend class Vortex;

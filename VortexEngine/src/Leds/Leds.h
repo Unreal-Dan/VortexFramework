@@ -37,19 +37,29 @@ public:
   static void clearPair(Pair pair) { setPair(pair, RGB_OFF); }
   static void clearPairs(Pair first, Pair last) { setPairs(first, last, RGB_OFF); }
 
-  // Controll pair evens
-  static void setRangeEvens(Pair first, Pair last, RGBColor);
+  // control all evens/odds
   static void setAllEvens(RGBColor col);
-  // Controll pair odds
-  static void setRangeOdds(Pair first, Pair last, RGBColor);
   static void setAllOdds(RGBColor col);
 
-  // Turn off tips
-  static void clearRangeEvens(Pair first, Pair last);
+  // clear evens/odds
   static void clearAllEvens();
-  // Turn off tops
-  static void clearRangeOdds(Pair first, Pair last);
   static void clearAllOdds();
+
+  // Control full quadrants of Leds
+  static void setQuadrant(Quadrant quadrant, RGBColor col);
+  static void setQuadrants(Quadrant first, Quadrant last, RGBColor col);
+
+  // Turn off full quadrants
+  static void clearQuadrant(Quadrant quadrant) { setQuadrant(quadrant, RGB_OFF); }
+  static void clearQuadrants(Quadrant first, Quadrant last) { setQuadrants(first, last, RGB_OFF); }
+
+  // set a ring of leds
+  static void setRing(Ring ring, RGBColor col);
+  static void setRings(Ring first, Ring last, RGBColor col);
+
+  // clear a ring of leds
+  static void clearRing(Ring ring);
+  static void clearRings(Ring first, Ring last);
 
   // Turn on/off a mapping of leds with a color
   static void setMap(LedMap map, RGBColor col);
@@ -80,6 +90,8 @@ public:
   static void blinkRangeOffset(LedPos first, LedPos last, uint32_t time, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkIndex(LedPos target, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkRange(LedPos first, LedPos last, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
+  static void blinkQuadrantOffset(Quadrant target, uint32_t time, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
+  static void blinkQuadrant(Quadrant target, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkMap(LedMap targets, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkAll(uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   // Blink both LEDs on a pair
@@ -95,6 +107,8 @@ public:
   static void breatheIndexSat(LedPos target, uint8_t hue, uint32_t variance,
     uint32_t magnitude = 15, uint8_t sat = 255, uint8_t val = 210);
   static void breatheIndexVal(LedPos target, uint8_t hue, uint32_t variance,
+    uint32_t magnitude = 15, uint8_t sat = 255, uint8_t val = 210);
+  static void breatheQuadrant(Quadrant target, uint32_t hue, uint32_t variance,
     uint32_t magnitude = 15, uint8_t sat = 255, uint8_t val = 210);
 
   // a very specialized api to hold all leds on a color for 250ms

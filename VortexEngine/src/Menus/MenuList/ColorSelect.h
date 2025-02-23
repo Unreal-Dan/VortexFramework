@@ -14,14 +14,16 @@ public:
   bool init() override;
   MenuAction run() override;
 
-  // callback after the user selects the target led
-  void onLedSelected() override;
-
   // handlers for clicks
   void onShortClick() override;
+  void onShortClick2() override;
   void onLongClick() override;
+  void onLongClick2() override;
 
 private:
+  // overridden blink logic for the colorselect menu (Controls how m_curSelection blinks)
+  void blinkSelection(uint32_t offMs = 350, uint32_t onMs = 500) override;
+
   // override the led selection api to choose which led maps can be selected
   bool isValidLedSelection(LedMap selection) const override;
 
@@ -29,46 +31,60 @@ private:
   enum ColorSelectState : uint32_t
   {
     STATE_INIT,
+
+    // currently picking the color slot to change
     STATE_PICK_SLOT,
+
+    // first pick a quadrant 0, 90, 180, 240
     STATE_PICK_HUE1,
+
+    // next pick a quadrant within that quadrant 0, 25, 50, 70
     STATE_PICK_HUE2,
+
+    // picking a saturation for the color
     STATE_PICK_SAT,
-    STATE_PICK_VAL
+
+    // picking a value for the color
+    STATE_PICK_VAL,
   };
 
+  // internal routines for the color select
   void showSlotSelection();
   void showSelection(ColorSelectState mode);
-  void showFullSet(uint8_t offMs, uint8_t onMs);
 
   // the options for saturations
   const uint8_t sats[4] = {
-    SAT_OPTION_4,
-    SAT_OPTION_3,
-    SAT_OPTION_2,
-    SAT_OPTION_1
+    255,
+    170,
+    85,
+    0
   };
 
   // the options for values
   const uint8_t vals[4] = {
-    VAL_OPTION_4,
-    VAL_OPTION_3,
-    VAL_OPTION_2,
-    VAL_OPTION_1
+    255,
+    170,
+    85,
+    0
   };
 
-  // the state of the color select menu
+  // the current state of the color selection menu
   ColorSelectState m_state;
-  // the new color being built via hue, sat then val
-  HSVColor m_newColor;
-  // A copy of the colorset being changed
+
+  // A copy of the colorset from the current mode
   Colorset m_colorset;
 
-  // below are the selection indexes for each level
+  // the colorselect has multiple pages
+  uint32_t m_curPage;
 
-  // the target values selected at each level to build the color, the value
-  // selected at the last level isn't stored because you can't go back after
-  uint8_t m_targetSlot;
-  uint8_t m_targetHue1;
+  // the target color slot to change
+  uint32_t m_slot;
+
+  // the chosen quadrant
+  uint32_t m_quadrant;
+
+  // the new color to set
+  HSVColor m_newColor;
 };
 
 #endif

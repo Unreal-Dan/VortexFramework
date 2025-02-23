@@ -84,8 +84,8 @@ void CompoundPattern::setEvensOdds(PatternID evenPattern, PatternID oddPattern,
 {
   // Set the evenPattern on all evens and oddPattern on all odds
   for (LedPos p = LED_FIRST; p <= LED_LAST; p++) {
-    const PatternArgs *args = isEven(p) ? evenArgs : oddArgs;
-    PatternID id = isEven(p) ? evenPattern : oddPattern;
+    const PatternArgs *args = isOrbitEven(p) ? evenArgs : oddArgs;
+    PatternID id = isOrbitEven(p) ? evenPattern : oddPattern;
     setPatternAt(p, PatternBuilder::makeSingle(id, args));
   }
 }
