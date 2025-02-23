@@ -151,7 +151,7 @@ private:
   bool initPalette(uint8_t numColors);
 
   // palette of colors
-  RGBColor *m_palette;
+  RGBColor m_palette[MAX_COLOR_SLOTS];
   // the current index, starts at UINT8_MAX so that
   // the very first call to getNext will iterate to 0
   uint8_t m_curIndex;

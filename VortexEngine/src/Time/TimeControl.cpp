@@ -9,6 +9,11 @@
 
 #include "../Leds/Leds.h"
 
+#ifdef VORTEX_EMBEDDED
+#include <avr/sleep.h>
+#include <avr/interrupt.h>
+#endif
+
 #if !defined(_WIN32) || defined(WASM)
 #include <unistd.h>
 #include <time.h>
@@ -27,9 +32,9 @@ static LARGE_INTEGER start;
 uint32_t Time::m_tickrate = DEFAULT_TICKRATE;
 #endif
 uint32_t Time::m_curTick = 0;
+#ifdef VORTEX_LIB
 uint32_t Time::m_prevTime = 0;
 uint32_t Time::m_firstTime = 0;
-#ifdef VORTEX_LIB
 uint32_t Time::m_simulationTick = 0;
 bool Time::m_isSimulation = false;
 bool Time::m_instantTimestep = false;
@@ -45,12 +50,27 @@ bool Time::m_instantTimestep = false;
 
 bool Time::init()
 {
-  m_firstTime = m_prevTime = microseconds();
+#ifdef VORTEX_EMBEDDED
+  // initialize main clock
+#if (F_CPU == 20000000)
+  // No division on clock
+  _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 0x00);
+#elif (F_CPU == 10000000)
+  // 20MHz prescaled by 2, Clock DIV2
+  _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PEN_bm | CLKCTRL_PDIV_2X_gc));
+#else
+  #error "F_CPU not supported"
+#endif
+  // IVSEL = 1 means Interrupt vectors are placed at the start of the boot section of the Flash
+  // as opposed to the application section of Flash. See 13.5.1
+  _PROTECTED_WRITE(CPUINT_CTRLA, CPUINT_IVSEL_bm);
+#endif
   m_curTick = 0;
 #if VARIABLE_TICKRATE == 1
   m_tickrate = DEFAULT_TICKRATE;
 #endif
 #ifdef VORTEX_LIB
+  m_firstTime = m_prevTime = microseconds();
   m_simulationTick = 0;
   m_isSimulation = false;
   m_instantTimestep = false;
@@ -79,11 +99,12 @@ void Time::tickClock()
   }
 #endif
 
+  // the rest of this only runs inside vortexlib because on the duo the tick runs in the
+  // tcb timer callback instead of in a busy loop constantly checking microseconds()
 #ifdef VORTEX_LIB
   if (m_instantTimestep) {
     return;
   }
-#endif
 
   // perform timestep
   uint32_t elapsed_us;
@@ -119,6 +140,7 @@ void Time::tickClock()
 
   // store current time
   m_prevTime = microseconds();
+#endif
 }
 
 // the real current time, bypass simulations, used by timers
@@ -170,8 +192,10 @@ uint32_t Time::millisecondsToTicks(uint32_t ms)
 uint32_t Time::microseconds()
 {
 #ifndef VORTEX_LIB // Embedded avr devices
-  // arduino micros, or whatever micro implementation you have chosen for the embedded device
-  return micros();
+  uint32_t ticks;
+  // divide by 10
+  ticks = (m_curTick * DEFAULT_TICKRATE) + (TCB0.CNT / 1000);
+  return ticks;
 #elif defined(_WIN32) // windows
   LARGE_INTEGER now;
   QueryPerformanceCounter(&now);
@@ -188,9 +212,42 @@ uint32_t Time::microseconds()
 #endif
 }
 
+#ifdef VORTEX_EMBEDDED
+__attribute__ ((noinline))
+#endif
 void Time::delayMicroseconds(uint32_t us)
 {
-#ifdef _WIN32
+#ifdef VORTEX_EMBEDDED
+#if F_CPU >= 20000000L
+  // for a one-microsecond delay, burn 4 clocks and then return
+  __asm__ __volatile__ (
+    "rjmp .+0" "\n\t"     // 2 cycles
+    "nop" );              // 1 cycle
+                          // wait 3 cycles with 2 words
+  if (us <= 1) return; //  = 3 cycles, (4 when true)
+  // the loop takes a 1/2 of a microsecond (10 cycles) per iteration
+  // so execute it twice for each microsecond of delay requested.
+  us = us << 1; // x2 us, = 2 cycles
+  // we just burned 21 (23) cycles above, remove 2
+  // us is at least 4 so we can subtract 2.
+  us -= 2; // 2 cycles
+#elif F_CPU >= 10000000L
+  // for a 1 microsecond delay, simply return.  the overhead
+  // of the function call takes 14 (16) cycles, which is 1.5us
+  if (us <= 2) return; //  = 3 cycles, (4 when true)
+  // we just burned 20 (22) cycles above, remove 4, (5*4=20)
+  // us is at least 6 so we can subtract 4
+  us -= 4; // 2 cycles
+#endif
+  __asm__ __volatile__(
+    "1: sbiw %0, 1" "\n\t"            // 2 cycles
+    "rjmp .+0"      "\n\t"            // 2 cycles
+    "rjmp .+0"      "\n\t"            // 2 cycles
+    "rjmp .+0"      "\n\t"            // 2 cycles
+    "brne 1b" : "=w" (us) : "0" (us)  // 2 cycles
+  );
+  // return = 4 cycles
+#elif defined(_WIN32)
   uint32_t newtime = microseconds() + us;
   while (microseconds() < newtime) {
     // busy loop

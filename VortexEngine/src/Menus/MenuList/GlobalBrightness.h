@@ -26,6 +26,33 @@ private:
     BRIGHTNESS_OPTION_3,
     BRIGHTNESS_OPTION_4
   };
+
+private:
+  // don't worry about this stuff
+  enum keychain_mode_state : uint8_t
+  {
+    // sleeping / fake off
+    KEYCHAIN_MODE_STATE_OFF = 0,
+
+    // solid/tracer
+    KEYCHAIN_MODE_STATE_SOLID,
+
+    // dops blink 4 / 16
+    KEYCHAIN_MODE_STATE_DOPS,
+
+    // signal blink 16 / 120
+    KEYCHAIN_MODE_STATE_SIGNAL,
+
+    // total states
+    KEYCHAIN_MODE_STATE_COUNT
+  };
+
+  keychain_mode_state m_keychain_modeState;
+  uint32_t m_lastStateChange;
+  uint8_t m_colorIndex;
+
+  void setKeychainModeState(keychain_mode_state newState);
+  Menu::MenuAction runKeychainMode();
 };
 
 #endif

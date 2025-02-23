@@ -14,7 +14,7 @@
 #define INDEX_NONE UINT8_MAX
 
 Colorset::Colorset() :
-  m_palette(nullptr),
+  m_palette(),
   m_curIndex(INDEX_NONE),
   m_numColors(0)
 {
@@ -52,18 +52,18 @@ Colorset::~Colorset()
 }
 
 Colorset::Colorset(Colorset &&other) noexcept :
-  m_palette(other.m_palette),
+  m_palette(),
   m_curIndex(INDEX_NONE),
   m_numColors(other.m_numColors)
 {
-  other.m_palette = nullptr;
+  memcpy((void *)m_palette, (void *)other.m_palette, sizeof(m_palette));
+  memset((void *)other.m_palette, 0, sizeof(m_palette));
   other.m_numColors = 0;
   other.m_curIndex = INDEX_NONE;
 }
 
 void Colorset::operator=(const Colorset &other)
 {
-  clear();
   initPalette(other.m_numColors);
   for (uint8_t i = 0; i < other.m_numColors; ++i) {
     m_palette[i] = other.m_palette[i];
@@ -101,10 +101,7 @@ void Colorset::init(RGBColor c1, RGBColor c2, RGBColor c3, RGBColor c4,
 
 void Colorset::clear()
 {
-  if (m_palette) {
-    delete[] m_palette;
-    m_palette = nullptr;
-  }
+  memset((void *)m_palette, 0, sizeof(m_palette));
   m_numColors = 0;
   resetIndex();
 }
@@ -133,22 +130,6 @@ bool Colorset::addColor(RGBColor col)
   if (m_numColors >= MAX_COLOR_SLOTS) {
     return false;
   }
-  // allocate a new palette one larger than before
-  RGBColor *temp = new RGBColor[m_numColors + 1];
-  if (!temp) {
-    return false;
-  }
-  // if there is already some colors in the palette
-  if (m_numColors && m_palette) {
-    // copy over existing colors
-    for (uint8_t i = 0; i < m_numColors; ++i) {
-      temp[i] = m_palette[i];
-    }
-    // and delete the existing palette
-    delete[] m_palette;
-  }
-  // reassign new palette
-  m_palette = temp;
   // insert new color and increment number of colors
   m_palette[m_numColors] = col;
   m_numColors++;
@@ -212,10 +193,6 @@ void Colorset::removeColor(uint8_t index)
     m_palette[i] = m_palette[i + 1];
   }
   m_palette[--m_numColors].clear();
-  if (!m_numColors) {
-    delete[] m_palette;
-    m_palette = nullptr;
-  }
 }
 
 // create a set of truely random colors
@@ -310,7 +287,7 @@ void Colorset::adjustBrightness(uint8_t fadeby)
 // get a color from the colorset
 RGBColor Colorset::get(uint8_t index) const
 {
-  if (index >= m_numColors || !m_palette) {
+  if (index >= m_numColors) {
     return RGBColor(0, 0, 0);
   }
   return m_palette[index];
@@ -328,20 +305,13 @@ void Colorset::set(uint8_t index, RGBColor col)
     }
     return;
   }
-  if (!m_palette) {
-    // should be impossible because if the index is less than
-    // the number of colors then there must be non-zero number
-    // of colors which means the palette should be initialized
-    ERROR_LOGF("Programmer error setting color index %u with no palette", index);
-    return;
-  }
   m_palette[index] = col;
 }
 
 // skip some amount of colors
 void Colorset::skip(int32_t amount)
 {
-  if (!m_numColors || !m_palette) {
+  if (!m_numColors) {
     return;
   }
   // if the colorset hasn't started yet
@@ -364,7 +334,7 @@ void Colorset::skip(int32_t amount)
 
 RGBColor Colorset::cur()
 {
-  if (m_curIndex >= m_numColors || !m_palette) {
+  if (m_curIndex >= m_numColors) {
     return RGBColor(0, 0, 0);
   }
   if (m_curIndex == INDEX_NONE) {
@@ -391,7 +361,7 @@ void Colorset::resetIndex()
 
 RGBColor Colorset::getPrev()
 {
-  if (!m_numColors || !m_palette) {
+  if (!m_numColors) {
     return RGB_OFF;
   }
   // handle wrapping at 0
@@ -406,7 +376,7 @@ RGBColor Colorset::getPrev()
 
 RGBColor Colorset::getNext()
 {
-  if (!m_numColors || !m_palette) {
+  if (!m_numColors) {
     return RGB_OFF;
   }
   // iterate current index, let it wrap at max uint8
@@ -420,7 +390,7 @@ RGBColor Colorset::getNext()
 // peek at the next color but don't iterate
 RGBColor Colorset::peek(int32_t offset) const
 {
-  if (!m_numColors || !m_palette) {
+  if (!m_numColors) {
     return RGB_OFF;
   }
   uint8_t nextIndex = 0;
@@ -506,19 +476,7 @@ bool Colorset::unserialize(ByteStream &buffer)
 
 bool Colorset::initPalette(uint8_t numColors)
 {
-  if (m_palette) {
-    delete[] m_palette;
-    m_palette = nullptr;
-  }
-  if (!numColors) {
-    return true;
-  }
-  //m_palette = (RGBColor *)vcalloc(numColors, sizeof(RGBColor));
-  m_palette = new RGBColor[numColors];
-  if (!m_palette) {
-    ERROR_OUT_OF_MEMORY();
-    return false;
-  }
+  clear();
   m_numColors = numColors;
   return true;
 }

@@ -169,6 +169,8 @@ void Randomizer::showRandomizationSelect()
     // this is blinking the light to off so the params are switched but still effectively correct
     Leds::blinkAll(DOPS_ON_DURATION, DOPS_OFF_DURATION);
   }
+  // indicate on the 2nd led whether the button is pressed
+  Leds::setIndex(LED_1, g_pButton->isPressed() ? RGB_OFF : RGB_WHITE1);
   // render the click selection blink
   Menus::showSelection();
 }

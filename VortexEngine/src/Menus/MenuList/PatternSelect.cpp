@@ -15,7 +15,6 @@
 
 PatternSelect::PatternSelect(const RGBColor &col, bool advanced) :
   Menu(col, advanced),
-  m_newPatternID(PATTERN_FIRST),
   m_srcLed(LED_FIRST),
   m_started(false)
 {
@@ -54,63 +53,28 @@ void PatternSelect::onLedSelected()
 
 void PatternSelect::onShortClick()
 {
-  nextPattern();
-}
-
-void PatternSelect::nextPatternID()
-{
-  // increment to next pattern
-  PatternID endList = PATTERN_SINGLE_LAST;
-  PatternID beginList = PATTERN_SINGLE_FIRST;
-#if VORTEX_SLIM == 0
-  // if targeted multi led or all singles, iterate through multis
-  if ((m_targetLeds == MAP_LED_ALL) || (m_targetLeds == MAP_LED(LED_MULTI))) {
-    endList = PATTERN_MULTI_LAST;
+  PatternID newID = (PatternID)(m_previewMode.getPatternID(m_srcLed) + 1);
+  if (newID > PATTERN_SINGLE_LAST) {
+    newID = PATTERN_SINGLE_FIRST;
+    Leds::holdAll(RGB_WHITE);
   }
-  // if targeted multi then start at multis and only iterate multis
-  if ((m_targetLeds == MAP_LED(LED_MULTI))) {
-    beginList = PATTERN_MULTI_FIRST;
-  }
-#endif
-  m_newPatternID = (PatternID)((m_newPatternID + 1) % endList);
-  if (m_newPatternID > endList || m_newPatternID < beginList) {
-    m_newPatternID = beginList;
-  }
-}
-
-void PatternSelect::nextPattern()
-{
-  if (m_started) {
-    nextPatternID();
-  } else {
+  if (!m_started) {
     m_started = true;
-    // Do not modify m_newPatternID Here! It has been set in the long click handler
-    // to be the start of the list we want to iterate
+    newID = PATTERN_FIRST;
   }
   // set the new pattern id
-  if (isMultiLedPatternID(m_newPatternID)) {
-    m_previewMode.setPattern(m_newPatternID);
+  if (isMultiLedPatternID(newID)) {
+    m_previewMode.setPattern(newID);
   } else {
-    // if the user selected multi then just put singles on all leds
-    LedMap setLeds = (m_targetLeds == MAP_LED(LED_MULTI)) ? LED_ALL : m_targetLeds;
-    m_previewMode.setPatternMap(setLeds, m_newPatternID);
-    // TODO: clear multi a better way
-    m_previewMode.clearPattern(LED_MULTI);
+    m_previewMode.setPatternMap(m_targetLeds, newID);
   }
   m_previewMode.init();
-  DEBUG_LOGF("Iterated to pattern id %d", m_newPatternID);
+  DEBUG_LOGF("Iterated to pattern id %d", newID);
 }
 
 void PatternSelect::onLongClick()
 {
-  bool needsSave = false;
-  Mode *cur = Modes::curMode();
-  needsSave = !cur || !cur->equals(&m_previewMode);
-  if (needsSave) {
-    // update the current mode with the new pattern
-    Modes::updateCurMode(&m_previewMode);
-  }
-  DEBUG_LOGF("Saving pattern %u", m_newPatternID);
-  // done in the pattern select menu
-  leaveMenu(needsSave);
+  // store the mode as current mode
+  Modes::updateCurMode(&m_previewMode);
+  leaveMenu(true);
 }

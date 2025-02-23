@@ -2,20 +2,23 @@
 #define DEFAULT_MODES_H
 
 #include "../Patterns/Patterns.h"
+#include "../Leds/LedTypes.h"
 #include "../VortexConfig.h"
 
 // structure of the entries in the default modes array
-struct default_mode_entry
+struct DefaultLedEntry
 {
   PatternID patternID;
   uint8_t numColors;
-  uint32_t cols[MAX_COLOR_SLOTS];
+  const uint32_t *cols;
+};
+
+struct DefaultModeEntry
+{
+  DefaultLedEntry leds[LED_COUNT];
 };
 
 // exposed global array of default modes
-extern const default_mode_entry default_modes[MAX_MODES];
-
-// exposed size of the default modes array
-extern const uint8_t num_default_modes;
+extern const DefaultModeEntry defaultModes[MAX_MODES];
 
 #endif

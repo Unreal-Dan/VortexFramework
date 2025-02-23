@@ -4,6 +4,7 @@
 #include "../Leds/LedTypes.h"
 #include "../Patterns/Patterns.h"
 #include "../VortexConfig.h"
+#include "DefaultModes.h"
 
 class SingleLedPattern;
 class MultiLedPattern;
@@ -42,6 +43,7 @@ public:
 #endif
   Mode();
 
+  Mode(const DefaultModeEntry &entry);
   Mode(PatternID id, const Colorset &set);
   Mode(PatternID id, const PatternArgs &args, const Colorset &set);
   Mode(PatternID id, const PatternArgs *args, const Colorset *set);
@@ -94,6 +96,12 @@ public:
   // change the pattern on a mode (NOTE: you may need to call init() after!)
   bool setPattern(PatternID pat, LedPos pos = LED_ANY, const PatternArgs *args = nullptr, const Colorset *set = nullptr);
   bool setPatternMap(LedMap pos, PatternID pat, const PatternArgs *args = nullptr, const Colorset *set = nullptr);
+
+  // copy a pattern from another mode ledpos into this mode
+  void copyPatternFrom(const Mode *other, LedPos to, LedPos from);
+
+  // swap two patterns
+  void swapPatterns(LedPos a, LedPos b);
 
   // set colorset at a specific position
   bool setColorset(const Colorset &set, LedPos pos = LED_ANY);

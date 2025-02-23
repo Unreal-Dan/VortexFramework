@@ -22,11 +22,8 @@ public:
   void onLongClick() override;
 
 private:
-  // override the led selection api to choose which led maps can be selected
-  bool isValidLedSelection(LedMap selection) const override;
-
   // private enumeration for internal state of color selection
-  enum ColorSelectState : uint32_t
+  enum ColorSelectState : uint8_t
   {
     STATE_INIT,
     STATE_PICK_SLOT,

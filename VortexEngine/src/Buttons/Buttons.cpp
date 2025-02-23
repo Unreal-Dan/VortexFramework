@@ -15,32 +15,26 @@
 // This will simply point at Buttons::m_button.
 Button *g_pButton = nullptr;
 
-// static members
-Button Buttons::m_buttons[NUM_BUTTONS];
-
 bool Buttons::init()
 {
-  // initialize the button on pin 1
-  if (!m_buttons[0].init(1)) {
+  g_pButton = new Button();
+  if (!g_pButton) {
     return false;
   }
-  g_pButton = &m_buttons[0];
-  return true;
+  // init the button on pin 1
+  return g_pButton->init(1);
 }
 
 void Buttons::cleanup()
 {
+  delete g_pButton;
 }
 
 void Buttons::update()
 {
-  // would iterate all buttons and check them here
-  // but there's only one button so
-  for (uint8_t i = 0; i < NUM_BUTTONS; ++i) {
-    m_buttons[i].update();
-  }
+  g_pButton->update();
 #ifdef VORTEX_LIB
   // read input from the vortex lib interface, for example Vortex::shortClick()
-  Vortex::handleInputQueue(m_buttons, NUM_BUTTONS);
+  Vortex::handleInputQueue(g_pButton, NUM_BUTTONS);
 #endif
 }

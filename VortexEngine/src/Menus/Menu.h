@@ -16,7 +16,7 @@ public:
   virtual bool init();
 
   // the action for the menu to execute
-  enum MenuAction :uint8_t {
+  enum MenuAction : uint8_t {
     // quit the menus
     MENU_QUIT,
     // continue running the menu
@@ -46,9 +46,6 @@ protected:
 
   // skip led selection
   void bypassLedSelection(LedMap map);
-  // an overridable api that allows derived menus to decide which led selections
-  // should be available before they have actually opened
-  virtual bool isValidLedSelection(LedMap selection) const { return true; }
 
   // the mode copied from the current mode used to preview changes
   Mode m_previewMode;

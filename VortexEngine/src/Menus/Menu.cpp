@@ -71,9 +71,7 @@ Menu::MenuAction Menu::run()
 
   // every time the button is clicked, change the target led
   if (g_pButton->onShortClick()) {
-    do {
-      nextBulbSelection();
-    } while (!isValidLedSelection(m_targetLeds));
+    nextBulbSelection();
   }
   // on a long press of the button, lock in the target led
   if (g_pButton->onLongClick()) {
@@ -99,12 +97,7 @@ Menu::MenuAction Menu::run()
 void Menu::showBulbSelection()
 {
   Leds::clearAll();
-  if (m_targetLeds == MAP_LED(LED_MULTI)) {
-    LedPos pos = (LedPos)((Time::getCurtime() / 30) % LED_COUNT);
-    Leds::blinkIndexOffset(pos, pos * 10, 50, 500, RGB_MAGENTA1);
-  } else {
-    Leds::blinkMap(m_targetLeds, BULB_SELECT_OFF_MS, BULB_SELECT_ON_MS, RGB_MAGENTA1);
-  }
+  Leds::blinkMap(m_targetLeds, BULB_SELECT_OFF_MS, BULB_SELECT_ON_MS, RGB_MAGENTA1);
   // blink when selecting
   Menus::showSelection(RGB_MAGENTA1);
 }
@@ -112,45 +105,26 @@ void Menu::showBulbSelection()
 void Menu::showExit()
 {
   if (g_pButton->isPressed() && g_pButton->holdDuration() > SHORT_CLICK_THRESHOLD_TICKS) {
-    Leds::setAll(RGB_RED);
-    return;
+    Leds::setIndex(LED_1, RGB_RED);
+  } else {
+    Leds::clearIndex(LED_1);
+    Leds::blinkIndex(LED_0, EXIT_MENU_OFF_MS, EXIT_MENU_ON_MS, RGB_WHITE0);
+    Leds::blinkIndex(LED_1, EXIT_MENU_OFF_MS, EXIT_MENU_ON_MS, RGB_RED0);
   }
-  Leds::clearAll();
-  Leds::setAll(RGB_WHITE0);
-  Leds::blinkAll(EXIT_MENU_OFF_MS, EXIT_MENU_ON_MS, RGB_RED0);
 }
 
 void Menu::nextBulbSelection()
 {
-  Mode *cur = Modes::curMode();
   // The target led can be 0 through LED_COUNT to represent any led or all leds
   // modulo by LED_COUNT + 1 to include LED_COUNT (all) as a target
   switch (m_targetLeds) {
   case MAP_LED_ALL:
-    if (cur->isMultiLed()) {
-      // do not allow multi led to select anything else
-      //break;
-    }
     m_targetLeds = MAP_LED(LED_FIRST);
     break;
   case MAP_LED(LED_LAST):
-    m_targetLeds = MAP_PAIR_EVENS;
-    break;
-  case MAP_PAIR_EVENS:
-    m_targetLeds = MAP_PAIR_ODDS;
-    break;
-  case MAP_PAIR_ODDS:
-    m_targetLeds = MAP_LED(LED_MULTI);
-    break;
-  case MAP_LED(LED_MULTI):
     m_targetLeds = MAP_LED_ALL;
     break;
   default: // LED_FIRST through LED_LAST
-    // do not allow multi led to select anything else
-    if (cur->isMultiLed()) {
-      //m_targetLeds = MAP_LED_ALL;
-      //break;
-    }
     // iterate as normal
     m_targetLeds = MAP_LED(((ledmapGetFirstLed(m_targetLeds) + 1) % (LED_COUNT + 1)));
     break;

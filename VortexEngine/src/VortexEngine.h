@@ -44,12 +44,22 @@ public:
   static void enterSleep(bool save = true);
   static void wakeup(bool reset = true);
 
+  // toggle force sleep from working
+  static void toggleForceSleep(bool enabled) { m_forceSleepEnabled = enabled; }
   // toggle auto cycle enabled
   static void setAutoCycle(bool enabled) { m_autoCycle = enabled; }
+
+#ifdef VORTEX_EMBEDDED
+  // clear output pins
+  static void clearOutputPins();
+  // enable/disable the mosfet
+  static void enableMOSFET(bool enabled);
+#endif
 
 private:
   // bool in vortexlib to simulate sleeping
   static volatile bool m_sleeping;
+  static bool m_forceSleepEnabled;
 
   // whether auto cycle modes is turned on
   static bool m_autoCycle;

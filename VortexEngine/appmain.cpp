@@ -3,8 +3,5 @@
 int main()
 {
   VortexEngine::init();
-  for (;;) {
-    VortexEngine::tick();
-  }
   return 0;
 }
