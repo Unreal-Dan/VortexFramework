@@ -9,7 +9,7 @@
 class PatternSelect : public Menu
 {
 public:
-  PatternSelect(const RGBColor &col, bool advanced);
+  PatternSelect(VortexEngine &engine, const RGBColor &col, bool advanced);
   ~PatternSelect();
 
   bool init() override;

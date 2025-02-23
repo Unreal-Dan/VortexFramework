@@ -7,7 +7,7 @@ class ChaserPattern : public SequencedPattern
 {
 public:
   // Just provide a constructor to build the sequence
-  ChaserPattern(const PatternArgs &args);
+  ChaserPattern(VortexEngine &engine, const PatternArgs &args);
 };
 
 #endif

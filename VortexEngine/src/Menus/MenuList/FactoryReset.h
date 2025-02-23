@@ -6,7 +6,7 @@
 class FactoryReset : public Menu
 {
 public:
-  FactoryReset(const RGBColor &col, bool advanced);
+  FactoryReset(VortexEngine &engine, const RGBColor &col, bool advanced);
   ~FactoryReset();
 
   bool init() override;

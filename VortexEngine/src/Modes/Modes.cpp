@@ -15,18 +15,19 @@
 #include "../Leds/Leds.h"
 #include "../Log/Log.h"
 
-// static members
-bool Modes::m_loaded = false;
-uint8_t Modes::m_curMode = 0;
-uint8_t Modes::m_numModes = 0;
-// the current instantiated mode and it's respective link
-Modes::ModeLink *Modes::m_pCurModeLink = nullptr;
-// list of serialized version of bufers
-Modes::ModeLink *Modes::m_storedModes = nullptr;
-// global flags for all modes
-uint8_t Modes::m_globalFlags = 0;
-// the last switch time of the modes
-uint32_t Modes::m_lastSwitchTime = 0;
+Modes::Modes(VortexEngine &engine) :
+  m_engine(engine),
+  m_curMode(0),
+  m_numModes(0),
+  m_pCurModeLink(nullptr),
+  m_storedModes(nullptr),
+  m_globalFlags(0),
+  m_lastSwitchTime(0)
+{
+}
+Modes::~Modes()
+{
+}
 
 bool Modes::init()
 {
@@ -36,7 +37,7 @@ bool Modes::init()
   return true;
 #endif
   ByteStream headerBuffer;
-  Storage::read(0, headerBuffer);
+  m_engine.storage().read(0, headerBuffer);
   unserializeSaveHeader(headerBuffer);
   m_loaded = false;
 #ifdef VORTEX_LIB
@@ -73,7 +74,7 @@ void Modes::play()
 {
   if (!m_numModes) {
     // nothing to do just keep the leds cleared
-    Leds::clearAll();
+    m_engine.leds().clearAll();
     return;
   }
   // should be able to initialize the current mode
@@ -82,7 +83,7 @@ void Modes::play()
     return;
   }
   // shortclick cycles to the next mode
-  if (g_pButton->onShortClick()) {
+  if (m_engine.button().onShortClick()) {
     nextMode();
   }
   // play the current mode
@@ -139,7 +140,7 @@ bool Modes::saveHeader()
   if (!headerBuffer.serialize8(m_numModes)) {
     return false;
   }
-  if (!Storage::write(0, headerBuffer)) {
+  if (!m_engine.storage().write(0, headerBuffer)) {
     return false;
   }
   return true;
@@ -149,7 +150,7 @@ bool Modes::loadHeader()
 {
   ByteStream headerBuffer;
   // only read storage if the modebuffer isn't filled
-  if (!Storage::read(0, headerBuffer) || !headerBuffer.size()) {
+  if (!m_engine.storage().read(0, headerBuffer) || !headerBuffer.size()) {
     DEBUG_LOG("Empty buffer read from storage");
     // this kinda sucks whatever they had loaded is gone
     return false;
@@ -197,7 +198,7 @@ bool Modes::saveStorage()
     // next mode
     ptr = ptr->next();
     // now write this mode into a storage slot (skip first slot, that's header)
-    if (!Storage::write(++i, modeBuffer)) {
+    if (!m_engine.storage().write(++i, modeBuffer)) {
       return false;
     }
   }
@@ -217,7 +218,7 @@ bool Modes::loadStorage()
   //       header but it is stored in the same storage slot as the header
   ByteStream headerBuffer;
   // only read storage if the modebuffer isn't filled
-  if (!Storage::read(0, headerBuffer) || !headerBuffer.size()) {
+  if (!m_engine.storage().read(0, headerBuffer) || !headerBuffer.size()) {
     DEBUG_LOG("Empty buffer read from storage");
     // this kinda sucks whatever they had loaded is gone
     return false;
@@ -243,7 +244,7 @@ bool Modes::loadStorage()
   for (uint8_t i = 0; i < numModes; ++i) {
     ByteStream modeBuffer(MAX_MODE_SIZE);
     // read each mode from a storage slot and load it
-    if (!Storage::read(i + 1, modeBuffer) || !addSerializedMode(modeBuffer)) {
+    if (!m_engine.storage().read(i + 1, modeBuffer) || !addSerializedMode(modeBuffer)) {
       return false;
     }
   }
@@ -257,7 +258,7 @@ bool Modes::loadStorage()
 bool Modes::serializeSaveHeader(ByteStream &saveBuffer)
 {
   // serialize the engine version into the modes buffer
-  if (!VortexEngine::serializeVersion(saveBuffer)) {
+  if (!m_engine.serializeVersion(saveBuffer)) {
     return false;
   }
   // NOTE: instead of global brightness the duo uses this to store the
@@ -266,7 +267,7 @@ bool Modes::serializeSaveHeader(ByteStream &saveBuffer)
     return false;
   }
   // serialize the global brightness
-  if (!saveBuffer.serialize8((uint8_t)Leds::getBrightness())) {
+  if (!saveBuffer.serialize8((uint8_t)m_engine.leds().getBrightness())) {
     return false;
   }
   DEBUG_LOGF("Serialized all modes, uncompressed size: %u", saveBuffer.size());
@@ -275,10 +276,6 @@ bool Modes::serializeSaveHeader(ByteStream &saveBuffer)
 
 bool Modes::unserializeSaveHeader(ByteStream &saveHeader)
 {
-  if (!saveHeader.decompress()) {
-    // failed to decompress?
-    return false;
-  }
   // reset the unserializer index before unserializing anything
   saveHeader.resetUnserializer();
   uint8_t major = 0;
@@ -291,7 +288,7 @@ bool Modes::unserializeSaveHeader(ByteStream &saveHeader)
     return false;
   }
   // check the version for incompatibility
-  if (!VortexEngine::checkVersion(major, minor)) {
+  if (!m_engine.checkVersion(major, minor)) {
     // incompatible version
     ERROR_LOGF("Incompatible savefile version: %u.%u", major, minor);
     return false;
@@ -308,7 +305,7 @@ bool Modes::unserializeSaveHeader(ByteStream &saveHeader)
     return false;
   }
   if (brightness) {
-    Leds::setBrightness(brightness);
+    m_engine.leds().setBrightness(brightness);
   }
   return true;
 }
@@ -406,7 +403,7 @@ bool Modes::addSerializedMode(ByteStream &serializedMode)
   // we must unserialize then re-serialize here because the
   // input argument may contain other patterns in the buffer
   // so we cannot just append the input arg to m_storedModes
-  Mode tmpMode;
+  Mode tmpMode(m_engine);
   if (!tmpMode.unserialize(serializedMode)) {
     return false;
   }
@@ -424,7 +421,7 @@ bool Modes::addModeFromBuffer(ByteStream &serializedMode)
   }
 #endif
   if (!m_storedModes) {
-    m_storedModes = new ModeLink(serializedMode);
+    m_storedModes = new ModeLink(m_engine, serializedMode);
     if (!m_storedModes) {
       ERROR_OUT_OF_MEMORY();
       return false;
@@ -499,7 +496,7 @@ bool Modes::addMode(PatternID id, const PatternArgs *args, const Colorset *set)
   if (id >= PATTERN_COUNT) {
     return false;
   }
-  Mode tmpMode(id, args, set);
+  Mode tmpMode(m_engine, id, args, set);
   // must init the mode so that it can be serialized
   tmpMode.init();
   // not a very good way to do this but it ensures the mode is
@@ -516,7 +513,7 @@ bool Modes::addMode(const Mode *mode)
   }
 #endif
   if (!m_storedModes) {
-    m_storedModes = new ModeLink(mode);
+    m_storedModes = new ModeLink(m_engine, mode);
     if (!m_storedModes) {
       ERROR_OUT_OF_MEMORY();
       return false;
@@ -557,7 +554,7 @@ Mode *Modes::setCurMode(uint8_t index)
     return nullptr;
   }
   // clear the LEDs when switching modes
-  Leds::clearAll();
+  m_engine.leds().clearAll();
   // if we have a current mode open, close it
   if (m_pCurModeLink) {
     m_pCurModeLink->uninstantiate();
@@ -579,7 +576,7 @@ Mode *Modes::setCurMode(uint8_t index)
   m_curMode = newModeIdx;
   m_pCurModeLink = newCurLink;
   // record the current time as the last switch time
-  m_lastSwitchTime = Time::getCurtime();
+  m_lastSwitchTime = m_engine.time().getCurtime();
   // update the global startup mode to be this mode, if we turn off
   // and turn back on into one click mode it will select this one
   Modes::setStartupMode(newModeIdx);
@@ -672,7 +669,7 @@ void Modes::clearModes()
   m_storedModes = nullptr;
   m_numModes = 0;
   // might as well clear the leds
-  Leds::clearAll();
+  m_engine.leds().clearAll();
 }
 
 void Modes::setStartupMode(uint8_t index)
@@ -711,7 +708,7 @@ bool Modes::setFlag(uint8_t flag, bool enable, bool save)
   // otherwise need to update the global flags field of the save header in storage
   ByteStream headerBuffer;
   // read out the storage header so we can update the flag field
-  if (!Storage::read(0, headerBuffer) || !headerBuffer.size()) {
+  if (!m_engine.storage().read(0, headerBuffer) || !headerBuffer.size()) {
     // if cannot read the save header then just save it normally
     return saveHeader();
   }
@@ -733,7 +730,7 @@ bool Modes::setFlag(uint8_t flag, bool enable, bool save)
   // CRC as dirty and Storage::write() will re-calculate the CRC if it's dirty
   headerBuffer.setCRCDirty();
   // write the save header back to storage
-  return Storage::write(0, headerBuffer);
+  return m_engine.storage().write(0, headerBuffer);
 }
 
 #ifdef VORTEX_LIB
@@ -741,7 +738,7 @@ bool Modes::setFlag(uint8_t flag, bool enable, bool save)
 // get the maximum size a mode can occupy
 uint32_t Modes::maxModeSize()
 {
-  Mode maxMode;
+  Mode maxMode(m_engine);
   uint8_t x = 0;
   for (LedPos p = LED_FIRST; p < LED_COUNT; ++p) {
     // blend takes up 8 params
@@ -774,7 +771,7 @@ uint32_t Modes::maxSaveSize()
   ByteStream backupModes;
   saveToBuffer(backupModes);
   for (uint32_t i = 0; i < MAX_MODES; ++i) {
-    Mode maxMode;
+    Mode maxMode(m_engine);
     for (LedPos p = LED_FIRST; p < LED_COUNT; ++p) {
       // blend takes up 8 params
       PatternArgs maxArgs((uint8_t)p + 2, (uint8_t)p + 3, (uint8_t)p + 4, (uint8_t)p + 5,
@@ -849,7 +846,8 @@ bool Modes::saveCurMode()
   return m_pCurModeLink->save();
 }
 
-Modes::ModeLink::ModeLink(const Mode *src, bool inst) :
+Modes::ModeLink::ModeLink(VortexEngine &engine, const Mode *src, bool inst) :
+  m_engine(engine),
   m_pInstantiatedMode(nullptr),
   m_storedMode(),
   m_next(nullptr),
@@ -863,7 +861,8 @@ Modes::ModeLink::ModeLink(const Mode *src, bool inst) :
   }
 }
 
-Modes::ModeLink::ModeLink(const ByteStream &src, bool inst) :
+Modes::ModeLink::ModeLink(VortexEngine &engine, const ByteStream &src, bool inst) :
+  m_engine(engine),
   m_pInstantiatedMode(nullptr),
   m_storedMode(src),
   m_next(nullptr),
@@ -906,7 +905,7 @@ bool Modes::ModeLink::append(const Mode *next)
   if (m_next) {
     return m_next->append(next);
   }
-  m_next = new ModeLink(next);
+  m_next = new ModeLink(m_engine, next);
   if (!m_next) {
     ERROR_OUT_OF_MEMORY();
     return false;
@@ -924,7 +923,7 @@ bool Modes::ModeLink::append(const ByteStream &next)
   if (m_next) {
     return m_next->append(next);
   }
-  m_next = new ModeLink(next);
+  m_next = new ModeLink(m_engine, next);
   if (!m_next) {
     ERROR_OUT_OF_MEMORY();
     return false;
@@ -989,7 +988,7 @@ Mode *Modes::ModeLink::instantiate()
   if (m_pInstantiatedMode) {
     return m_pInstantiatedMode;
   }
-  Mode *newMode = new Mode();
+  Mode *newMode = new Mode(m_engine);
   if (!newMode) {
     ERROR_OUT_OF_MEMORY();
     return nullptr;
@@ -998,6 +997,7 @@ Mode *Modes::ModeLink::instantiate()
   if (!newMode->loadFromBuffer(m_storedMode)) {
     return nullptr;
   }
+  // TODO: init new mode?
   m_pInstantiatedMode = newMode;
   return m_pInstantiatedMode;
 }

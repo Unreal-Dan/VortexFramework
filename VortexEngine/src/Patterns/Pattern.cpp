@@ -1,5 +1,7 @@
 #include "Pattern.h"
 
+#include "../VortexEngine.h"
+
 #include "../Patterns/PatternBuilder.h"
 #include "../Serial/ByteStream.h"
 #include "../Time/TimeControl.h"
@@ -9,7 +11,8 @@
 
 #include "../VortexConfig.h"
 
-Pattern::Pattern() :
+Pattern::Pattern(VortexEngine &engine) :
+  m_engine(engine),
   m_patternID(PATTERN_FIRST),
   m_patternFlags(0),
   m_colorset(),
@@ -22,8 +25,8 @@ Pattern::Pattern() :
 {
 }
 
-Pattern::Pattern(const PatternArgs &args) :
-  Pattern()
+Pattern::Pattern(VortexEngine &engine, const PatternArgs &args) :
+  Pattern(engine)
 {
 }
 
@@ -33,6 +36,9 @@ Pattern::~Pattern()
 
 void Pattern::bind(LedPos pos)
 {
+  if (pos > LED_COUNT) {
+    return;
+  }
   m_ledPos = pos;
 }
 
@@ -44,12 +50,12 @@ void Pattern::init()
 #ifdef VORTEX_LIB
 void Pattern::skip(uint32_t ticks)
 {
-  Time::startSimulation();
+  m_engine.time().startSimulation();
   for (uint32_t i = 0; i < ticks; ++i) {
     play();  // simulate playing the pattern
-    Time::tickSimulation();
+    m_engine.time().tickSimulation();
   }
-  Time::endSimulation();
+  m_engine.time().endSimulation();
 }
 #endif
 
@@ -64,7 +70,7 @@ bool Pattern::serialize(ByteStream &buffer) const
   }
   PatternArgs args;
   getArgs(args);
-  PatternArgs defaults = PatternBuilder::getDefaultArgs(m_patternID);
+  PatternArgs defaults = m_engine.patternBuilder().getDefaultArgs(m_patternID);
   // generate a bitmap of which args are defaulted
   uint8_t argmap = ARG_NONE;
   for (uint32_t i = 0; i < MAX_ARGS; ++i) {
@@ -88,7 +94,7 @@ bool Pattern::unserialize(ByteStream &buffer)
     return false;
   }
   // start with the default args for this pattern
-  PatternArgs args = PatternBuilder::getDefaultArgs(m_patternID);
+  PatternArgs args = m_engine.patternBuilder().getDefaultArgs(m_patternID);
   // then unserialize any different args overtop of the defaults
   args.unserialize(buffer);
   setArgs(args);

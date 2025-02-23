@@ -38,7 +38,7 @@
 
 // the engine flavour, this should change for each device/flavour
 // of the engine that branches off from the main indefinitely
-#define VORTEX_NAME "Core"
+#define VORTEX_NAME "Desktop"
 
 // the full name of this build for ex:
 //    Vortex Engine v1.0 'Igneous' (built Tue Jan 31 19:03:55 2023)
@@ -176,7 +176,7 @@
 // This should not be set to 0, it should be a specific maximum for
 // each separate device
 //
-#define MAX_MODES             13
+#define MAX_MODES             0
 
 // Default Tickrate in Ticks Per Second (TPS)
 //
@@ -342,7 +342,7 @@
 //
 // However there may be some clever uses for variable tickrate in
 // the final build? I'm not sure.
-#define VARIABLE_TICKRATE     0
+#define VARIABLE_TICKRATE     1
 
 // Fixed LED Count
 //
@@ -625,10 +625,6 @@
 
 // This will be defined if the project is being built inside the editor
 #ifdef PROJECT_NAME_VortexEditor
-
-// The editor needs an unfixed led count in order to load any mode
-#undef FIXED_LED_COUNT
-#define FIXED_LED_COUNT 0
 
 #endif // VortexEditor
 

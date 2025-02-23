@@ -1,5 +1,7 @@
 #include "VortexWipePattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
@@ -19,8 +21,8 @@ const LedPos VortexWipePattern::ledStepPositions[] = {
   LED_8
 };
 
-VortexWipePattern::VortexWipePattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+VortexWipePattern::VortexWipePattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_progress(0)
 {
   m_patternID = PATTERN_VORTEXWIPE;
@@ -44,10 +46,10 @@ void VortexWipePattern::init()
 void VortexWipePattern::blinkOn()
 {
   for (int index = 0; index < m_progress; ++index) {
-    Leds::setIndex(ledStepPositions[index], m_colorset.peekNext());
+    m_engine.leds().setIndex(ledStepPositions[index], m_colorset.peekNext());
   }
   for (int index = m_progress; index < LED_COUNT; ++index) {
-    Leds::setIndex(ledStepPositions[index], m_colorset.cur());
+    m_engine.leds().setIndex(ledStepPositions[index], m_colorset.cur());
   }
 }
 

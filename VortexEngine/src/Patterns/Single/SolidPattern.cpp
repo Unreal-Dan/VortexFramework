@@ -1,7 +1,7 @@
 #include "SolidPattern.h"
 
-SolidPattern::SolidPattern(const PatternArgs &args) :
-  BasicPattern(args),
+SolidPattern::SolidPattern(VortexEngine &engine, const PatternArgs &args) :
+  BasicPattern(engine, args),
   m_colIndex(0)
 {
   m_patternID = PATTERN_SOLID;

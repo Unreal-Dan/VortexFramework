@@ -6,12 +6,14 @@
 #include "../../Random/Random.h"
 #include "../../Modes/Mode.h"
 
+#include <vector>
+
 class Mode;
 
 class Randomizer : public Menu
 {
 public:
-  Randomizer(const RGBColor &col, bool advanced);
+  Randomizer(VortexEngine &engine, const RGBColor &col, bool advanced);
   ~Randomizer();
 
   bool init() override;
@@ -25,8 +27,8 @@ public:
   bool reRoll();
 
 private:
-  // random context for each single led
-  Random m_singlesRandCtx[LED_COUNT];
+  // random context for each led and led multi (LED_COUNT + 1)
+  std::vector<Random> m_singlesRandCtx;
 #if VORTEX_SLIM == 0
   // random context for the multi led position
   Random m_multiRandCtx;

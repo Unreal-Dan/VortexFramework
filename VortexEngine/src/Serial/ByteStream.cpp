@@ -72,9 +72,12 @@ bool ByteStream::rawInit(const uint8_t *rawdata, uint32_t size)
   }
   // copy in the actual data from the serial buffer, this will fill the
   // members: size, flags, and crc32 of m_pData as well as the buf
-  memcpy(m_pData, rawdata, size);
+  m_pData->size = ((RawBuffer *)rawdata)->size;
+  m_pData->flags = ((RawBuffer *)rawdata)->flags;
+  m_pData->crc32 = ((RawBuffer *)rawdata)->crc32;
   // ensure the internal size doesn't exceed outer size
   sanity();
+  memcpy(m_pData->buf, ((RawBuffer *)rawdata)->buf, m_pData->size);
   return true;
 }
 

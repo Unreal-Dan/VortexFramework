@@ -6,7 +6,7 @@
 class PulsishPattern : public MultiLedPattern
 {
 public:
-  PulsishPattern(const PatternArgs &args);
+  PulsishPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~PulsishPattern();
 
   // init the pattern to initial state

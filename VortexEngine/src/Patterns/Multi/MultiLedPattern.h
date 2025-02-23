@@ -7,7 +7,7 @@ class MultiLedPattern : public Pattern
 {
 protected:
   // MultiLedPattern is an abstract class
-  MultiLedPattern(const PatternArgs &args);
+  MultiLedPattern(VortexEngine &engine, const PatternArgs &args);
 
 public:
   virtual ~MultiLedPattern();

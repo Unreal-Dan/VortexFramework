@@ -8,7 +8,7 @@
 class TheaterChasePattern : public BlinkStepPattern
 {
 public:
-  TheaterChasePattern(const PatternArgs &args);
+  TheaterChasePattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~TheaterChasePattern();
 
   virtual void init() override;

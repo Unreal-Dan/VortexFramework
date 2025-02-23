@@ -1,5 +1,7 @@
 #include "ColorSelect.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Time/TimeControl.h"
 #include "../../Patterns/Pattern.h"
 #include "../../Colors/Colorset.h"
@@ -11,8 +13,8 @@
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-ColorSelect::ColorSelect(const RGBColor &col, bool advanced) :
-  Menu(col, advanced),
+ColorSelect::ColorSelect(VortexEngine &engine, const RGBColor &col, bool advanced) :
+  Menu(engine, col, advanced),
   m_state(STATE_PICK_SLOT),
   m_newColor(),
   m_colorset(),
@@ -39,7 +41,7 @@ bool ColorSelect::init()
   if (!Menu::init()) {
     return false;
   }
-  Mode *cur = Modes::curMode();
+  Mode *cur = m_engine.modes().curMode();
   if (cur->isEmpty()) {
     // cannot work with an empty mode
     return false;
@@ -60,7 +62,7 @@ Menu::MenuAction ColorSelect::run()
   }
 
   // all states start with a blank slate
-  Leds::clearAll();
+  m_engine.leds().clearAll();
   switch (m_state) {
   case STATE_INIT:
     // reset all the selection members
@@ -81,19 +83,19 @@ Menu::MenuAction ColorSelect::run()
     break;
   }
   // show selections
-  Menus::showSelection();
+  m_engine.menus().showSelection();
   return MENU_CONTINUE;
 }
 
 // callback after the user selects the target led
 void ColorSelect::onLedSelected()
 {
-  Mode *cur = Modes::curMode();
+  Mode *cur = m_engine.modes().curMode();
   // grab the colorset from our selected target led
   if (m_targetLeds == MAP_LED_ALL) {
-    m_colorset = cur->getColorset();
+    m_colorset = cur->getColorset(LED_ANY);
   } else {
-    m_colorset = cur->getColorset(ledmapGetFirstLed(m_targetLeds));
+    m_colorset = cur->getColorset(m_engine.leds().ledmapGetFirstLed(m_targetLeds));
   }
 }
 
@@ -122,7 +124,7 @@ void ColorSelect::onLongClick()
   }
   // reuse these variables lots
   uint8_t numColors = m_colorset.numColors();
-  uint32_t holdDur = g_pButton->holdDuration();
+  uint32_t holdDur = m_engine.button().holdDuration();
   switch (m_state) {
   case STATE_INIT:
     // nothing
@@ -134,7 +136,7 @@ void ColorSelect::onLongClick()
     // number of colors + 1. Example: with 4 cols, cols are on 0, 1, 2, 3,
     // add-color is 4, and exit is 5
     if (m_curSelection == numColors + (numColors < MAX_COLOR_SLOTS)) {
-      Mode *cur = Modes::curMode();
+      Mode *cur = m_engine.modes().curMode();
       cur->setColorsetMap(m_targetLeds, m_colorset);
       cur->init();
       leaveMenu(true);
@@ -180,24 +182,24 @@ void ColorSelect::onLongClick()
 void ColorSelect::showSlotSelection()
 {
   uint8_t exitIndex = m_colorset.numColors();
-  uint32_t holdDur = g_pButton->holdDuration();
+  uint32_t holdDur = m_engine.button().holdDuration();
   bool withinNumColors = m_curSelection < exitIndex;
-  bool holdDurationCheck = g_pButton->isPressed() && holdDur >= DELETE_THRESHOLD_TICKS;
+  bool holdDurationCheck = m_engine.button().isPressed() && holdDur >= DELETE_THRESHOLD_TICKS;
   bool holdDurationModCheck = (holdDur % (DELETE_CYCLE_TICKS * 2)) > DELETE_CYCLE_TICKS;
   const RGBColor &col = m_colorset[m_curSelection];
   if (withinNumColors && holdDurationCheck && holdDurationModCheck) {
     // breath red for delete slot
-    Leds::breatheIndex(LED_ALL, 0, holdDur);
+    m_engine.leds().breatheIndex(LED_ALL, 0, holdDur);
   } else if (withinNumColors) {
     if (col.empty()) {
-      Leds::setAll(RGB_WHITE0);
+      m_engine.leds().setAll(RGB_WHITE0);
     }
     // blink the selected slot color
-    Leds::blinkAll(150, 650, col);
+    m_engine.leds().blinkAll(150, 650, col);
   } else if (exitIndex < MAX_COLOR_SLOTS) {
     if (m_curSelection == exitIndex) {
       // blink both leds and blink faster to indicate 'add' new color
-      Leds::blinkAll(100, 150, RGB_WHITE2);
+      m_engine.leds().blinkAll(100, 150, RGB_WHITE2);
     }
     exitIndex++;
   }
@@ -212,7 +214,7 @@ void ColorSelect::showSelection(ColorSelectState mode)
     showExit();
     return;
   }
-  uint32_t now = Time::getCurtime();
+  uint32_t now = m_engine.time().getCurtime();
   uint8_t hue = m_newColor.hue;
   uint8_t sat = m_newColor.sat;
   uint8_t val = 255;
@@ -222,10 +224,10 @@ void ColorSelect::showSelection(ColorSelectState mode)
   case STATE_PICK_HUE1:
     hue = m_curSelection * (255 / 4);
     MAP_FOREACH_LED(MAP_PAIR_EVENS) {
-      Leds::breatheIndex(pos, hue, (now / 2), 22, 255, 180);
+      m_engine.leds().breatheIndex(pos, hue, (now / 2), 22, 255, 180);
     }
     MAP_FOREACH_LED(MAP_PAIR_ODDS) {
-      Leds::breatheIndex(pos, hue, (now / 2) + 125, 22, 255, 180);
+      m_engine.leds().breatheIndex(pos, hue, (now / 2) + 125, 22, 255, 180);
     }
     // force sat at hue level1
     sat = 255;
@@ -233,7 +235,7 @@ void ColorSelect::showSelection(ColorSelectState mode)
     return;
   case STATE_PICK_HUE2:
     hue = m_targetHue1 * (255 / 4) + (m_curSelection * (255 / 16));
-    Leds::setIndex(LED_1, RGB_WHITE0);
+    m_engine.leds().setIndex(LED_1, RGB_WHITE0);
     // force sat at hue level2
     sat = 255;
     break;
@@ -244,7 +246,7 @@ void ColorSelect::showSelection(ColorSelectState mode)
     val = vals[m_curSelection];
     break;
   }
-  Leds::setMap(MAP_PAIR_EVENS, HSVColor(hue, sat, val));
+  m_engine.leds().setMap(MAP_PAIR_EVENS, HSVColor(hue, sat, val));
 }
 
 void ColorSelect::showFullSet(uint8_t offMs, uint8_t onMs)
@@ -254,9 +256,9 @@ void ColorSelect::showFullSet(uint8_t offMs, uint8_t onMs)
   if (!numCols || !offOnMs) {
     return;
   }
-  uint32_t now = Time::getCurtime();
+  uint32_t now = m_engine.time().getCurtime();
   if ((now % offOnMs) < MS_TO_TICKS(onMs)) {
-    Leds::setAll(m_colorset.get((now / offOnMs) % numCols));
+    m_engine.leds().setAll(m_colorset.get((now / offOnMs) % numCols));
   }
 }
 

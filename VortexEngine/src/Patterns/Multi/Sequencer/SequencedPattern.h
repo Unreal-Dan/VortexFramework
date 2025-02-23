@@ -14,8 +14,8 @@ class SequencedPattern : public CompoundPattern
 {
 protected:
   // SequencedPattern is an abstract class it cannot be directly
-  SequencedPattern(const PatternArgs &args);
-  SequencedPattern(const PatternArgs &args, const Sequence &sequence);
+  SequencedPattern(VortexEngine &engine, const PatternArgs &args);
+  SequencedPattern(VortexEngine &engine, const PatternArgs &args, const Sequence &sequence);
 
 public:
   // initialize a sequence pattern with a list of pointers to sequencesteps and the

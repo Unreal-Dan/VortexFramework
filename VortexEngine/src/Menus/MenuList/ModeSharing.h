@@ -6,7 +6,7 @@
 class ModeSharing : public Menu
 {
 public:
-  ModeSharing(const RGBColor &col, bool advanced);
+  ModeSharing(VortexEngine &engine, const RGBColor &col, bool advanced);
   ~ModeSharing();
 
   bool init() override;

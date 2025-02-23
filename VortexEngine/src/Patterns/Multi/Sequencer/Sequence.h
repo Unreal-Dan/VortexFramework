@@ -6,6 +6,8 @@
 #include "../../../Colors/Colorset.h"
 #include "../../../Time/Timer.h"
 
+#include <vector>
+
 class SequencedPattern;
 class SingleLedPattern;
 class ByteStream;
@@ -14,8 +16,13 @@ class ByteStream;
 class PatternMap
 {
 public:
-  PatternMap();
-  PatternMap(PatternID pattern, LedMap positions = MAP_LED_ALL);
+  PatternMap(VortexEngine &engine);
+  PatternMap(VortexEngine &engine, PatternID pattern, LedMap positions);
+  PatternMap(VortexEngine &engine, const PatternMap &other);
+
+  void operator=(const PatternMap &other);
+  bool operator==(const PatternMap &other) const;
+  bool operator!=(const PatternMap &other) const;
 
   // set a pattern at each position in the LedMap
   void setPatternAt(PatternID pattern, LedMap positions);
@@ -25,16 +32,24 @@ public:
   bool serialize(ByteStream &buffer) const;
   bool unserialize(ByteStream &buffer);
 
+  // engine reference
+  VortexEngine &m_engine;
+
   // public list of pattern IDs for each led
-  PatternID m_patternMap[LED_COUNT];
+  std::vector<PatternID> m_patterns;
 };
 
 // A map of leds to colorsets
 class ColorsetMap
 {
 public:
-  ColorsetMap();
-  ColorsetMap(const Colorset &colorset, LedMap positions = MAP_LED_ALL);
+  ColorsetMap(VortexEngine &engine);
+  ColorsetMap(VortexEngine &engine, const Colorset &colorset, LedMap positions);
+  ColorsetMap(VortexEngine &engine, const ColorsetMap &other);
+
+  void operator=(const ColorsetMap &other);
+  bool operator==(const ColorsetMap &other) const;
+  bool operator!=(const ColorsetMap &other) const;
 
   // set a pattern at each position in the LedMap
   void setColorsetAt(const Colorset &colorset, LedMap positions);
@@ -44,21 +59,31 @@ public:
   bool serialize(ByteStream &buffer) const;
   bool unserialize(ByteStream &buffer);
 
+  // engine reference
+  VortexEngine &m_engine;
+
   // public list of pattern IDs for each led
-  Colorset m_colorsetMap[LED_COUNT];
+  std::vector<Colorset> m_colorsets;
 };
 
 // A single step in a sequence
 class SequenceStep
 {
 public:
-  SequenceStep();
-  SequenceStep(uint16_t duration, const PatternMap &patternMap, const ColorsetMap &colorsetMap = Colorset());
-  SequenceStep(const SequenceStep &other);
+  SequenceStep(VortexEngine &engine);
+  SequenceStep(VortexEngine &engine, uint16_t duration, const PatternMap &patternMap, const ColorsetMap &colorsetMap);
+  SequenceStep(VortexEngine &engine, const SequenceStep &other);
+
+  void operator=(const SequenceStep &other);
+  bool operator==(const SequenceStep &other) const;
+  bool operator!=(const SequenceStep &other) const;
 
   // serialize and unserialize a step in the sequencer
   bool serialize(ByteStream &buffer) const;
   bool unserialize(ByteStream &buffer);
+
+  // engine reference
+  VortexEngine &m_engine;
 
   // public members to allow for easy initialization of an array of SequenceSteps
   uint16_t m_duration;
@@ -70,7 +95,7 @@ public:
 class Sequence
 {
 public:
-  Sequence();
+  Sequence(VortexEngine &engine);
   ~Sequence();
 
   Sequence(const Sequence &other);
@@ -82,7 +107,7 @@ public:
 
   void initSteps(uint8_t numSteps);
   uint8_t addStep(const SequenceStep &step);
-  uint8_t addStep(uint16_t duration, const PatternMap &patternMap, const ColorsetMap &colorsetMap = Colorset());
+  uint8_t addStep(uint16_t duration, const PatternMap &patternMap, const ColorsetMap &colorsetMap);
   void clear();
 
   bool serialize(ByteStream &buffer) const;
@@ -92,9 +117,10 @@ public:
   const SequenceStep &operator[](uint8_t index) const;
 
 private:
-  // static data
-  SequenceStep *m_sequenceSteps;
-  uint8_t m_numSteps;
+  // engine reference
+  VortexEngine &m_engine;
+
+  std::vector<SequenceStep> m_sequenceSteps;
 };
 
 #endif

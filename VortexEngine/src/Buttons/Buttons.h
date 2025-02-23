@@ -9,27 +9,32 @@
 // of a hardcoded constant than a configuration setting
 #define NUM_BUTTONS 1
 
+class VortexEngine;
+
 class Buttons
 {
-  // private unimplemented constructor
-  Buttons();
-
 public:
+  Buttons(VortexEngine &engine);
+  ~Buttons();
+
   // initialize all buttons
-  static bool init();
-  static void cleanup();
+  bool init();
+  void cleanup();
 
   // poll the buttons
-  static void update();
+  void update();
 
-  static uint8_t numButtons() { return NUM_BUTTONS; }
+  // get a button
+  Button &button(uint8_t index = 0) { return m_buttons[index]; }
+
+  uint8_t numButtons() { return NUM_BUTTONS; }
 
 private:
-  // feel free to add more I guess
-  static Button m_buttons[NUM_BUTTONS];
-};
+  // reference to engine
+  VortexEngine &m_engine;
 
-// best way I think
-extern Button *g_pButton;
+  // feel free to add more I guess
+  Button m_buttons[NUM_BUTTONS];
+};
 
 #endif

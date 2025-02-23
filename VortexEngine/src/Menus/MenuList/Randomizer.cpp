@@ -1,6 +1,6 @@
 #include "Randomizer.h"
 
-#include "../../Memory/Memory.h"
+#include "../../VortexEngine.h"
 
 #include "../../Patterns/PatternBuilder.h"
 #include "../../Patterns/Pattern.h"
@@ -14,14 +14,15 @@
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-Randomizer::Randomizer(const RGBColor &col, bool advanced) :
-  Menu(col, advanced),
+Randomizer::Randomizer(VortexEngine &engine, const RGBColor &col, bool advanced) :
+  Menu(engine, col, advanced),
   m_lastRandomization(0),
   m_flags(advanced ? RANDOMIZE_COLORSET : RANDOMIZE_BOTH),
   m_displayHue(0),
   m_needToSelect(advanced),
   m_autoCycle(false)
 {
+  m_singlesRandCtx.resize(LED_COUNT);
 }
 
 Randomizer::~Randomizer()
@@ -34,7 +35,7 @@ bool Randomizer::init()
     return false;
   }
   // grab the multi ld pattern colorset crc if it's present
-  Mode *cur = Modes::curMode();
+  Mode *cur = m_engine.modes().curMode();
 #if VORTEX_SLIM == 0
   if (cur->hasMultiLed()) {
     ByteStream ledData;
@@ -84,14 +85,14 @@ Menu::MenuAction Randomizer::run()
     // all multi led patterns to single led patterns using modulo
     // so no matter which multi-led pattern they have selected it
     // will convert to a single led pattern of some kind
-    PatternID newID = (PatternID)((m_previewMode.getPatternID() - PATTERN_MULTI_FIRST) % PATTERN_SINGLE_COUNT);
+    PatternID newID = (PatternID)((m_previewMode.getPatternID(LED_MULTI) - PATTERN_MULTI_FIRST) % PATTERN_SINGLE_COUNT);
     // solid sucks
     if (newID == PATTERN_SOLID) ++newID;
-    m_previewMode.setPattern(newID);
+    m_previewMode.setPattern(newID, LED_ANY);
     m_previewMode.init();
   }
 #endif
-  uint32_t now = Time::getCurtime();
+  uint32_t now = m_engine.time().getCurtime();
   if (m_autoCycle && (m_lastRandomization + AUTO_RANDOM_DELAY_TICKS < now)) {
     m_lastRandomization = now;
     reRoll();
@@ -99,7 +100,7 @@ Menu::MenuAction Randomizer::run()
   // display the randomized mode
   m_previewMode.play();
   // show the selection
-  Menus::showSelection();
+  m_engine.menus().showSelection();
   // return true to continue staying in randomizer menu
   return MENU_CONTINUE;
 }
@@ -115,11 +116,11 @@ void Randomizer::onShortClick()
     return;
   }
   // if the user fast-clicks 3 times then toggle automode
-  if (m_autoCycle || g_pButton->onConsecutivePresses(AUTO_CYCLE_RANDOMIZER_CLICKS)) {
+  if (m_autoCycle || m_engine.button().onConsecutivePresses(AUTO_CYCLE_RANDOMIZER_CLICKS)) {
     // toggle the auto cycle flag
     m_autoCycle = !m_autoCycle;
     // display a quick flash of either green or red to indicate whether auto mode is on or not
-    Leds::holdAll(m_autoCycle ? RGB_GREEN : RGB_RED);
+    m_engine.leds().holdAll(m_autoCycle ? RGB_GREEN : RGB_RED);
     return;
   }
   // shortClick re-roll the randomization
@@ -135,7 +136,7 @@ void Randomizer::onLongClick()
     return;
   }
   // update the current mode with the new randomized mode
-  Modes::updateCurMode(&m_previewMode);
+  m_engine.modes().updateCurMode(&m_previewMode);
   // then done here, save if the mode was different
   leaveMenu(true);
 }
@@ -164,13 +165,13 @@ void Randomizer::showRandomizationSelect()
 {
   // show iterating rainbow if they are randomizing color, otherwise 0 sat if they
   // are only randomizing the pattern
-  Leds::setAll(HSVColor(m_displayHue++, (m_flags & RANDOMIZE_COLORSET) * 255, 84));
+  m_engine.leds().setAll(HSVColor(m_displayHue++, (m_flags & RANDOMIZE_COLORSET) * 255, 84));
   if (m_flags & RANDOMIZE_PATTERN) {
     // this is blinking the light to off so the params are switched but still effectively correct
-    Leds::blinkAll(DOPS_ON_DURATION, DOPS_OFF_DURATION);
+    m_engine.leds().blinkAll(DOPS_ON_DURATION, DOPS_OFF_DURATION);
   }
   // render the click selection blink
-  Menus::showSelection();
+  m_engine.menus().showSelection();
 }
 
 #if VORTEX_SLIM == 0

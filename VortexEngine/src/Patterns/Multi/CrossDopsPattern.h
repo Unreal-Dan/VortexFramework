@@ -8,7 +8,7 @@
 class CrossDopsPattern : public BlinkStepPattern
 {
 public:
-  CrossDopsPattern(const PatternArgs &args);
+  CrossDopsPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~CrossDopsPattern();
 
   // init the pattern to initial state

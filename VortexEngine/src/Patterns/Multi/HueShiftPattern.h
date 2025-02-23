@@ -9,7 +9,7 @@
 class HueShiftPattern : public MultiLedPattern
 {
 public:
-  HueShiftPattern(const PatternArgs &args);
+  HueShiftPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~HueShiftPattern();
 
   // init the pattern to initial state

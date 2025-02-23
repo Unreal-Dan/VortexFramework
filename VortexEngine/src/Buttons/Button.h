@@ -3,17 +3,19 @@
 
 #include <inttypes.h>
 
+class VortexEngine;
+
 // although there is only one button on the VortexFramework
-// I am still opting for a non-static button class
+// I am still opting for a non-button class
 class Button
 {
 private:
   // private unimplemented copy and assignment constructors to prevent copies
-  Button(Button const &);
-  void operator=(Button const &);
+  //Button(Button const &);
+  //void operator=(Button const &);
 
 public:
-  Button();
+  Button(VortexEngine &engine);
   ~Button();
 
   // initialize a new button object with a pin number
@@ -54,6 +56,9 @@ public:
   uint8_t releaseCount() const { return m_releaseCount; }
 
 private:
+  // reference to engine
+  VortexEngine &m_engine;
+
   // the pin number that is read
   uint8_t m_pinNum;
 
@@ -96,8 +101,5 @@ private:
   friend class Vortex;
 #endif
 };
-
-// See Button.cpp for info about this
-extern Button *g_pButton;
 
 #endif

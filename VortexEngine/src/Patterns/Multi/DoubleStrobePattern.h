@@ -8,7 +8,7 @@
 class DoubleStrobePattern : public BlinkStepPattern
 {
 public:
-  DoubleStrobePattern(const PatternArgs &args);
+  DoubleStrobePattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~DoubleStrobePattern();
 
   virtual void init() override;

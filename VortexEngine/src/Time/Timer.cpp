@@ -1,11 +1,14 @@
 #include "Timer.h"
 
+#include "../VortexEngine.h"
+
 #include "TimeControl.h"
 
 #include "../Memory/Memory.h"
 #include "../Log/Log.h"
 
-Timer::Timer() :
+Timer::Timer(VortexEngine &engine) :
+  m_engine(engine),
   m_alarms(nullptr),
   m_numAlarms(0),
   m_curAlarm(0),
@@ -56,7 +59,7 @@ void Timer::restart(uint32_t offset)
 void Timer::start(uint32_t offset)
 {
   // reset the start time
-  m_startTime = Time::getCurtime() + offset;
+  m_startTime = m_engine.time().getCurtime() + offset;
 #ifdef VORTEX_LIB
   m_simStartTime = m_startTime;
 #endif
@@ -76,7 +79,7 @@ void Timer::reset()
 
 bool Timer::onStart() const
 {
-  if (Time::getCurtime() == getStartTime() && m_curAlarm == 0) {
+  if (m_engine.time().getCurtime() == getStartTime() && m_curAlarm == 0) {
     return true;
   }
   return false;
@@ -93,7 +96,7 @@ bool Timer::onEnd() const
     return true;
   }
   // grab curTime
-  uint32_t now = Time::getCurtime();
+  uint32_t now = m_engine.time().getCurtime();
   // get the start time of the timer
   uint32_t startTime = getStartTime();
   // time since start (forward or backwards)
@@ -111,7 +114,7 @@ AlarmID Timer::alarm()
   if (!m_numAlarms || !m_alarms || m_curAlarm == ALARM_NONE) {
     return ALARM_NONE;
   }
-  uint32_t now = Time::getCurtime();
+  uint32_t now = m_engine.time().getCurtime();
   // time since start (forward or backwards)
   int32_t timeDiff = (int32_t)(int64_t)(now - getStartTime());
   if (timeDiff < 0) {
@@ -139,7 +142,7 @@ uint32_t Timer::getStartTime() const
 #ifdef VORTEX_LIB
   // timers use a different 'start time' tracker in simulations so that
   // the startTime remains unchanged when the simulation ends
-  if (Time::isSimulation() && m_simStartTime) {
+  if (m_engine.time().isSimulation() && m_simStartTime) {
     return m_simStartTime;
   }
 #endif
@@ -152,7 +155,7 @@ void Timer::setStartTime(uint32_t tick)
   // if this timer is running in a simulation then don't actually update
   // the starttime, instead update the simulation start time so that when
   // the simulation ends the startTime will not have changed at all
-  if (Time::isSimulation()) {
+  if (m_engine.time().isSimulation()) {
     // move the sim start time
     m_simStartTime = tick;
     return;
@@ -204,7 +207,7 @@ void Timer::test()
     } else {
       assert(alarm == ALARM_NONE);
     }
-    Time::tickClock();
+    m_engine.time().tickClock();
   }
 
 #ifdef VORTEX_LIB
@@ -219,7 +222,7 @@ void Timer::test()
   newTimer.start();
   assert(newTimer.alarm() == simAlarm0);
 
-  Time::startSimulation();
+  m_engine.time().startSimulation();
   for (uint32_t t = 0; t <= 35; ++t) {
     AlarmID alarm = newTimer.alarm();
     if (t == 0) { // 0th tick timer 0 fires as it begins
@@ -237,9 +240,9 @@ void Timer::test()
     } else {
       assert(alarm == ALARM_NONE);
     }
-    Time::tickSimulation();
+    m_engine.time().tickSimulation();
   }
-  Time::endSimulation();
+  m_engine.time().endSimulation();
   DEBUG_LOG("Time simulation tests passed.");
 #endif
 

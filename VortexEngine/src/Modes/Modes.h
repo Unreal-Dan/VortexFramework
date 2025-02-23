@@ -10,6 +10,7 @@
 
 #include <inttypes.h>
 
+class VortexEngine;
 class PatternArgs;
 class Colorset;
 class Mode;
@@ -27,143 +28,152 @@ class Mode;
 
 class Modes
 {
-  // private unimplemented constructor
-  Modes();
-
 public:
-  // opting for static class here because there should only ever be one
+  Modes(VortexEngine &engine);
+  ~Modes();
+
+  // opting for class here because there should only ever be one
   // Modes control object and I don't like singletons
-  static bool init();
-  static void cleanup();
+  bool init();
+  void cleanup();
 
   // load modes so they are ready to play
-  static bool load();
+  bool load();
 
   // play the current mode
-  static void play();
+  void play();
 
   // full save/load to/from buffer
-  static bool saveToBuffer(ByteStream &saveBuffer);
-  static bool loadFromBuffer(ByteStream &saveBuffer);
+  bool saveToBuffer(ByteStream &saveBuffer);
+  bool loadFromBuffer(ByteStream &saveBuffer);
 
-  // save/load the global settings to/from storage
-  static bool saveHeader();
-  static bool loadHeader();
+  // save the header to storage
+  bool saveHeader();
+  bool loadHeader();
 
   // full save/load to/from storage
-  static bool saveStorage();
-  static bool loadStorage();
+  bool saveStorage();
+  bool loadStorage();
 
   // save load the savefile header from storage
-  static bool serializeSaveHeader(ByteStream &saveBuffer);
-  static bool unserializeSaveHeader(ByteStream &saveBuffer);
+  bool serializeSaveHeader(ByteStream &saveBuffer);
+  bool unserializeSaveHeader(ByteStream &saveBuffer);
 
   // saves all modes to a buffer
-  static bool serialize(ByteStream &buffer);
+  bool serialize(ByteStream &buffer);
   // load all modes from a buffer, optionally specify number of leds
-  static bool unserialize(ByteStream &buffer);
+  bool unserialize(ByteStream &buffer);
 
   // set default settings (must save after)
-  static bool setDefaults();
+  bool setDefaults();
 
   // shift the current mode to a different position relative to current position
   // negative values for up, positive values for down, 0 for no move
-  static bool shiftCurMode(int32_t offset = 1);
+  bool shiftCurMode(int32_t offset = 1);
 
   // add a new mode in various different ways
-  static bool addMode(PatternID id, RGBColor c1, RGBColor c2 = RGB_OFF,
+  bool addMode(PatternID id, RGBColor c1, RGBColor c2 = RGB_OFF,
     RGBColor c3 = RGB_OFF, RGBColor c4 = RGB_OFF, RGBColor c5 = RGB_OFF,
     RGBColor c6 = RGB_OFF, RGBColor c7 = RGB_OFF, RGBColor c8 = RGB_OFF);
-  static bool addMode(PatternID id, const PatternArgs *args, const Colorset *set);
-  static bool addMode(const Mode *mode);
+  bool addMode(PatternID id, const PatternArgs *args, const Colorset *set);
+  bool addMode(const Mode *mode);
 
   // add a new mode by unserializing raw
-  static bool addSerializedMode(ByteStream &serializedMode);
+  bool addSerializedMode(ByteStream &serializedMode);
   // add a new mode by loading from a save buffer
-  static bool addModeFromBuffer(ByteStream &serializedMode);
+  bool addModeFromBuffer(ByteStream &serializedMode);
 
   // update the current mode to match the given mode, optionally save
-  static bool updateCurMode(const Mode *mode);
+  bool updateCurMode(const Mode *mode);
 
   // set the current active mode by index
-  static Mode *setCurMode(uint8_t index);
+  Mode *setCurMode(uint8_t index);
 
   // get the current mode
-  static Mode *curMode();
+  Mode *curMode();
   // iterate to next mode and return it
-  static Mode *nextMode();
+  Mode *nextMode();
   // iterate to previous mode and return it
-  static Mode *previousMode();
+  Mode *previousMode();
+
+  // whether the current mode has been loaded out of storage this is
+  // more for internal use, it was added to help vortexlib detect
+  // whether a mode has been loaded or not when led count changes
+  bool curModeInstantiated() { return (m_pCurModeLink && m_pCurModeLink->mode() != nullptr); }
 
   // iterate to the next mode but skip empty modes, will not skip mode 0
   // to prevent possibly skipping all modes and ending in an infinite loop
-  static Mode *nextModeSkipEmpty();
+  Mode *nextModeSkipEmpty();
 
   // the number of modes
-  static uint8_t numModes() { return m_numModes; }
-  static uint8_t curModeIndex() { return m_curMode; }
+  uint8_t numModes() { return m_numModes; }
+  uint8_t curModeIndex() { return m_curMode; }
 
   // the last time the modes switched to a new mode
-  static uint32_t lastSwitchTime() { return m_lastSwitchTime; }
+  uint32_t lastSwitchTime() { return m_lastSwitchTime; }
 
   // delete the current mode
-  static void deleteCurMode();
+  void deleteCurMode();
 
   // delete all modes in the list
-  static void clearModes();
+  void clearModes();
 
   // set the startup mode index (which mode will be displayed on startup)
-  static void setStartupMode(uint8_t index);
-  static uint8_t startupMode();
-  static Mode *switchToStartupMode();
+  void setStartupMode(uint8_t index);
+  uint8_t startupMode();
+  Mode *switchToStartupMode();
+
+  // initialize current mode from ByteStream, optionally force re-init which
+  // will destroy the current instantiated mode and re-load it from serial
+  Mode *initCurMode(bool force = false);
+  bool saveCurMode();
 
   // set or get flags
-  static bool setFlag(uint8_t flag, bool enable, bool save = true);
-  static bool getFlag(uint8_t flag) { return ((m_globalFlags & flag) != 0); }
-
+  bool setFlag(uint8_t flag, bool enable, bool save = true);
+  bool getFlag(uint8_t flag) { return ((m_globalFlags & flag) != 0); }
   // reset flags to factory default (must save after)
-  static void resetFlags() { m_globalFlags = 0; }
+  void resetFlags() { m_globalFlags = 0; }
 
   // inline functions to toggle the various flags
-  static bool setOneClickMode(bool enable, bool save = true) {
+  bool setOneClickMode(bool enable, bool save = true) {
     return setFlag(MODES_FLAG_ONE_CLICK, enable, save);
   }
-  static bool oneClickModeEnabled() {
+  bool oneClickModeEnabled() {
     return getFlag(MODES_FLAG_ONE_CLICK);
   }
   // toggle the locked state
-  static bool setLocked(bool locked, bool save = true) {
+  bool setLocked(bool locked, bool save = true) {
     return setFlag(MODES_FLAG_LOCKED, locked, save);
   }
-  static bool locked() {
+  bool locked() {
     return getFlag(MODES_FLAG_LOCKED);
   }
   // toggle advanced menus
-  static bool setAdvancedMenus(bool active, bool save = true) {
+  bool setAdvancedMenus(bool active, bool save = true) {
     return setFlag(MODES_FLAG_ADV_MENUS, active, save);
   }
-  static bool advancedMenusEnabled() {
+  bool advancedMenusEnabled() {
     return getFlag(MODES_FLAG_ADV_MENUS);
   }
   // toggle the keychain light mode
-  static bool setKeychainMode(bool active, bool save = true) {
+  bool setKeychainMode(bool active, bool save = true) {
     return setFlag(MODES_FLAG_KEYCHAIN, active, save);
   }
-  static bool keychainModeEnabled() {
+  bool keychainModeEnabled() {
     return getFlag(MODES_FLAG_KEYCHAIN);
   }
 
 #if MODES_TEST == 1
-  static void test();
+  void test();
 #endif
 
 #ifdef VORTEX_LIB
   // get the maximum size a mode can occupy
-  static uint32_t maxModeSize();
+  uint32_t maxModeSize();
   // get the maximum size a savefile can occupy
-  static uint32_t maxSaveSize();
+  uint32_t maxSaveSize();
   // global flags value
-  static uint8_t globalFlags();
+  uint8_t globalFlags();
 #endif
 
 private:
@@ -171,8 +181,8 @@ private:
   class ModeLink {
   public:
     // construct a link and optionally instantiate the link
-    ModeLink(const Mode *src = nullptr, bool inst = false);
-    ModeLink(const ByteStream &src, bool inst = false);
+    ModeLink(VortexEngine &engine, const Mode *src = nullptr, bool inst = false);
+    ModeLink(VortexEngine &engine, const ByteStream &src, bool inst = false);
     ~ModeLink();
 
     // init the link and append another link
@@ -208,40 +218,39 @@ private:
     operator ByteStream() { return m_storedMode; }
     operator Mode *() { return m_pInstantiatedMode; }
   private:
+    VortexEngine &m_engine;
     Mode *m_pInstantiatedMode;
     ByteStream m_storedMode;
     ModeLink *m_next;
     ModeLink *m_prev;
   };
 
-  // fetch a link from the chain by index
-  static ModeLink *getModeLink(uint32_t index);
+  // reference to engine
+  VortexEngine &m_engine;
 
-  // initialize current mode from ByteStream, optionally force re-init which
-  // will destroy the current instantiated mode and re-load it from serial
-  static Mode *initCurMode(bool force = false);
-  static bool saveCurMode();
+  // fetch a link from the chain by index
+  ModeLink *getModeLink(uint32_t index);
 
   // whether modes have been loaded
-  static bool m_loaded;
+  bool m_loaded;
 
   // the current mode we're on
-  static uint8_t m_curMode;
+  uint8_t m_curMode;
 
   // the number of modes loaded
-  static uint8_t m_numModes;
+  uint8_t m_numModes;
 
   // the current instantiated mode and it's respective link
-  static ModeLink *m_pCurModeLink;
+  ModeLink *m_pCurModeLink;
 
   // list of serialized version of bufers
-  static ModeLink *m_storedModes;
+  ModeLink *m_storedModes;
 
   // global flags for all modes
-  static uint8_t m_globalFlags;
+  uint8_t m_globalFlags;
 
   // the last switch time of the modes
-  static uint32_t m_lastSwitchTime;
+  uint32_t m_lastSwitchTime;
 };
 
 #endif

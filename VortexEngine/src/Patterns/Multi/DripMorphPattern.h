@@ -9,7 +9,7 @@
 class DripMorphPattern : public MultiLedPattern
 {
 public:
-  DripMorphPattern(const PatternArgs &args);
+  DripMorphPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~DripMorphPattern();
 
   // init the pattern to initial state

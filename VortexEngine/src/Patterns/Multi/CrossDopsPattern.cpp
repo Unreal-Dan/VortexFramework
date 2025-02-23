@@ -1,9 +1,11 @@
 #include "CrossDopsPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Leds/Leds.h"
 
-CrossDopsPattern::CrossDopsPattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+CrossDopsPattern::CrossDopsPattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_ledMap(0)
 {
   m_patternID = PATTERN_CROSSDOPS;
@@ -27,7 +29,7 @@ void CrossDopsPattern::init()
 void CrossDopsPattern::blinkOn()
 {
   // set the current color on all the given leds
-  Leds::setMap(m_ledMap, m_colorset.cur());
+  m_engine.leds().setMap(m_ledMap, m_colorset.cur());
 }
 
 void CrossDopsPattern::poststep()

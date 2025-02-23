@@ -10,7 +10,7 @@
 class Menu
 {
 public:
-  Menu(const RGBColor &col, bool advanced);
+  Menu(VortexEngine &engine, const RGBColor &col, bool advanced);
   virtual ~Menu();
 
   virtual bool init();
@@ -37,6 +37,15 @@ public:
   // close the current menu
   virtual void leaveMenu(bool doSave = false);
 
+  // forcibly overwrite the targetleds of the menu, also bypass led selection
+  void setTargetLeds(LedMap targetLeds) {
+    m_targetLeds = targetLeds;
+    m_ledSelected = true;
+  }
+  LedMap getTargetLeds() const {
+    return m_targetLeds;
+  }
+
 protected:
   void showBulbSelection();
   void showExit();
@@ -49,6 +58,9 @@ protected:
   // an overridable api that allows derived menus to decide which led selections
   // should be available before they have actually opened
   virtual bool isValidLedSelection(LedMap selection) const { return true; }
+
+  // reference to engine
+  VortexEngine &m_engine;
 
   // the mode copied from the current mode used to preview changes
   Mode m_previewMode;

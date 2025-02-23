@@ -10,7 +10,7 @@
 class MeteorPattern : public BlinkStepPattern
 {
 public:
-  MeteorPattern(const PatternArgs &args);
+  MeteorPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~MeteorPattern();
 
 protected:

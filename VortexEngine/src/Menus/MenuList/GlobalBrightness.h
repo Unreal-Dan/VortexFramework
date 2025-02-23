@@ -6,7 +6,7 @@
 class GlobalBrightness : public Menu
 {
 public:
-  GlobalBrightness(const RGBColor &col, bool advanced);
+  GlobalBrightness(VortexEngine &engine, const RGBColor &col, bool advanced);
   ~GlobalBrightness();
 
   bool init() override;

@@ -44,7 +44,7 @@ private:
   class VortexCLICallbacks : public VortexCallbacks
   {
   public:
-    VortexCLICallbacks() {}
+    VortexCLICallbacks(Vortex &vortex) : VortexCallbacks(vortex) {}
     virtual ~VortexCLICallbacks() {}
     virtual long checkPinHook(uint32_t pin) override;
     virtual void ledsInit(void *cl, int count) override;
@@ -56,9 +56,16 @@ private:
   // internal helper for updating terminal size
   void get_terminal_size();
 
+  // vortex lib
+  Vortex m_vortex;
+  // engine reference so that LED_ macros work
+  VortexEngine &m_engine;
+
   // these are in no particular order
   RGBColor *m_ledList;
-  uint32_t m_numLeds;
+  uint32_t m_numLeds; // filled by callback from engine
+
+  uint8_t m_ledCount; // CLI controls this
   bool m_initialized;
   bool m_buttonPressed;
   bool m_keepGoing;
@@ -93,6 +100,8 @@ private:
   bool m_lockEnabled;
   bool m_jsonPretty;
   bool m_quickExit;
+  bool m_displayVersion;
+  int m_verbosity;
   std::string m_storageFile;
   std::string m_writeSaveFile;
   std::string m_writeModeFile;

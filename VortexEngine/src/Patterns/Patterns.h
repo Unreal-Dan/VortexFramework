@@ -18,6 +18,7 @@ enum PatternID : int8_t
   PATTERN_FIRST = 0,
   // first 'single led' pattern
   PATTERN_SINGLE_FIRST = PATTERN_FIRST,
+
   // =====================================
 
   // all 'single led' patterns below

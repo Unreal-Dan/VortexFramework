@@ -1,6 +1,8 @@
 #include "FactoryReset.h"
 
 #include "../../VortexEngine.h"
+
+#include "../../VortexEngine.h"
 #include "../../Modes/DefaultModes.h"
 #include "../../Time/TimeControl.h"
 #include "../../Patterns/Pattern.h"
@@ -13,8 +15,8 @@
 
 #include "../../VortexConfig.h"
 
-FactoryReset::FactoryReset(const RGBColor &col, bool advanced) :
-  Menu(col, advanced)
+FactoryReset::FactoryReset(VortexEngine &engine, const RGBColor &col, bool advanced) :
+  Menu(engine, col, advanced)
 {
 }
 
@@ -29,7 +31,7 @@ bool FactoryReset::init()
   }
   // bypass led selection for fac reset if a multi was set on
   // the current slot because it doesn't make sense to pick
-  Mode *cur = Modes::curMode();
+  Mode *cur = m_engine.modes().curMode();
   if (!cur) {
     return false;
   }
@@ -70,26 +72,26 @@ void FactoryReset::onLongClick()
     return;
   }
   // if the button hasn't been held long enough just return
-  if (g_pButton->holdDuration() <= (FACTORY_RESET_THRESHOLD_TICKS + MS_TO_TICKS(10))) {
+  if (m_engine.button().holdDuration() <= (FACTORY_RESET_THRESHOLD_TICKS + MS_TO_TICKS(10))) {
     return;
   }
   // the button was held down long enough so actually perform the factory reset
   // restore defaults and then leave menu and save
   if (m_advanced) {
-    uint8_t curModeIndex = Modes::curModeIndex();
+    uint8_t curModeIndex = m_engine.modes().curModeIndex();
     // reset the target mode slot on the target led
     const default_mode_entry &def = default_modes[curModeIndex];
     Colorset set(def.numColors, def.cols);
-    Mode *cur = Modes::curMode();
+    Mode *cur = m_engine.modes().curMode();
     cur->setPatternMap(m_targetLeds, def.patternID, nullptr, &set);
     // re-initialize the current mode
     cur->init();
   } else {
-    Leds::setBrightness(DEFAULT_BRIGHTNESS);
-    VortexEngine::setAutoCycle(false);
-    Modes::setDefaults();
-    Modes::setCurMode(0);
-    Modes::resetFlags();
+    m_engine.leds().setBrightness(DEFAULT_BRIGHTNESS);
+    m_engine.setAutoCycle(false);
+    m_engine.modes().setDefaults();
+    m_engine.modes().setCurMode(0);
+    m_engine.modes().resetFlags();
   }
   leaveMenu(true);
 }
@@ -97,31 +99,31 @@ void FactoryReset::onLongClick()
 void FactoryReset::showReset()
 {
   if (m_curSelection == 0) {
-    Leds::clearAll();
-    Leds::blinkAll(350, 350, RGB_WHITE0);
+    m_engine.leds().clearAll();
+    m_engine.leds().blinkAll(350, 350, RGB_WHITE0);
     return;
   }
-  bool isPressed = g_pButton->isPressed();
+  bool isPressed = m_engine.button().isPressed();
   if (!isPressed) {
-    Leds::clearAll();
-    Leds::blinkAll(50, 50, RGB_RED4);
+    m_engine.leds().clearAll();
+    m_engine.leds().blinkAll(50, 50, RGB_RED4);
     return;
   }
   // don't start the fill until the button has been held for a bit
-  uint32_t holdDur = g_pButton->holdDuration();
+  uint32_t holdDur = m_engine.button().holdDuration();
   if (holdDur < MS_TO_TICKS(100)) {
     return;
   }
   uint16_t progress = ((holdDur * 100) / FACTORY_RESET_THRESHOLD_TICKS);
   DEBUG_LOGF("progress: %d", progress);
   if (progress >= 100) {
-    Leds::setAll(RGB_WHITE);
+    m_engine.leds().setAll(RGB_WHITE);
     return;
   }
   uint8_t offMs = 100;
   uint8_t onMs = (progress > 60) ? 30 : 100;
   uint8_t sat = (uint8_t)((progress * 5) >> 1); // Using bit shift for division by 2
-  Leds::clearAll();
-  Leds::blinkAll(offMs, onMs, HSVColor(0, 255 - sat, 180));
+  m_engine.leds().clearAll();
+  m_engine.leds().blinkAll(offMs, onMs, HSVColor(0, 255 - sat, 180));
 }
 

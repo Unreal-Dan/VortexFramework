@@ -1,14 +1,16 @@
 #include "DripMorphPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-DripMorphPattern::DripMorphPattern(const PatternArgs &args) :
-  MultiLedPattern(args),
+DripMorphPattern::DripMorphPattern(VortexEngine &engine, const PatternArgs &args) :
+  MultiLedPattern(engine, args),
   m_blinkOnDuration(0),
   m_blinkOffDuration(0),
-  m_blinkTimer(),
+  m_blinkTimer(engine),
   m_speed(0),
   m_cur(),
   m_next()
@@ -74,11 +76,11 @@ void DripMorphPattern::blinkOn()
   //       always over/under shoot
   m_cur.hue += m_speed * sign;
   // set the target led with the current HSV color
-  Leds::setAllEvens(m_cur);
-  Leds::setAllOdds(m_colorset.cur());
+  m_engine.leds().setAllEvens(m_cur);
+  m_engine.leds().setAllOdds(m_colorset.cur());
 }
 
 void DripMorphPattern::blinkOff()
 {
-  Leds::clearAll();
+  m_engine.leds().clearAll();
 }

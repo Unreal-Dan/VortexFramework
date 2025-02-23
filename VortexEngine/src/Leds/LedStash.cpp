@@ -1,8 +1,12 @@
 #include "LedStash.h"
 
-LedStash::LedStash() :
+#include "../VortexEngine.h"
+
+LedStash::LedStash(VortexEngine &engine) :
+  m_engine(engine),
   m_ledColorsStash()
 {
+  m_ledColorsStash.resize(LED_COUNT);
 }
 
 void LedStash::setIndex(LedPos pos, RGBColor col)

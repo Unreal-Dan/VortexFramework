@@ -5,7 +5,7 @@
 class BouncePattern : public BlinkStepPattern
 {
 public:
-  BouncePattern(const PatternArgs &args);
+  BouncePattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~BouncePattern();
 
   // init the pattern to initial state

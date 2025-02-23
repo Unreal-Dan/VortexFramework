@@ -8,7 +8,7 @@
 class DripPattern : public BlinkStepPattern
 {
 public:
-  DripPattern(const PatternArgs &args);
+  DripPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~DripPattern();
 
   virtual void init() override;

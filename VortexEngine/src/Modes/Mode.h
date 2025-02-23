@@ -37,15 +37,12 @@ typedef uint8_t ModeFlags;
 class Mode
 {
 public:
-#if FIXED_LED_COUNT == 0
-  Mode(uint8_t numLeds);
-#endif
-  Mode();
+  Mode(VortexEngine &engine, uint8_t numLeds);
+  Mode(VortexEngine &engine);
 
-  Mode(PatternID id, const Colorset &set);
-  Mode(PatternID id, const PatternArgs &args, const Colorset &set);
-  Mode(PatternID id, const PatternArgs *args, const Colorset *set);
-  Mode(const Mode *other);
+  Mode(VortexEngine &engine, PatternID id, const Colorset &set);
+  Mode(VortexEngine &engine, PatternID id, const PatternArgs &args, const Colorset &set);
+  Mode(VortexEngine &engine, PatternID id, const PatternArgs *args, const Colorset *set);
   ~Mode();
 
   // copy and assignment operators
@@ -74,43 +71,41 @@ public:
   // mode comparison
   bool equals(const Mode *other) const;
 
-#if FIXED_LED_COUNT == 0
   // change the internal pattern count in the mode object
   bool setLedCount(uint8_t numLeds);
-#endif
   uint8_t getLedCount() const;
 
   // get the pattern at a position
-  const Pattern *getPattern(LedPos pos = LED_ANY) const;
-  Pattern *getPattern(LedPos pos = LED_ANY);
+  const Pattern *getPattern(LedPos pos) const;
+  Pattern *getPattern(LedPos pos);
 
   // get the colorset at a position
-  const Colorset getColorset(LedPos pos = LED_ANY) const;
-  Colorset getColorset(LedPos pos = LED_ANY);
+  const Colorset getColorset(LedPos pos) const;
+  Colorset getColorset(LedPos pos);
 
   // get the pattern ID of the given pattern
-  PatternID getPatternID(LedPos pos = LED_ANY) const;
+  PatternID getPatternID(LedPos pos) const;
 
   // change the pattern on a mode (NOTE: you may need to call init() after!)
-  bool setPattern(PatternID pat, LedPos pos = LED_ANY, const PatternArgs *args = nullptr, const Colorset *set = nullptr);
+  bool setPattern(PatternID pat, LedPos pos, const PatternArgs *args = nullptr, const Colorset *set = nullptr);
   bool setPatternMap(LedMap pos, PatternID pat, const PatternArgs *args = nullptr, const Colorset *set = nullptr);
 
   // set colorset at a specific position
-  bool setColorset(const Colorset &set, LedPos pos = LED_ANY);
+  bool setColorset(const Colorset &set, LedPos pos);
   // set colorset at each position in a map
   bool setColorsetMap(LedMap map, const Colorset &set);
 
   // clear stored patterns in various ways
-  void clearPattern(LedPos pos = LED_ALL);
+  void clearPattern(LedPos pos);
   void clearPatternMap(LedMap map);
 
   // clear colorset in various ways
-  void clearColorset(LedPos pos = LED_ALL);
+  void clearColorset(LedPos pos);
   void clearColorsetMap(LedMap map);
 
   // set/get a single argument on various positions
-  void setArg(uint8_t index, uint8_t value, LedMap map = MAP_LED_ALL);
-  uint8_t getArg(uint8_t index, LedPos pos = LED_ANY);
+  void setArg(uint8_t index, uint8_t value, LedMap map);
+  uint8_t getArg(uint8_t index, LedPos pos);
 
   // get the flags associated with this mode
   ModeFlags getFlags() const;
@@ -138,19 +133,15 @@ public:
 #endif
 
 private:
+  // reference to engine
+  VortexEngine &m_engine;
+
 #if VORTEX_SLIM == 0
   // the multi-led pattern slot is only present in non-slim builds
   Pattern *m_multiPat;
 #endif
-  // a list of slots for each single led pattern
-#if FIXED_LED_COUNT == 0
-  // the number of leds the mode is targetting
-  uint8_t m_numLeds;
   // list of pointers to Patterns, one for each led
-  Pattern **m_singlePats;
-#else
-  Pattern *m_singlePats[LED_COUNT];
-#endif
+  std::vector<Pattern *> m_singlePats;
 };
 
 #endif

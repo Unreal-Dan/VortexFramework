@@ -9,51 +9,56 @@
 
 #if VL_ENABLE_RECEIVER == 1
 
+class VortexEngine;
 class ByteStream;
 class Mode;
 
 class VLReceiver
 {
-  VLReceiver();
-
 public:
+  VLReceiver(VortexEngine &engine);
+  ~VLReceiver();
+
   // init and cleanup the receiver
-  static bool init();
-  static void cleanup();
+  bool init();
+  void cleanup();
 
   // check whether a full VL message is ready to read
-  static bool dataReady();
+  bool dataReady();
   // whether actively receiving
-  static bool isReceiving();
+  bool isReceiving();
   // the percent of data received
-  static uint8_t percentReceived();
-  static uint16_t bytesReceived() { return m_vlData.bytepos(); }
+  uint8_t percentReceived();
+  uint16_t bytesReceived() { return m_vlData.bytepos(); }
 
   // receive the VL message into a target mode
-  static bool receiveMode(Mode *pMode);
+  bool receiveMode(Mode *pMode);
 
   // turn the receiver on/off
-  static bool beginReceiving();
-  static bool endReceiving();
+  bool beginReceiving();
+  bool endReceiving();
   // checks if there is new data since the last reset or check
-  static bool onNewData();
+  bool onNewData();
   // reset VL receiver buffer
-  static void resetVLState();
+  void resetVLState();
 
-  static void recvPCIHandler();
+  void recvPCIHandler();
 
 private:
 
   // reading functions
   // PCI handler for when VL receiver pin changes states
-  static bool read(ByteStream &data);
-  static void handleVLTiming(uint32_t diff);
+  bool read(ByteStream &data);
+  void handleVLTiming(uint32_t diff);
 
   // ===================
   //  private data:
 
+  // reference to engine
+  VortexEngine &m_engine;
+
   // BitStream object that VL data is fed to bit by bit
-  static BitStream m_vlData;
+  BitStream m_vlData;
 
   // Receive state used for state machine in PCIhandler
   enum RecvState : uint8_t
@@ -65,13 +70,13 @@ private:
   };
 
   // state information used by the PCIHandler
-  static RecvState m_recvState;
+  RecvState m_recvState;
   // used to track pin changes
-  static uint32_t m_prevTime;
-  static uint8_t m_pinState;
+  uint32_t m_prevTime;
+  uint8_t m_pinState;
 
   // used to compare if received data has changed since last checking
-  static uint32_t m_previousBytes;
+  uint32_t m_previousBytes;
 
 #ifdef VORTEX_LIB
   friend class Vortex;

@@ -8,7 +8,7 @@
 class VortexWipePattern : public BlinkStepPattern
 {
 public:
-  VortexWipePattern(const PatternArgs &args);
+  VortexWipePattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~VortexWipePattern();
 
   // init the pattern to initial state

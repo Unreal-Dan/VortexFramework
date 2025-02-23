@@ -8,7 +8,7 @@
 class FillPattern : public BlinkStepPattern
 {
 public:
-  FillPattern(const PatternArgs &args);
+  FillPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~FillPattern();
 
   virtual void init() override;

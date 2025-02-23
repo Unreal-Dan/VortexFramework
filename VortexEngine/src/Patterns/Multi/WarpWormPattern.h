@@ -5,7 +5,7 @@
 class WarpWormPattern : public BlinkStepPattern
 {
 public:
-  WarpWormPattern(const PatternArgs &args);
+  WarpWormPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~WarpWormPattern();
 
   // init the pattern to initial state

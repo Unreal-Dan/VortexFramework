@@ -27,7 +27,7 @@ typedef int8_t AlarmID;
 class Timer
 {
 public:
-  Timer();
+  Timer(VortexEngine &engine);
   ~Timer();
 
   // init a timer with a number of alarms and optionally start it
@@ -71,6 +71,9 @@ public:
 #endif
 
 private:
+  // reference to engine
+  VortexEngine &m_engine;
+
   // helpers to set/get start time
   uint32_t getStartTime() const;
   void setStartTime(uint32_t);

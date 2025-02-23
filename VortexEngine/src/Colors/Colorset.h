@@ -138,6 +138,9 @@ public:
   // the number of colors in the palette
   uint8_t numColors() const { return m_numColors; }
 
+  // shift an index to a new destination, dest index before move
+  void shift(uint8_t idx, uint8_t dest);
+
   // whether the colorset is currently on the first color or last color
   bool onStart() const;
   bool onEnd() const;

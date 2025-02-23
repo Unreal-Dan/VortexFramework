@@ -1,16 +1,18 @@
 #include "LighthousePattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-LighthousePattern::LighthousePattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+LighthousePattern::LighthousePattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_fadeAmount(0),
   m_fadeRate(0),
-  m_fadeTimer(),
-  m_stash(),
+  m_fadeTimer(engine),
+  m_stash(engine),
   m_progress(0)
 {
   m_patternID = PATTERN_LIGHTHOUSE;
@@ -49,15 +51,15 @@ void LighthousePattern::play()
 
 void LighthousePattern::blinkOn()
 {
-  Leds::restoreAll(m_stash);
-  Leds::setIndex((LedPos)m_progress, m_colorset.cur());
-  Leds::stashAll(m_stash);
+  m_engine.leds().restoreAll(m_stash);
+  m_engine.leds().setIndex((LedPos)m_progress, m_colorset.cur());
+  m_engine.leds().stashAll(m_stash);
 }
 
 void LighthousePattern::blinkOff()
 {
-  Leds::stashAll(m_stash);
-  Leds::clearAll();
+  m_engine.leds().stashAll(m_stash);
+  m_engine.leds().clearAll();
 }
 
 void LighthousePattern::poststep()

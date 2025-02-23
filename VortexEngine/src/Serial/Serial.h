@@ -4,38 +4,43 @@
 #include <inttypes.h>
 
 class ByteStream;
+class VortexEngine;
 
 // Really wish I could name this Serial but arduino ruined that for me
 class SerialComs
 {
 public:
+  SerialComs(VortexEngine &engine);
+  ~SerialComs();
 
   // init serial
-  static bool init();
-  static void cleanup();
+  bool init();
+  void cleanup();
 
   // whether serial is initialized
-  static bool isConnected();
+  bool isConnected();
 
   // check for any serial connection or messages
-  static bool checkSerial();
+  bool checkSerial();
 
   // write a message to serial
-  static void write(const char *msg, ...);
+  void write(const char *msg, ...);
 
   // write raw data
-  static void write(ByteStream &byteStream);
+  void write(ByteStream &byteStream);
 
   // read a message from serial
-  static void read(ByteStream &byteStream);
+  void read(ByteStream &byteStream);
 
   // data in the socket ready to read
-  static bool dataReady();
+  bool dataReady();
 
 private:
+  // reference to engine parent
+  VortexEngine &m_engine;
   // whether serial communications are initialized
-  static bool m_serialConnected;
-  static uint32_t m_lastCheck;
+  bool m_serialConnected;
+  uint32_t m_lastCheck;
 };
 
 #endif

@@ -1,5 +1,7 @@
 #include "BouncePattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
@@ -9,8 +11,8 @@
 #define TOTAL_STEPS (((PAIR_COUNT * 2) - 2) ? ((PAIR_COUNT * 2) - 2) : 1)
 #define HALF_STEPS (TOTAL_STEPS / 2)
 
-BouncePattern::BouncePattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+BouncePattern::BouncePattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_progress(0),
   m_fadeAmount(0)
 {
@@ -35,11 +37,11 @@ void BouncePattern::init()
 
 void BouncePattern::blinkOn()
 {
-  Leds::setAll(m_colorset.cur());
+  m_engine.leds().setAll(m_colorset.cur());
   if (m_progress < PAIR_COUNT) {
-    Leds::setPair((Pair)m_progress, m_colorset.peekNext());
+    m_engine.leds().setPair((Pair)m_progress, m_colorset.peekNext());
   } else {
-    Leds::setPair((Pair)(TOTAL_STEPS - m_progress), m_colorset.peekNext());
+    m_engine.leds().setPair((Pair)(TOTAL_STEPS - m_progress), m_colorset.peekNext());
   }
 }
 

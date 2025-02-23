@@ -1,5 +1,7 @@
 #include "GlobalBrightness.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Modes/Modes.h"
 #include "../../Menus/Menus.h"
 #include "../../Leds/Leds.h"
@@ -8,8 +10,8 @@
 // allow the number of brightness options to be adjusted dynamically
 #define NUM_BRIGHTNESS_OPTIONS (sizeof(m_brightnessOptions) / sizeof(m_brightnessOptions[0]))
 
-GlobalBrightness::GlobalBrightness(const RGBColor &col, bool advanced) :
-  Menu(col, advanced)
+GlobalBrightness::GlobalBrightness(VortexEngine &engine, const RGBColor &col, bool advanced) :
+  Menu(engine, col, advanced)
 {
 }
 
@@ -26,7 +28,7 @@ bool GlobalBrightness::init()
   m_ledSelected = true;
   // would be nice if there was a more elegant way to do this
   for (uint8_t i = 0; i < NUM_BRIGHTNESS_OPTIONS; ++i) {
-    if (m_brightnessOptions[i] == Leds::getBrightness()) {
+    if (m_brightnessOptions[i] == m_engine.leds().getBrightness()) {
       // make sure the default selection matches cur value
       m_curSelection = i;
     }
@@ -44,7 +46,7 @@ Menu::MenuAction GlobalBrightness::run()
   // show the current brightness
   showBrightnessSelection();
   // show selections
-  Menus::showSelection();
+  m_engine.menus().showSelection();
   // continue
   return MENU_CONTINUE;
 }
@@ -63,7 +65,7 @@ void GlobalBrightness::onLongClick()
     return;
   }
   // set the global brightness
-  Leds::setBrightness(m_brightnessOptions[m_curSelection]);
+  m_engine.leds().setBrightness(m_brightnessOptions[m_curSelection]);
   // done here, save settings with new brightness
   leaveMenu(true);
 }
@@ -74,5 +76,5 @@ void GlobalBrightness::showBrightnessSelection()
     showExit();
     return;
   }
-  Leds::setAll(HSVColor(38, 255, m_brightnessOptions[m_curSelection]));
+  m_engine.leds().setAll(HSVColor(38, 255, m_brightnessOptions[m_curSelection]));
 }

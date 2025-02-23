@@ -7,7 +7,7 @@
 class BasicPattern : public SingleLedPattern
 {
 public:
-  BasicPattern(const PatternArgs &args);
+  BasicPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~BasicPattern();
 
   virtual void init() override;

@@ -9,7 +9,7 @@
 class BackStrobePattern : public CompoundPattern
 {
 public:
-  BackStrobePattern(const PatternArgs &args);
+  BackStrobePattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~BackStrobePattern();
 
   // init the pattern to initial state

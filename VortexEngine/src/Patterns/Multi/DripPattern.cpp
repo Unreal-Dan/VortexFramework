@@ -1,9 +1,11 @@
 #include "DripPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Leds/Leds.h"
 
-DripPattern::DripPattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+DripPattern::DripPattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_sync(true)
 {
   m_patternID = PATTERN_DRIP;
@@ -26,10 +28,10 @@ void DripPattern::init()
 void DripPattern::blinkOn()
 {
   if (!m_sync) {
-    Leds::setAllEvens(m_colorset.cur());
-    Leds::setAllOdds(m_colorset.peekNext());
+    m_engine.leds().setAllEvens(m_colorset.cur());
+    m_engine.leds().setAllOdds(m_colorset.peekNext());
   } else {
-    Leds::setAll(m_colorset.cur());
+    m_engine.leds().setAll(m_colorset.cur());
   }
 }
 

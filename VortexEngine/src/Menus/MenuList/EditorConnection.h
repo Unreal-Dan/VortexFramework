@@ -17,7 +17,7 @@ enum ReturnCode
 class EditorConnection : public Menu
 {
 public:
-  EditorConnection(const RGBColor &col, bool advanced);
+  EditorConnection(VortexEngine &engine, const RGBColor &col, bool advanced);
   ~EditorConnection();
 
   bool init() override;

@@ -1,19 +1,21 @@
 #include "PulsishPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
 
-PulsishPattern::PulsishPattern(const PatternArgs &args) :
-  MultiLedPattern(args),
+PulsishPattern::PulsishPattern(VortexEngine &engine, const PatternArgs &args) :
+  MultiLedPattern(engine, args),
   m_progress(),
   m_stepDuration(0),
-  m_stepTimer(),
+  m_stepTimer(engine),
   m_onDuration1(0),
   m_offDuration1(0),
   m_onDuration2(0),
   m_offDuration2(0),
-  m_blinkTimer(),
-  m_blink2Timer()
+  m_blinkTimer(engine),
+  m_blink2Timer(engine)
 {
   m_patternID = PATTERN_PULSISH;
   REGISTER_ARG(m_onDuration1);
@@ -64,7 +66,7 @@ void PulsishPattern::play()
   case 0: // turn on the leds
     for (Pair pair = PAIR_FIRST; pair < PAIR_COUNT; ++pair) {
       if (pair != m_progress) {
-        Leds::setPair(pair, m_colorset.cur());
+        m_engine.leds().setPair(pair, m_colorset.cur());
       }
     }
     m_colorset.skip();
@@ -75,7 +77,7 @@ void PulsishPattern::play()
   case 1:
     for (Pair pair = PAIR_FIRST; pair < PAIR_COUNT; ++pair) {
       if (pair != m_progress) {
-        Leds::clearPair(pair);
+        m_engine.leds().clearPair(pair);
       }
     }
     break;
@@ -85,10 +87,10 @@ void PulsishPattern::play()
   case -1: // just return
     return;
   case 0: // turn on the leds
-    Leds::setPair((Pair)m_progress, m_colorset.get(0));
+    m_engine.leds().setPair((Pair)m_progress, m_colorset.get(0));
     break;
   case 1:
-    Leds::clearPair((Pair)m_progress);
+    m_engine.leds().clearPair((Pair)m_progress);
     break;
   }
 }

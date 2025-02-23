@@ -1,85 +1,91 @@
 #include "VortexEngine.h"
 
-#include "Wireless/IRReceiver.h"
-#include "Wireless/IRSender.h"
-#include "Wireless/VLReceiver.h"
-#include "Wireless/VLSender.h"
-#include "Wireless/IRConfig.h"
-#include "Wireless/VLConfig.h"
-#include "Storage/Storage.h"
-#include "Buttons/Buttons.h"
-#include "Time/TimeControl.h"
-#include "Time/Timings.h"
-#include "Serial/Serial.h"
-#include "Modes/Modes.h"
-#include "Menus/Menus.h"
-#include "Modes/Mode.h"
-#include "Leds/Leds.h"
-#include "Log/Log.h"
-
 #ifdef VORTEX_LIB
 #include "VortexLib.h"
 #endif
 
 // bool in vortexlib to simulate sleeping
-volatile bool VortexEngine::m_sleeping = false;
+VortexEngine::VortexEngine(Vortex &vortexLib) :
+  m_vortexLib(vortexLib),
+  m_engine(*this),
+  m_serial(m_engine),
+  m_time(m_engine),
+  m_storage(m_engine),
+  m_irReceiver(m_engine),
+  m_irSender(m_engine),
+  m_vlReceiver(m_engine),
+  m_vlSender(m_engine),
+  m_leds(m_engine),
+  m_buttons(m_engine),
+  m_menus(m_engine),
+  m_modes(m_engine),
+  m_patternBuilder(m_engine),
+  m_sleeping(false),
+  m_autoCycle(false)
+{
+}
 
-// auto cycling
-bool VortexEngine::m_autoCycle = false;
+VortexEngine::~VortexEngine()
+{
+}
 
 bool VortexEngine::init()
 {
   // all of the global controllers
-  if (!SerialComs::init()) {
+  if (!m_serial.init()) {
     DEBUG_LOG("Serial failed to initialize");
     return false;
   }
-  if (!Time::init()) {
+  if (!m_time.init()) {
     DEBUG_LOG("Time failed to initialize");
     return false;
   }
-  if (!Storage::init()) {
+  if (!m_storage.init()) {
     DEBUG_LOG("Storage failed to initialize");
     return false;
   }
 #if IR_ENABLE_RECEIVER == 1
-  if (!IRReceiver::init()) {
+  if (!m_irReceiver.init()) {
     DEBUG_LOG("IRReceiver failed to initialize");
     return false;
   }
 #endif
 #if IR_ENABLE_SENDER == 1
-  if (!IRSender::init()) {
+  if (!m_irSender.init()) {
     DEBUG_LOG("IRSender failed to initialize");
     return false;
   }
 #endif
 #if VL_ENABLE_RECEIVER == 1
-  if (!VLReceiver::init()) {
+  if (!m_vlReceiver.init()) {
     DEBUG_LOG("VLReceiver failed to initialize");
     return false;
   }
 #endif
 #if VL_ENABLE_SENDER == 1
-  if (!VLSender::init()) {
+  if (!m_vlSender.init()) {
     DEBUG_LOG("VLSender failed to initialize");
     return false;
   }
 #endif
-  if (!Leds::init()) {
+  if (!m_leds.init()) {
     DEBUG_LOG("Leds failed to initialize");
     return false;
   }
-  if (!Buttons::init()) {
+  if (!m_buttons.init()) {
     DEBUG_LOG("Buttons failed to initialize");
     return false;
   }
-  if (!Menus::init()) {
+  if (!m_menus.init()) {
     DEBUG_LOG("Menus failed to initialize");
     return false;
   }
-  if (!Modes::init()) {
+  if (!m_modes.init()) {
     DEBUG_LOG("Settings failed to initialize");
+    return false;
+  }
+  if (!m_patternBuilder.init()) {
+    DEBUG_LOG("Pattern builder failed to initialize");
     return false;
   }
 
@@ -104,25 +110,26 @@ void VortexEngine::cleanup()
   // NOTE: the embedded doesn't actually cleanup,
   //       but the test frameworks do
 #ifdef VORTEX_LIB
-  Modes::cleanup();
-  Menus::cleanup();
-  Buttons::cleanup();
-  Leds::cleanup();
+  m_patternBuilder.cleanup();
+  m_modes.cleanup();
+  m_menus.cleanup();
+  m_buttons.cleanup();
+  m_leds.cleanup();
 #if VL_ENABLE_SENDER == 1
-  VLSender::cleanup();
+  m_vlSender.cleanup();
 #endif
 #if VL_ENABLE_RECEIVER == 1
-  VLReceiver::cleanup();
-#endif
+  m_vlReceiver.cleanup();
 #if IR_ENABLE_SENDER == 1
-  IRSender::cleanup();
+  m_irSender.cleanup();
+#endif
 #endif
 #if IR_ENABLE_RECEIVER == 1
-  IRReceiver::cleanup();
+  m_irReceiver.cleanup();
 #endif
-  Storage::cleanup();
-  Time::cleanup();
-  SerialComs::cleanup();
+  m_storage.cleanup();
+  m_time.cleanup();
+  m_serial.cleanup();
 #endif
 }
 
@@ -131,14 +138,14 @@ void VortexEngine::tick()
 #ifdef VORTEX_LIB
   if (m_sleeping) {
     // update the buttons to check for wake
-    Buttons::update();
+    m_buttons.update();
     // several fast clicks will unlock the device
-    if (Modes::locked() && g_pButton->onConsecutivePresses(DEVICE_LOCK_CLICKS - 1)) {
+    if (m_modes.locked() && m_engine.button().onConsecutivePresses(DEVICE_LOCK_CLICKS - 1)) {
       // turn off the lock flag and save it to disk
-      Modes::setLocked(false);
+      m_modes.setLocked(false);
     }
     // check for any kind of press to wakeup
-    if (g_pButton->check() || g_pButton->onRelease() || !Vortex::sleepEnabled()) {
+    if (m_engine.button().check() || m_engine.button().onRelease() || !m_vortexLib.sleepEnabled()) {
       wakeup();
     }
     return;
@@ -146,55 +153,55 @@ void VortexEngine::tick()
 #endif
 
   // tick the current time counter forward
-  Time::tickClock();
+  m_time.tickClock();
 
   // poll the button(s) and update the button object states
-  Buttons::update();
+  m_buttons.update();
 
   // run the main logic for the engine
   runMainLogic();
 
   // update the leds
-  Leds::update();
+  m_leds.update();
 }
 
 void VortexEngine::runMainLogic()
 {
   // the current tick
-  uint32_t now = Time::getCurtime();
+  uint32_t now = m_time.getCurtime();
 
   // load modes if necessary
-  if (!Modes::load()) {
+  if (!m_engine.modes().load()) {
     // don't do anything if modes couldn't load
     return;
   }
 
   // if the menus are open and running then just return
-  if (Menus::run()) {
+  if (m_menus.run()) {
     return;
   }
 
   // check if we should enter the menu
-  if (g_pButton->isPressed() && g_pButton->holdDuration() > MENU_TRIGGER_THRESHOLD_TICKS) {
+  if (m_engine.button().isPressed() && m_engine.button().holdDuration() > MENU_TRIGGER_THRESHOLD_TICKS) {
     DEBUG_LOG("Entering Menu Selection...");
-    Menus::openMenuSelection();
+    m_menus.openMenuSelection();
     return;
   }
 
   // toggle auto cycle mode with many clicks at main modes
-  if ((g_pButton->onRelease() && m_autoCycle) || g_pButton->onConsecutivePresses(AUTO_CYCLE_MODES_CLICKS)) {
+  if ((m_engine.button().onRelease() && m_autoCycle) || m_engine.button().onConsecutivePresses(AUTO_CYCLE_MODES_CLICKS)) {
     m_autoCycle = !m_autoCycle;
-    Leds::holdAll(m_autoCycle ? RGB_GREEN : RGB_RED);
+    m_leds.holdAll(m_autoCycle ? RGB_GREEN : RGB_RED);
   }
 
   // if auto cycle is enabled and the last switch was more than the delay ago
-  if (m_autoCycle && (Modes::lastSwitchTime() + AUTO_RANDOM_DELAY < now)) {
+  if (m_autoCycle && (m_modes.lastSwitchTime() + AUTO_RANDOM_DELAY < now)) {
     // then switch to the next mode automatically
-    Modes::nextMode();
+    m_modes.nextMode();
   }
 
   // otherwise just play the modes
-  Modes::play();
+  m_modes.play();
 }
 
 bool VortexEngine::serializeVersion(ByteStream &stream)
@@ -221,7 +228,7 @@ bool VortexEngine::checkVersion(uint8_t major, uint8_t minor)
 Mode *VortexEngine::curMode()
 {
 #ifdef VORTEX_LIB
-  return Modes::curMode();
+  return m_modes.curMode();
 #else
   // don't need this outside vortex lib
   return nullptr;
@@ -236,7 +243,7 @@ uint32_t VortexEngine::totalStorageSpace()
 
 uint32_t VortexEngine::savefileSize()
 {
-  return Storage::lastSaveSize();
+  return m_storage.lastSaveSize();
 }
 #endif
 
@@ -245,13 +252,13 @@ void VortexEngine::enterSleep(bool save)
   DEBUG_LOG("Sleeping");
   if (save) {
     // update the startup mode when going to sleep
-    Modes::setStartupMode(Modes::curModeIndex());
+    m_modes.setStartupMode(m_modes.curModeIndex());
     // save anything that hasn't been saved
-    Modes::saveStorage();
+    m_modes.saveStorage();
   }
   // clear all the leds
-  Leds::clearAll();
-  Leds::update();
+  m_leds.clearAll();
+  m_leds.update();
   // enable the sleep bool
   m_sleeping = true;
 }
@@ -278,23 +285,23 @@ void VortexEngine::compressionTest()
   // always use same seed
   Random rand(0xdeadbeef);
   ByteStream stream;
-  Modes::clearModes();
+  m_modes.clearModes();
   for (uint32_t len = 1; len < 4096; ++len) {
     uint8_t *buf = (uint8_t *)vcalloc(1, len + 1);
     if (!buf) {
       continue;
     }
     ByteStream modeStream;
-    Modes::serialize(modeStream);
+    m_modes.serialize(modeStream);
     while (modeStream.size() < len) {
       Mode tmpMode;
       tmpMode.setPattern((PatternID)(len % PATTERN_COUNT));
       Colorset set;
       set.randomizeColorTheory(rand, 8);
       tmpMode.setColorset(set);
-      Modes::addMode(&tmpMode);
+      m_modes.addMode(&tmpMode);
       modeStream.clear();
-      Modes::serialize(modeStream);
+      m_modes.serialize(modeStream);
     }
     stream = modeStream;
 #if 0
@@ -322,7 +329,7 @@ void VortexEngine::compressionTest()
     }
     free(buf);
   }
-  Modes::clearModes();
+  m_modes.clearModes();
   DEBUG_LOG("Success testing compression");
 }
 #endif
@@ -384,21 +391,21 @@ void VortexEngine::serializationTest()
   }
   DEBUG_LOG("All patterns serialized successfully...");
   DEBUG_LOG("Attempting full serialization of all modes");
-  Modes::clearModes();
+  m_modes.clearModes();
   for (PatternID patternID = PATTERN_FIRST; patternID < PATTERN_COUNT; ++patternID) {
-    if (!Modes::addMode(patternID, nullptr, &bigSet)) {
+    if (!m_modes.addMode(patternID, nullptr, &bigSet)) {
       ERROR_LOGF("ERROR!! Failed to add mode %u", patternID);
       return;
     }
   }
   ByteStream buffer;
-  Modes::serialize(buffer);
+  m_modes.serialize(buffer);
   if (!buffer.size()) {
     ERROR_LOG("ERROR!! Buffer empty after modes serialize");
     return;
   }
-  Modes::clearModes();
-  Modes::unserialize(buffer);
+  m_modes.clearModes();
+  m_modes.unserialize(buffer);
   if (!buffer.unserializerAtEnd()) {
     ERROR_LOG("ERROR!! Unserializer still has data after modes unserialize:");
     uint8_t byte = 0;
@@ -412,7 +419,7 @@ void VortexEngine::serializationTest()
     printf("\n");
     return;
   }
-  Modes::clearModes();
+  m_modes.clearModes();
   DEBUG_LOG("Success all modes serialized cleanly");
   DEBUG_LOG("== SUCCESS RUNNING SERIALIZATION TEST ==");
 }
@@ -424,7 +431,7 @@ void VortexEngine::serializationTest()
 void VortexEngine::timerTest()
 {
   DEBUG_LOG("== BEGINNING TIMER TESTS ==");
-  Time::test();
+  m_time.test();
   Timer::test();
   DEBUG_LOG("== SUCCESS TIMER TESTS PASSED ==");
 }

@@ -3,17 +3,27 @@
 
 #if IR_ENABLE_RECEIVER == 1
 
+#include "../VortexEngine.h"
+
 #include "../Serial/ByteStream.h"
 #include "../Serial/BitStream.h"
 #include "../Time/TimeControl.h"
 #include "../Modes/Mode.h"
 #include "../Log/Log.h"
 
-BitStream IRReceiver::m_irData;
-IRReceiver::RecvState IRReceiver::m_recvState = WAITING_HEADER_MARK;
-uint32_t IRReceiver::m_prevTime = 0;
-uint8_t IRReceiver::m_pinState = 0;
-uint32_t IRReceiver::m_previousBytes = 0;
+IRReceiver::IRReceiver(VortexEngine &engine) :
+  m_engine(engine),
+  m_irData(),
+  m_recvState(WAITING_HEADER_MARK),
+  m_prevTime(0),
+  m_pinState(0),
+  m_previousBytes(0)
+{
+}
+
+IRReceiver::~IRReceiver()
+{
+}
 
 bool IRReceiver::init()
 {
@@ -134,7 +144,7 @@ void IRReceiver::recvPCIHandler()
   // toggle the tracked pin state no matter what
   m_pinState = (uint8_t)!m_pinState;
   // grab current time
-  uint32_t now = Time::microseconds();
+  uint32_t now = m_engine.time().microseconds();
   // check previous time for validity
   if (!m_prevTime || m_prevTime > now) {
     m_prevTime = now;

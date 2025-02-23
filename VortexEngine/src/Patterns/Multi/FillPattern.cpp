@@ -1,12 +1,14 @@
 #include "FillPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-FillPattern::FillPattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+FillPattern::FillPattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_progress(0)
 {
   m_patternID = PATTERN_FILL;
@@ -28,8 +30,8 @@ void FillPattern::init()
 
 void FillPattern::blinkOn()
 {
-  Leds::setPairs(PAIR_FIRST, (Pair)m_progress, m_colorset.peekNext());
-  Leds::setPairs((Pair)m_progress, PAIR_COUNT, m_colorset.cur());
+  m_engine.leds().setPairs(PAIR_FIRST, (Pair)m_progress, m_colorset.peekNext());
+  m_engine.leds().setPairs((Pair)m_progress, PAIR_COUNT, m_colorset.cur());
 }
 
 void FillPattern::poststep()

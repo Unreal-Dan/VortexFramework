@@ -1,5 +1,7 @@
 #include "PatternSelect.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Patterns/PatternBuilder.h"
 #include "../../Patterns/PatternArgs.h"
 #include "../../Patterns/Pattern.h"
@@ -13,8 +15,8 @@
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-PatternSelect::PatternSelect(const RGBColor &col, bool advanced) :
-  Menu(col, advanced),
+PatternSelect::PatternSelect(VortexEngine &engine, const RGBColor &col, bool advanced) :
+  Menu(engine, col, advanced),
   m_newPatternID(PATTERN_FIRST),
   m_srcLed(LED_FIRST),
   m_started(false)
@@ -43,13 +45,13 @@ Menu::MenuAction PatternSelect::run()
   // run the current mode
   m_previewMode.play();
   // show dimmer selections in advanced mode
-  Menus::showSelection(RGB_WHITE5);
+  m_engine.menus().showSelection(RGB_WHITE5);
   return MENU_CONTINUE;
 }
 
 void PatternSelect::onLedSelected()
 {
-  m_srcLed = ledmapGetFirstLed(m_targetLeds);
+  m_srcLed = m_engine.leds().ledmapGetFirstLed(m_targetLeds);
 }
 
 void PatternSelect::onShortClick()
@@ -89,7 +91,7 @@ void PatternSelect::nextPattern()
   }
   // set the new pattern id
   if (isMultiLedPatternID(m_newPatternID)) {
-    m_previewMode.setPattern(m_newPatternID);
+    m_previewMode.setPattern(m_newPatternID, LED_ANY);
   } else {
     // if the user selected multi then just put singles on all leds
     LedMap setLeds = (m_targetLeds == MAP_LED(LED_MULTI)) ? LED_ALL : m_targetLeds;
@@ -104,11 +106,11 @@ void PatternSelect::nextPattern()
 void PatternSelect::onLongClick()
 {
   bool needsSave = false;
-  Mode *cur = Modes::curMode();
+  Mode *cur = m_engine.modes().curMode();
   needsSave = !cur || !cur->equals(&m_previewMode);
   if (needsSave) {
     // update the current mode with the new pattern
-    Modes::updateCurMode(&m_previewMode);
+    m_engine.modes().updateCurMode(&m_previewMode);
   }
   DEBUG_LOGF("Saving pattern %u", m_newPatternID);
   // done in the pattern select menu

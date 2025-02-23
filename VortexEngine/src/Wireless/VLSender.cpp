@@ -12,24 +12,23 @@
 #include "VortexLib.h"
 #endif
 
-// the serial buffer for the data
-ByteStream VLSender::m_serialBuf;
-// a bit walker for the serial data
-BitStream VLSender::m_bitStream;
-// whether actively sending
-bool VLSender::m_isSending = false;
-// the time of the last sent chunk
-uint32_t VLSender::m_lastSendTime = 0;
-// some runtime meta info
-uint32_t VLSender::m_size = 0;
-// the number of blocks that will be sent
-uint8_t VLSender::m_numBlocks = 0;
-// the amount in the final block
-uint8_t VLSender::m_remainder = 0;
-// configuration options for the sender
-uint32_t VLSender::m_blockSize = 0;
-// write total
-uint32_t VLSender::m_writeCounter = 0;
+VLSender::VLSender(VortexEngine &engine) :
+  m_engine(engine),
+  m_serialBuf(),
+  m_bitStream(),
+  m_isSending(false),
+  m_lastSendTime(0),
+  m_size(0),
+  m_numBlocks(0),
+  m_remainder(0),
+  m_blockSize(0),
+  m_writeCounter(0)
+{
+}
+
+VLSender::~VLSender()
+{
+}
 
 bool VLSender::init()
 {
@@ -84,7 +83,7 @@ bool VLSender::send()
   if (!m_isSending) {
     beginSend();
   }
-  if (m_lastSendTime > 0 && m_lastSendTime + VL_DEFAULT_BLOCK_SPACING > Time::getCurtime()) {
+  if (m_lastSendTime > 0 && m_lastSendTime + VL_DEFAULT_BLOCK_SPACING > m_engine.time().getCurtime()) {
     // don't send yet
     return m_isSending;
   }
@@ -107,7 +106,7 @@ bool VLSender::send()
   // still sending if we have more blocks
   m_isSending = (m_numBlocks > 0);
   // the curtime
-  m_lastSendTime = Time::getCurtime();
+  m_lastSendTime = m_engine.time().getCurtime();
   // return whether still sending
   return m_isSending;
 }
@@ -116,7 +115,7 @@ void VLSender::beginSend()
 {
   m_isSending = true;
   DEBUG_LOGF("[%zu] Beginning send size %u (blocks: %u remainder: %u blocksize: %u)",
-    Time::microseconds(), m_size, m_numBlocks, m_remainder, m_blockSize);
+    m_engine.time().microseconds(), m_size, m_numBlocks, m_remainder, m_blockSize);
   // wakeup the other receiver with a very quick mark/space
   sendMark(50);
   sendSpace(100);
@@ -149,10 +148,10 @@ void VLSender::sendMark(uint16_t time)
 {
 #ifdef VORTEX_LIB
   // send mark timing over socket
-  Vortex::vcallbacks()->infraredWrite(true, time);
+  m_engine.vortexLib().vcallbacks()->infraredWrite(true, time);
 #else
   startPWM();
-  Time::delayMicroseconds(time);
+  m_engine.time().delayMicroseconds(time);
 #endif
 }
 
@@ -160,10 +159,10 @@ void VLSender::sendSpace(uint16_t time)
 {
 #ifdef VORTEX_LIB
   // send space timing over socket
-  Vortex::vcallbacks()->infraredWrite(false, time);
+  m_engine.vortexLib().vcallbacks()->infraredWrite(false, time);
 #else
   stopPWM();
-  Time::delayMicroseconds(time);
+  m_engine.time().delayMicroseconds(time);
 #endif
 }
 

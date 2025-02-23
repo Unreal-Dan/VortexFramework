@@ -5,7 +5,7 @@
 class SnowballPattern : public BlinkStepPattern
 {
 public:
-  SnowballPattern(const PatternArgs &args);
+  SnowballPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~SnowballPattern();
 
   // init the pattern to initial state

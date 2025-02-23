@@ -1,5 +1,7 @@
 #include "ZigzagPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
@@ -25,16 +27,16 @@ const LedPos ZigzagPattern::ledStepPositions[] = {
 #define NUM_ZIGZAG_STEPS (sizeof(ledStepPositions) / sizeof(ledStepPositions[0]))
 #define HALF_ZIGZAG_STEPS (NUM_ZIGZAG_STEPS / 2)
 
-ZigzagPattern::ZigzagPattern(const PatternArgs &args) :
-  MultiLedPattern(args),
+ZigzagPattern::ZigzagPattern(VortexEngine &engine, const PatternArgs &args) :
+  MultiLedPattern(engine, args),
   m_onDuration(0),
   m_offDuration(0),
   m_stepDuration(0),
   m_snakeSize(0),
   m_fadeAmount(0),
-  m_stepTimer(),
-  m_snake1(),
-  m_snake2()
+  m_stepTimer(engine),
+  m_snake1(engine),
+  m_snake2(engine)
 {
   m_patternID = PATTERN_ZIGZAG;
   REGISTER_ARG(m_onDuration);
@@ -80,8 +82,9 @@ void ZigzagPattern::play()
 // ===================
 //  Snake code
 
-ZigzagPattern::Snake::Snake() :
-  m_blinkTimer(),
+ZigzagPattern::Snake::Snake(VortexEngine &engine) :
+  m_engine(engine),
+  m_blinkTimer(engine),
   m_colorset(),
   m_step(0),
   m_snakeSize(1),
@@ -131,7 +134,7 @@ void ZigzagPattern::Snake::draw()
     drawSnake();
     break;
   case 1: // blinking off
-    Leds::clearAll();
+    m_engine.leds().clearAll();
     break;
   default:
   case -1:
@@ -159,7 +162,7 @@ void ZigzagPattern::Snake::drawSnake()
       col.adjustBrightness(m_fadeAmount * segment);
     }
     // lookup the target in the step positions array and turn it on with given color/brightness
-    Leds::setIndex(ledStepPositions[segment_position], col);
+    m_engine.leds().setIndex(ledStepPositions[segment_position], col);
     // if this segment is on the step where the color changes
     if (segment_position == m_changeBoundary) {
       // then decrement the color index for the rest of the snake so that the

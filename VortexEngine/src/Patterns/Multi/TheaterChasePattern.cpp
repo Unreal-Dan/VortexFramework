@@ -1,11 +1,13 @@
 #include "TheaterChasePattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Leds/Leds.h"
 
 #define THEATER_CHASE_STEPS 10
 
-TheaterChasePattern::TheaterChasePattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+TheaterChasePattern::TheaterChasePattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_ledPositions(0),
   m_stepCounter(0)
 {
@@ -27,7 +29,7 @@ void TheaterChasePattern::init()
 
 void TheaterChasePattern::blinkOn()
 {
-  Leds::setMap(m_ledPositions, m_colorset.getNext());
+  m_engine.leds().setMap(m_ledPositions, m_colorset.getNext());
 }
 
 void TheaterChasePattern::poststep()

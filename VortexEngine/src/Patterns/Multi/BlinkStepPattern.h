@@ -10,7 +10,7 @@ class BlinkStepPattern : public MultiLedPattern
 {
 protected:
   // You must derive from BlinkStep to use it
-  BlinkStepPattern(const PatternArgs &args);
+  BlinkStepPattern(VortexEngine &engine, const PatternArgs &args);
 
 public:
   virtual ~BlinkStepPattern();

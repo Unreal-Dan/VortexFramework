@@ -3,6 +3,8 @@
 
 #if VL_ENABLE_RECEIVER == 1
 
+#include "../VortexEngine.h"
+
 #include "../Serial/ByteStream.h"
 #include "../Serial/BitStream.h"
 #include "../Time/TimeControl.h"
@@ -10,11 +12,19 @@
 #include "../Leds/Leds.h"
 #include "../Log/Log.h"
 
-BitStream VLReceiver::m_vlData;
-VLReceiver::RecvState VLReceiver::m_recvState = WAITING_HEADER_MARK;
-uint32_t VLReceiver::m_prevTime = 0;
-uint8_t VLReceiver::m_pinState = 0;
-uint32_t VLReceiver::m_previousBytes = 0;
+VLReceiver::VLReceiver(VortexEngine &engine) :
+  m_engine(engine),
+  m_vlData(),
+  m_recvState(WAITING_HEADER_MARK),
+  m_prevTime(0),
+  m_pinState(0),
+  m_previousBytes(0)
+{
+}
+
+VLReceiver::~VLReceiver()
+{
+}
 
 bool VLReceiver::init()
 {
@@ -134,7 +144,7 @@ void VLReceiver::recvPCIHandler()
   // toggle the tracked pin state no matter what
   m_pinState = (uint8_t)!m_pinState;
   // grab current time
-  uint32_t now = Time::microseconds();
+  uint32_t now = m_engine.time().microseconds();
   // check previous time for validity
   if (!m_prevTime || m_prevTime > now) {
     m_prevTime = now;

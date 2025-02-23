@@ -23,22 +23,28 @@
 #define DEFAULT_STORAGE_FILENAME "FlashStorage.flash"
 
 #ifdef VORTEX_LIB
-std::string Storage::m_storageFilename;
 #define STORAGE_FILENAME m_storageFilename.c_str()
 #else
 #define STORAGE_FILENAME DEFAULT_STORAGE_FILENAME
 #endif
 
-uint32_t Storage::m_lastSaveSize = 0;
+Storage::Storage(VortexEngine &engine) :
+  m_engine(engine),
+#ifdef VORTEX_LIB
+  m_storageFilename(),
+#endif
+  m_lastSaveSize(0)
+{
+}
 
-Storage::Storage()
+Storage::~Storage()
 {
 }
 
 bool Storage::init()
 {
 #ifdef VORTEX_LIB
-  if (!m_storageFilename.length() && Vortex::storageEnabled()) {
+  if (!m_storageFilename.length() && m_engine.vortexLib().storageEnabled()) {
     m_storageFilename = DEFAULT_STORAGE_FILENAME;
   }
 #endif
@@ -53,7 +59,7 @@ void Storage::cleanup()
 bool Storage::write(uint16_t slot, ByteStream &buffer)
 {
 #ifdef VORTEX_LIB
-  if (!Vortex::storageEnabled()) {
+  if (!m_engine.vortexLib().storageEnabled()) {
     // success so the system thinks it all worked
     return true;
   }
@@ -104,7 +110,7 @@ bool Storage::write(uint16_t slot, ByteStream &buffer)
 bool Storage::read(uint16_t slot, ByteStream &buffer)
 {
 #ifdef VORTEX_LIB
-  if (!Vortex::storageEnabled()) {
+  if (!m_engine.vortexLib().storageEnabled()) {
     // return false here, but true in write because we don't want to return
     // an empty buffer after returning true
     return false;

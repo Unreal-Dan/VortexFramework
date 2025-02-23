@@ -144,11 +144,12 @@ void PatternArgs::addArgs(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4, uint8_
   args[numArgs++] = a7;
 }
 
-bool PatternArgs::operator!=(const PatternArgs &rhs)
+bool PatternArgs::operator!=(const PatternArgs &rhs) const
 {
   return !(*this == rhs);
 }
-bool PatternArgs::operator==(const PatternArgs &rhs)
+
+bool PatternArgs::operator==(const PatternArgs &rhs) const
 {
   // just check number of args first
   if (rhs.numArgs != numArgs) {

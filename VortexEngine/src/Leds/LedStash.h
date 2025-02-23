@@ -4,11 +4,13 @@
 #include "../Colors/ColorTypes.h"
 #include "LedTypes.h"
 
+#include <vector>
+
 class LedStash
 {
   friend class Leds;
 public:
-  LedStash();
+  LedStash(VortexEngine &engine);
   ~LedStash();
 
   void setIndex(LedPos pos, RGBColor col);
@@ -19,7 +21,9 @@ public:
   RGBColor &operator[](int index);
 
 private:
-  RGBColor m_ledColorsStash[LED_COUNT];
+  // reference to engine
+  VortexEngine &m_engine;
+  std::vector<RGBColor> m_ledColorsStash;
 };
 
 #endif

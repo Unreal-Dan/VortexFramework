@@ -66,8 +66,8 @@ public:
   void addArgs(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4, uint8_t a5, uint8_t a6, uint8_t a7);
   void addArgs(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4, uint8_t a5, uint8_t a6, uint8_t a7, uint8_t a8);
 
-  bool operator!=(const PatternArgs &rhs);
-  bool operator==(const PatternArgs &rhs);
+  bool operator!=(const PatternArgs &rhs) const;
+  bool operator==(const PatternArgs &rhs) const;
   uint8_t operator[](int index) const;
 
   // serialize the pattern args with a specific mapping of which args to store

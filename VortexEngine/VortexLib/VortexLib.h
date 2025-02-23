@@ -17,6 +17,8 @@
 #include <deque>
 #include <deque>
 
+class Vortex;
+
 // ============================================================================
 //  Vortex Engine Wrapper
 //
@@ -36,7 +38,7 @@
 class VortexCallbacks
 {
 public:
-  VortexCallbacks() {}
+  VortexCallbacks(Vortex &vortex) : m_vortex(vortex) {}
   virtual ~VortexCallbacks() {}
   // called when engine reads digital pins, use this to feed button presses to the engine
   virtual long checkPinHook(uint32_t pin);
@@ -61,6 +63,10 @@ public:
   virtual void ledsBrightness(int brightness) { }
   // called when the leds are shown
   virtual void ledsShow() { }
+
+protected:
+  // reference to the vortexlib this is initialized for
+  Vortex &m_vortex;
 };
 
 // forward decls for various classes
@@ -79,24 +85,23 @@ using json = nlohmann::json;
 class Vortex
 {
   // internal initializer
-  static bool init(VortexCallbacks *callbacks);
+  bool init(VortexCallbacks *callbacks);
 
 public:
-  // needs to be public for wasm build idk the binding doesn't work otherwise
   Vortex();
   ~Vortex();
 
   // simple initialization nothing special
-  static void init() { initEx<VortexCallbacks>(); }
+  void init() { initEx<VortexCallbacks>(); }
 
   // extended initialization, provide a callbacks class to receive events
   template <typename T>
-  static T *initEx()
+  T *initEx()
   {
     if (!std::is_base_of<VortexCallbacks, T>()) {
       return nullptr;
     }
-    T *callbacks = new T();
+    T *callbacks = new T(*this);
     if (!callbacks) {
       return nullptr;
     }
@@ -105,216 +110,229 @@ public:
     }
     return callbacks;
   }
-  static void cleanup();
+  void cleanup();
 
   // tick the engine forward, return false if engine exits
-  static bool tick();
+  bool tick();
 
   // install a callback for digital reads (button press)
-  static void installCallbacks(VortexCallbacks *callbacks);
+  void installCallbacks(VortexCallbacks *callbacks);
 
   // control whether the engine will tick instantly or not
-  static void setInstantTimestep(bool timestep);
+  void setInstantTimestep(bool timestep);
 
   // select the button to send clicks to by default (0 = first button, 1 = 2nd, etc)
-  static void selectButton(uint8_t buttonIndex);
+  void selectButton(uint8_t buttonIndex);
 
   // send various clicks to the selected button, unless the button
   // index is provided as an argument then whichever button is selected
   // will receive the event. So if selectButton(1) is called then all of
   // these will by default target the 2nd button, unless they are given a
   // non-zero button index to target then they will target that one instead
-  static void shortClick(uint8_t buttonIndex = 0);
-  static void longClick(uint8_t buttonIndex = 0);
-  static void menuEnterClick(uint8_t buttonIndex = 0);
-  static void advMenuEnterClick(uint8_t buttonIndex = 0);
-  static void deleteColClick(uint8_t buttonIndex = 0);
-  static void sleepClick(uint8_t buttonIndex = 0);
-  static void forceSleepClick(uint8_t buttonIndex = 0);
-  static void pressButton(uint8_t buttonIndex = 0);
-  static void releaseButton(uint8_t buttonIndex = 0);
-  static bool isButtonPressed(uint8_t buttonIndex = 0);
+  void shortClick(uint8_t buttonIndex = 0);
+  void longClick(uint8_t buttonIndex = 0);
+  void menuEnterClick(uint8_t buttonIndex = 0);
+  void advMenuEnterClick(uint8_t buttonIndex = 0);
+  void deleteColClick(uint8_t buttonIndex = 0);
+  void sleepClick(uint8_t buttonIndex = 0);
+  void forceSleepClick(uint8_t buttonIndex = 0);
+  void pressButton(uint8_t buttonIndex = 0);
+  void releaseButton(uint8_t buttonIndex = 0);
+  bool isButtonPressed(uint8_t buttonIndex = 0);
 
   // send a wait event, will let the engine run a tick if running in lockstep
   // for example when running the testing system
-  static void sendWait(uint32_t amount = 0);
+  void sendWait(uint32_t amount = 0);
 
   // deliver some number of rapid clicks (only availbe for button0... sorry)
-  static void rapidClick(uint32_t amount = 3);
+  void rapidClick(uint32_t amount = 3);
 
   // get the current menu demo mode
-  static Mode *getMenuDemoMode();
-  static bool setMenuDemoMode(const Mode *mode);
+  Mode *getMenuDemoMode();
+  bool setMenuDemoMode(const Mode *mode);
 
   // special 'click' that quits the engine
-  static void quitClick();
+  void quitClick();
 
   // deliver IR timing, the system expects mark first, but it doesn't matter
   // because the system will reset on bad data and then it can interpret any
   // timing either way
-  static void IRDeliver(uint32_t timing);
-  static void VLDeliver(uint32_t timing);
+  void IRDeliver(uint32_t timing);
+  void VLDeliver(uint32_t timing);
 
   // get total/used storage space
-  static void getStorageStats(uint32_t *outTotal, uint32_t *outUsed);
-  static void loadStorage();
+  void getStorageStats(uint32_t *outTotal, uint32_t *outUsed);
+  void loadStorage();
 
   // open various menus on the core (if they exist!)
-  static void openRandomizer(bool advanced = false);
-  static void openColorSelect(bool advanced = false);
-  static void openPatternSelect(bool advanced = false);
-  static void openGlobalBrightness(bool advanced = false);
-  static void openFactoryReset(bool advanced = false);
-  static void openModeSharing(bool advanced = false);
-  static void openEditorConnection(bool advanced = false);
+  void openRandomizer(bool advanced = false);
+  void openColorSelect(bool advanced = false);
+  void openPatternSelect(bool advanced = false);
+  void openGlobalBrightness(bool advanced = false);
+  void openFactoryReset(bool advanced = false);
+  void openModeSharing(bool advanced = false);
+  void openEditorConnection(bool advanced = false);
 
   // set the target leds for the open menu
-  //void clearMenuTargetLeds();
-  //void setMenuTargetLeds(LedMap targetLeds);
-  //void addMenuTargetLeds(LedPos pos);
+  void clearMenuTargetLeds();
+  void setMenuTargetLeds(LedMap targetLeds);
+  void addMenuTargetLeds(LedPos pos);
 
   // convert modes to/from a bytestream
-  static bool getModes(ByteStream &outStream);
-  static bool setModes(ByteStream &stream, bool save = true);
-  static bool getCurMode(ByteStream &stream);
+  bool getModes(ByteStream &outStream);
+  bool setModes(ByteStream &stream, bool save = true);
+  void clearModes();
 
   // match the ledcount of the savefile in the stream, vtxMode = true
   // to indicate it is a .vtxmode file or not
-  static bool matchLedCount(ByteStream &stream, bool vtxMode);
+  bool matchLedCount(ByteStream &stream, bool vtxMode);
   // TODO: do we need this?
-  static bool checkLedCount();
-  static uint8_t setLedCount(uint8_t ledCount);
-  static uint8_t getLedCount();
+  bool checkLedCount();
+  uint8_t setLedCount(uint8_t ledCount);
+  uint8_t getLedCount();
 
   // functions to operate on the current mode selection
-  static uint32_t curModeIndex();
-  static uint32_t numModes();
-  static uint32_t numLedsInMode();
-  static bool addMode(const Mode *mode, bool save = true);
-  static bool addNewMode(bool save = true);
-  static bool addNewMode(ByteStream &stream, bool save = true);
-  static bool setCurMode(uint32_t index, bool save = true);
-  static bool nextMode(bool save = true);
-  static bool delCurMode(bool save = true);
-  static bool shiftCurMode(int8_t offset, bool save = true);
+  uint32_t curModeIndex();
+  uint32_t numModes();
+  uint32_t numLedsInMode();
+  bool addMode(const Mode *mode, bool save = true);
+  bool addNewMode(bool save = true);
+  bool addNewMode(ByteStream &stream, bool save = true);
+  bool addNewModeRaw(ByteStream &stream, bool save = true);
+  bool getCurMode(ByteStream &stream);
+  bool getCurModeRaw(ByteStream &stream);
+  bool setCurMode(uint32_t index, bool save = true);
+  bool nextMode(bool save = true);
+  bool delCurMode(bool save = true);
+  bool shiftCurMode(int8_t offset, bool save = true);
 
   // functions to operate on the current Mode
-  static bool setPattern(PatternID id, const PatternArgs *args = nullptr,
+  bool setPattern(PatternID id, const PatternArgs *args = nullptr,
     const Colorset *set = nullptr, bool save = true);
-  static PatternID getPatternID(LedPos pos);
-  static std::string getPatternName(LedPos pos);
-  static std::string getModeName();
-  static bool setPatternAt(LedPos pos, PatternID id,
+  PatternID getPatternID(LedPos pos);
+  std::string getPatternName(LedPos pos);
+  std::string getModeName();
+  bool setPatternAt(LedPos pos, PatternID id,
     const PatternArgs *args = nullptr, const Colorset *set = nullptr,
     bool save = true);
-  static bool getColorset(LedPos pos, Colorset &set);
-  static bool setColorset(LedPos pos, const Colorset &set, bool save = true);
-  static bool getPatternArgs(LedPos pos, PatternArgs &args);
-  static bool setPatternArgs(LedPos pos, PatternArgs &args, bool save = true);
+  bool getColorset(LedPos pos, Colorset &set);
+  bool setColorset(LedPos pos, const Colorset &set, bool save = true);
+  bool getPatternArgs(LedPos pos, PatternArgs &args);
+  bool setPatternArgs(LedPos pos, PatternArgs &args, bool save = true);
 
   // whether the current mode is a multi-led pattern
-  static bool isCurModeMulti();
+  bool isCurModeMulti();
 
   // Helpers for converting pattern id and led id to string
-  static std::string patternToString(PatternID id = PATTERN_NONE);
-  static PatternID stringToPattern(const std::string &pattern);
-  static std::string ledToString(LedPos pos);
-  static uint32_t numCustomParams(PatternID id);
-  static std::vector<std::string> getCustomParams(PatternID id);
+  std::string patternToString(PatternID id = PATTERN_NONE);
+  PatternID stringToPattern(const std::string &pattern);
+  std::string ledToString(LedPos pos);
+  uint32_t numCustomParams(PatternID id);
+  std::vector<std::string> getCustomParams(PatternID id);
 
   // undo redo
-  static void setUndoBufferLimit(uint32_t limit);
-  static bool addUndoBuffer();
-  static bool undo();
-  static bool redo();
+  void setUndoBufferLimit(uint32_t limit);
+  bool addUndoBuffer();
+  bool undo();
+  bool redo();
 
   // change tickrate of the engine if the engine was configured to support it
-  static void setTickrate(uint32_t tickrate);
-  static uint32_t getTickrate();
+  void setTickrate(uint32_t tickrate);
+  uint32_t getTickrate();
 
   // enable/disable undo
-  static void enableUndo(bool enabled) { m_undoEnabled = enabled; }
+  void enableUndo(bool enabled) { m_undoEnabled = enabled; }
 
   // access stored callbacks
-  static VortexCallbacks *vcallbacks() { return m_storedCallbacks; }
+  VortexCallbacks *vcallbacks() { return m_storedCallbacks; }
 
   // printing to log system
-  static void printlog(const char *file, const char *func, int line, const char *msg, va_list list);
+  void printlog(const char *file, const char *func, int line, const char *msg, va_list list);
 
   // injects a command into the engine, the engine will parse one command
   // per tick so multiple commands will be queued up
-  static void doCommand(char c);
+  void doCommand(char c);
 
   // whether the engine has sleep enabled, if disabled it will always be awake
-  static void setSleepEnabled(bool enable);
-  static bool sleepEnabled();
+  void setSleepEnabled(bool enable);
+  bool sleepEnabled();
 
   // whether the engine is sleeping, and/or to enter sleep
-  static void enterSleep(bool save);
-  static bool isSleeping();
+  void enterSleep(bool save);
+  bool isSleeping();
 
   // enable, fetch and clear the internal command log
-  static void enableCommandLog(bool enable) { m_commandLogEnabled = enable; }
-  static const std::string &getCommandLog() { return m_commandLog; }
-  static void clearCommandLog() { m_commandLog.clear(); }
+  void enableCommandLog(bool enable) { m_commandLogEnabled = enable; }
+  const std::string &getCommandLog() { return m_commandLog; }
+  void clearCommandLog() { m_commandLog.clear(); }
 
   // enable/disable lockstep mode (one tick per input)
-  static bool enableLockstep(bool enable) { return m_lockstepEnabled = enable; }
-  static bool isLockstep() { return m_lockstepEnabled; }
+  bool enableLockstep(bool enable) { return m_lockstepEnabled = enable; }
+  bool isLockstep() { return m_lockstepEnabled; }
 
   // enable disable storage
-  static bool enableStorage(bool enable) { return m_storageEnabled = enable; }
-  static bool storageEnabled() { return m_storageEnabled; }
+  bool enableStorage(bool enable) { return m_storageEnabled = enable; }
+  bool storageEnabled() { return m_storageEnabled; }
 
   // control the storage
-  static void setStorageFilename(const std::string &name);
-  static std::string getStorageFilename();
+  void setStorageFilename(const std::string &name);
+  std::string getStorageFilename();
 
   // enable or disable the 'lock'
-  static void setLockEnabled(bool enable) { m_lockEnabled = enable; }
-  static bool lockEnabled() { return m_lockEnabled; }
+  void setLockEnabled(bool enable) { m_lockEnabled = enable; }
+  bool lockEnabled() { return m_lockEnabled; }
+
+  // get the engine version as a string
+  std::string getVersion() const;
+  // get the version as separated integers
+  uint8_t getVersionMajor() const;
+  uint8_t getVersionMinor() const;
+  uint8_t getVersionBuild() const;
 
   // convert a mode to/from a json object
-  static json modeToJson(const Mode *mode);
-  static Mode *modeFromJson(const json &modeJson);
+  json modeToJson(const Mode *mode);
+  Mode *modeFromJson(const json &modeJson);
   // convert a pattern to/from a json object
-  static json patternToJson(const Pattern *pattern);
-  static Pattern *patternFromJson(const json &patternJson);
+  json patternToJson(const Pattern *pattern);
+  Pattern *patternFromJson(const json &patternJson);
   // save current mode to json or load a mode by json
-  static json saveModeToJson();
-  static bool loadModeFromJson(const json &modeJson);
+  json saveModeToJson();
+  bool loadModeFromJson(const json &modeJson);
   // save/load the engine storage to/from raw json object
-  static json saveToJson();
-  static bool loadFromJson(const json &json);
+  json saveToJson();
+  bool loadFromJson(const json &json);
 
   // print/parse the current mode json
-  static std::string printModeJson(bool pretty = false);
-  static bool parseModeJson(const std::string &json);
+  std::string printModeJson(bool pretty = false);
+  bool parseModeJson(const std::string &json);
   // print/parse a pattern of the current mode json
-  static std::string printPatternJson(LedPos pos, bool pretty = false);
-  static bool parsePatternJson(LedPos pos, const std::string &json);
+  std::string printPatternJson(LedPos pos, bool pretty = false);
+  bool parsePatternJson(LedPos pos, const std::string &json);
   // print/parse the json from a string
-  static std::string printJson(bool pretty = false);
-  static bool parseJson(const std::string &json);
+  std::string printJson(bool pretty = false);
+  bool parseJson(const std::string &json);
   // print/parse the json from a string in a file
-  static bool printJsonToFile(const std::string &filename, bool pretty = false);
-  static bool parseJsonFromFile(const std::string &filename);
+  bool printJsonToFile(const std::string &filename, bool pretty = false);
+  bool parseJsonFromFile(const std::string &filename);
 
   // save and add undo buffer
-  static bool doSave();
-  static bool applyUndo();
+  bool doSave();
+  bool applyUndo();
+
+  // reference to engine
+  VortexEngine &engine() { return m_engine; }
 
 #ifdef WASM
-  //// pointer to the led array and led count in the engine
-  //RGBColor *leds() { return m_leds; }
-  //int ledCount() { return m_led_count; }
-  //// initialize
-  //void initWasm(int led_count, RGBColor *leds) { m_led_count = led_count; m_leds = leds; }
+  // pointer to the led array and led count in the engine
+  RGBColor *leds() { return m_leds; }
+  int ledCount() { return m_led_count; }
+  // initialize
+  void initWasm(int led_count, RGBColor *leds) { m_led_count = led_count; m_leds = leds; }
 #endif
 
 private:
   // internal function to handle numeric values in commands
-  static void handleNumber(char c);
+  void handleNumber(char c);
 
   // so that the buttons class can call handleInputQueue
   friend class Buttons;
@@ -322,8 +340,8 @@ private:
   // called by the engine right after all buttons are checked, this will process
   // the input deque that is fed by the apis like shortClick() above and translate
   // those messages into actual button events by overwriting button data that tick
-  static void handleInputQueue(Button *buttons, uint32_t numButtons);
-  static uint32_t getNumInputs();
+  void handleInputQueue(Button *buttons, uint32_t numButtons);
+  uint32_t getNumInputs();
 
   // The various different button events that can be injected into vortex
   enum VortexButtonEventType
@@ -372,49 +390,51 @@ private:
     VortexButtonEventType type;
   };
 
+  // the instance of the engine
+  VortexEngine m_engine;
   // undo buffer
-  static std::deque<ByteStream> m_undoBuffer;
+  std::deque<ByteStream> m_undoBuffer;
   // the undo limit
-  static uint32_t m_undoLimit;
+  uint32_t m_undoLimit;
   // undo position in buffer
-  static uint32_t m_undoIndex;
+  uint32_t m_undoIndex;
   // whether undo buffer is disabled recording
-  static bool m_undoEnabled;
+  bool m_undoEnabled;
   // stored callbacks
-  static VortexCallbacks *m_storedCallbacks;
+  VortexCallbacks *m_storedCallbacks;
   // handle to the console and logfile
-  static FILE *m_consoleHandle;
+  FILE *m_consoleHandle;
 #if LOG_TO_FILE == 1
-  static FILE *m_logHandle;
+  FILE *m_logHandle;
 #endif
 #ifdef WASM
-  //// pointer to the led array and led count in the engine
-  //RGBColor *m_leds;
-  //int m_led_count;
+  // pointer to the led array and led count in the engine
+  RGBColor *m_leds;
+  int m_led_count;
 #endif
   // queue of button events, deque so can push to front and back
-  static std::deque<VortexButtonEvent> m_buttonEventQueue;
+  std::deque<VortexButtonEvent> m_buttonEventQueue;
   // whether initialized
-  static bool m_initialized;
+  bool m_initialized;
   // whether each button is pressed (bitflags) so technically this only
   // supports 32 buttons but idc whoever adds 33 buttons can fix this
-  static uint32_t m_buttonsPressed;
+  uint32_t m_buttonsPressed;
   // the selected button to target for input events
-  static uint8_t m_selectedButton;
+  uint8_t m_selectedButton;
   // keeps a log of all the commands issued
-  static std::string m_commandLog;
+  std::string m_commandLog;
   // whether to record commands
-  static bool m_commandLogEnabled;
+  bool m_commandLogEnabled;
   // whether to run in lockstep mode (one input per step)
-  static bool m_lockstepEnabled;
+  bool m_lockstepEnabled;
   // whether storage is enabled
-  static bool m_storageEnabled;
+  bool m_storageEnabled;
   // whether sleep is enabled
-  static bool m_sleepEnabled;
+  bool m_sleepEnabled;
   // whether lock is enabled
-  static bool m_lockEnabled;
+  bool m_lockEnabled;
   // the last command to have been executed
-  static char m_lastCommand;
+  char m_lastCommand;
   // internal random ctx for stuff
-  static Random m_randCtx;
+  Random m_randCtx;
 };

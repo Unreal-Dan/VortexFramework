@@ -1,5 +1,7 @@
 #include "SequencedPattern.h"
 
+#include "../../../VortexEngine.h"
+
 #include "../../Single/SingleLedPattern.h"
 #include "../../PatternBuilder.h"
 
@@ -9,21 +11,21 @@
 
 #include <string.h>
 
-SequencedPattern::SequencedPattern(const PatternArgs &args) :
-  CompoundPattern(args),
-  m_sequence(),
+SequencedPattern::SequencedPattern(VortexEngine &engine, const PatternArgs &args) :
+  CompoundPattern(engine, args),
+  m_sequence(engine),
   m_curSequence(0),
-  m_timer()
+  m_timer(engine)
 {
   // SequencedPattern is an abstract class it cannot be directly
   // instantiated so we do not need to assign a pattern id
 }
 
-SequencedPattern::SequencedPattern(const PatternArgs &args, const Sequence &sequence) :
-  CompoundPattern(args),
+SequencedPattern::SequencedPattern(VortexEngine &engine, const PatternArgs &args, const Sequence &sequence) :
+  CompoundPattern(engine, args),
   m_sequence(sequence),
   m_curSequence(0),
-  m_timer()
+  m_timer(engine)
 {
   // SequencedPattern is an abstract class it cannot be directly
   // instantiated so we do not need to assign a pattern id
@@ -77,7 +79,7 @@ void SequencedPattern::playSequenceStep(const SequenceStep &step)
     PatternID stepPattern = step.m_patternMap[pos];
     // the actual colorset being used might be the pattern's colorset
     const Colorset *curSet = &m_colorset;
-    if (step.m_colorsetMap[pos].numColors() > 0) {
+    if (step.m_colorsetMap.m_colorsets.size() > pos && step.m_colorsetMap[pos].numColors() > 0) {
       // or it might be the steps' colorset if it's not empty
       curSet = &step.m_colorsetMap[pos];
     }
@@ -86,7 +88,7 @@ void SequencedPattern::playSequenceStep(const SequenceStep &step)
       // delete any existing pattern and re-create it
       delete m_ledPatterns[pos];
       // create whichever pattern this step is (maybe PATTERN_NONE)
-      curPat = m_ledPatterns[pos] = PatternBuilder::makeSingle(stepPattern);
+      curPat = m_ledPatterns[pos] = m_engine.patternBuilder().makeSingle(stepPattern);
       // if a pattern was created then bind and init it
       if (curPat) {
         curPat->bind(pos);
@@ -97,7 +99,7 @@ void SequencedPattern::playSequenceStep(const SequenceStep &step)
     // if there's no pattern set, or the intended pattern of this step is NONE
     if (!curPat || stepPattern == PATTERN_NONE) {
       // clear the LED and don't play the pattern
-      Leds::clearIndex(pos);
+      m_engine.leds().clearIndex(pos);
       continue;
     }
     // otherwise play the pattern on this index

@@ -8,7 +8,8 @@
 #include "VortexLib.h"
 #endif
 
-Button::Button() :
+Button::Button(VortexEngine &engine) :
+  m_engine(engine),
   m_pinNum(0),
   m_pressTime(0),
   m_releaseTime(0),
@@ -51,7 +52,7 @@ bool Button::init(uint8_t pin)
 
 bool Button::check()
 {
-  return (Vortex::vcallbacks()->checkPinHook(m_pinNum) == 0);
+  return (m_engine.vortexLib().vcallbacks()->checkPinHook(m_pinNum) == 0);
 }
 
 void Button::update()
@@ -73,11 +74,11 @@ void Button::update()
     // update the press/release times and newpress/newrelease members
     if (m_isPressed) {
       // the button was just pressed
-      m_pressTime = Time::getCurtime();
+      m_pressTime = m_engine.time().getCurtime();
       m_newPress = true;
     } else {
       // the button was just released
-      m_releaseTime = Time::getCurtime();
+      m_releaseTime = m_engine.time().getCurtime();
       m_newRelease = true;
     }
   }
@@ -85,13 +86,13 @@ void Button::update()
   // calculate new hold/release durations if currently held/released
   if (m_isPressed) {
     // update the hold duration as long as the button is pressed
-    if (Time::getCurtime() >= m_pressTime) {
-      m_holdDuration = (uint32_t)(Time::getCurtime() - m_pressTime);
+    if (m_engine.time().getCurtime() >= m_pressTime) {
+      m_holdDuration = (uint32_t)(m_engine.time().getCurtime() - m_pressTime);
     }
   } else {
     // update the release duration as long as the button is released
-    if (Time::getCurtime() >= m_releaseTime) {
-      m_releaseDuration = (uint32_t)(Time::getCurtime() - m_releaseTime);
+    if (m_engine.time().getCurtime() >= m_releaseTime) {
+      m_releaseDuration = (uint32_t)(m_engine.time().getCurtime() - m_releaseTime);
       if (m_releaseDuration > CONSECUTIVE_WINDOW_TICKS) {
         // if the release duration is greater than the threshold, reset the consecutive presses
         m_consecutivePresses = 0;

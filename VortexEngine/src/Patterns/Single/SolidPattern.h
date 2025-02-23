@@ -8,7 +8,7 @@
 class SolidPattern : public BasicPattern
 {
 public:
-  SolidPattern(const PatternArgs &args);
+  SolidPattern(VortexEngine &engine, const PatternArgs &args);
 
 protected:
   // callbacks for blinking on/off, can be overridden by derived classes

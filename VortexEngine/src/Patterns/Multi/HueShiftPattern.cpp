@@ -1,17 +1,19 @@
 #include "HueShiftPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-HueShiftPattern::HueShiftPattern(const PatternArgs &args) :
-  MultiLedPattern(args),
+HueShiftPattern::HueShiftPattern(VortexEngine &engine, const PatternArgs &args) :
+  MultiLedPattern(engine, args),
   m_blinkOnDuration(0),
   m_blinkOffDuration(0),
   m_blendDelay(0),
   m_delayCounter(0),
-  m_blinkTimer(),
+  m_blinkTimer(engine),
   m_cur(0),
   m_next(0)
 {
@@ -48,7 +50,7 @@ void HueShiftPattern::play()
   case 0: // turn on the leds for given mapping
     break;
   case 1: // turn off the leds
-    Leds::clearAll();
+    m_engine.leds().clearAll();
   case -1: // just break and still run post-step
     return;
   }
@@ -77,7 +79,7 @@ void HueShiftPattern::play()
   HSVColor showColor = HSVColor(m_cur.hue, 255, 255);
   // set the target led with the current HSV color
   for (LedPos pos = LED_FIRST; pos < LED_COUNT; ++pos) {
-    Leds::setIndex(pos, hsv_to_rgb_generic(showColor));
+    m_engine.leds().setIndex(pos, hsv_to_rgb_generic(showColor));
     showColor.hue = (showColor.hue + 5) % 256;
   }
 }

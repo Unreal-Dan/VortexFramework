@@ -7,7 +7,7 @@
 class LighthousePattern : public BlinkStepPattern
 {
 public:
-  LighthousePattern(const PatternArgs &args);
+  LighthousePattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~LighthousePattern();
 
   // init the pattern to initial state

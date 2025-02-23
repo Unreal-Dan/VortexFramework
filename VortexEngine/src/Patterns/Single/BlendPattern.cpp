@@ -1,11 +1,13 @@
 #include "BlendPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Time/TimeControl.h"
 #include "../../Colors/Colorset.h"
 #include "../../Leds/Leds.h"
 
-BlendPattern::BlendPattern(const PatternArgs &args) :
-  BasicPattern(args),
+BlendPattern::BlendPattern(VortexEngine &engine, const PatternArgs &args) :
+  BasicPattern(engine, args),
   m_blendSpeed(0),
   m_numFlips(0),
   m_cur(),
@@ -54,7 +56,7 @@ void BlendPattern::onBlinkOn()
     col = hsvCol;
   }
   // set the color
-  Leds::setIndex(m_ledPos, col);
+  m_engine.leds().setIndex(m_ledPos, col);
   // increment the flip count
   m_flip++;
   // modulate the flip count DO NOT USE MODULO OPERATOR BECAUSE

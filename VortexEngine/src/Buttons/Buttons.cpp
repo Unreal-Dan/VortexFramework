@@ -7,16 +7,15 @@
 #include "../Time/Timings.h"
 #endif
 
-// Since there is only one button I am just going to expose a global pointer to
-// access it, instead of making the Button class static in case a second button
-// is added. This makes it easier to access the button from other places while
-// still allowing for a second instance to be added.  I wish there was a more
-// elegant way to make the button accessible but not global.
-// This will simply point at Buttons::m_button.
-Button *g_pButton = nullptr;
+Buttons::Buttons(VortexEngine &engine) :
+  m_engine(engine),
+  m_buttons{ engine }
+{
+}
 
-// static members
-Button Buttons::m_buttons[NUM_BUTTONS];
+Buttons::~Buttons()
+{
+}
 
 bool Buttons::init()
 {
@@ -24,7 +23,6 @@ bool Buttons::init()
   if (!m_buttons[0].init(1)) {
     return false;
   }
-  g_pButton = &m_buttons[0];
   return true;
 }
 
@@ -40,7 +38,7 @@ void Buttons::update()
     m_buttons[i].update();
   }
 #ifdef VORTEX_LIB
-  // read input from the vortex lib interface, for example Vortex::shortClick()
-  Vortex::handleInputQueue(m_buttons, NUM_BUTTONS);
+  // read input from the vortex lib interface, for example m_engine.vortexLib().shortClick()
+  m_engine.vortexLib().handleInputQueue(m_buttons, NUM_BUTTONS);
 #endif
 }

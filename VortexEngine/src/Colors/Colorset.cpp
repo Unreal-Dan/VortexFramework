@@ -437,6 +437,30 @@ RGBColor Colorset::peek(int32_t offset) const
   return m_palette[nextIndex];
 }
 
+// shift an index to a new destination, dest index before move
+void Colorset::shift(uint8_t idx, uint8_t dest)
+{
+  if (idx >= m_numColors || dest >= m_numColors || idx == dest) {
+    return;
+  }
+  // Backup the color being shifted
+  RGBColor temp = m_palette[idx];
+  // shift the block of colors next to it
+  if (idx < dest) {
+    // Forward shift: Move the block from idx + 1 to dest
+    memmove(m_palette + idx,
+            m_palette + idx + 1,
+            (dest - idx) * sizeof(RGBColor));
+  } else {
+    // Backward shift: Move the block from dest to idx - 1
+    memmove(m_palette + dest + 1,
+            m_palette + dest,
+            (idx - dest) * sizeof(RGBColor));
+  }
+  // Place the saved element at the destination
+  m_palette[dest] = temp;
+}
+
 bool Colorset::onStart() const
 {
   return (m_curIndex == 0);

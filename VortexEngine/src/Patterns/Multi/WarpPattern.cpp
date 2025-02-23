@@ -1,12 +1,14 @@
 #include "WarpPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-WarpPattern::WarpPattern(const PatternArgs &args) :
-  BlinkStepPattern(args),
+WarpPattern::WarpPattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args),
   m_progress(0)
 {
   m_patternID = PATTERN_WARP;
@@ -29,8 +31,8 @@ void WarpPattern::init()
 
 void WarpPattern::blinkOn()
 {
-  Leds::setAll(m_colorset.cur());
-  Leds::setPair((Pair)m_progress, m_colorset.peekNext());
+  m_engine.leds().setAll(m_colorset.cur());
+  m_engine.leds().setPair((Pair)m_progress, m_colorset.peekNext());
 }
 
 void WarpPattern::poststep()

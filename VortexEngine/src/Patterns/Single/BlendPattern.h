@@ -8,7 +8,7 @@
 class BlendPattern : public BasicPattern
 {
 public:
-  BlendPattern(const PatternArgs &args);
+  BlendPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~BlendPattern();
 
   virtual void init() override;

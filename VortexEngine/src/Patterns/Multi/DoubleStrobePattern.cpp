@@ -1,11 +1,13 @@
 #include "DoubleStrobePattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 
 #include "../../Leds/Leds.h"
 
-DoubleStrobePattern::DoubleStrobePattern(const PatternArgs &args) :
-  BlinkStepPattern(args)
+DoubleStrobePattern::DoubleStrobePattern(VortexEngine &engine, const PatternArgs &args) :
+  BlinkStepPattern(engine, args)
 {
   m_patternID = PATTERN_DOUBLESTROBE;
   setArgs(args);
@@ -24,6 +26,6 @@ void DoubleStrobePattern::init()
 
 void DoubleStrobePattern::blinkOn()
 {
-  Leds::setAllOdds(m_colorset.cur());
-  Leds::setAllEvens(m_colorset.peekNext());
+  m_engine.leds().setAllOdds(m_colorset.cur());
+  m_engine.leds().setAllEvens(m_colorset.peekNext());
 }

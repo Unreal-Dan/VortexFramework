@@ -12,8 +12,16 @@
 #include <stdio.h>
 #endif
 
-bool SerialComs::m_serialConnected = false;
-uint32_t SerialComs::m_lastCheck = 0;
+SerialComs::SerialComs(VortexEngine &engine) :
+  m_engine(engine),
+  m_serialConnected(false),
+  m_lastCheck(0)
+{
+}
+
+SerialComs::~SerialComs()
+{
+}
 
 // init serial
 bool SerialComs::init()
@@ -40,7 +48,7 @@ bool SerialComs::checkSerial()
     // already connected
     return true;
   }
-  uint32_t now = Time::getCurtime();
+  uint32_t now = m_engine.time().getCurtime();
   // don't check for serial too fast
   if (m_lastCheck && (now - m_lastCheck) < MAX_SERIAL_CHECK_INTERVAL) {
     // can't check yet too soon
@@ -48,10 +56,10 @@ bool SerialComs::checkSerial()
   }
   m_lastCheck = now;
 #ifdef VORTEX_LIB
-  if (!Vortex::vcallbacks()->serialCheck()) {
+  if (!m_engine.vortexLib().vcallbacks()->serialCheck()) {
     return false;
   }
-  Vortex::vcallbacks()->serialBegin(SERIAL_BAUD_RATE);
+  m_engine.vortexLib().vcallbacks()->serialBegin(SERIAL_BAUD_RATE);
 #else
   // This will check if the serial communication is open
   if (!Serial.available()) {
@@ -78,7 +86,7 @@ void SerialComs::write(const char *msg, ...)
   uint8_t buf[2048] = {0};
   int len = vsnprintf((char *)buf, sizeof(buf), msg, list);
 #ifdef VORTEX_LIB
-  Vortex::vcallbacks()->serialWrite(buf, len);
+  m_engine.vortexLib().vcallbacks()->serialWrite(buf, len);
 #else
   Serial.write(buf, len);
   Serial.flush();
@@ -96,8 +104,8 @@ void SerialComs::write(ByteStream &byteStream)
   byteStream.recalcCRC();
   uint32_t size = byteStream.rawSize();
 #ifdef VORTEX_LIB
-  Vortex::vcallbacks()->serialWrite((const uint8_t *)&size, sizeof(size));
-  Vortex::vcallbacks()->serialWrite((const uint8_t *)byteStream.rawData(), byteStream.rawSize());
+  m_engine.vortexLib().vcallbacks()->serialWrite((const uint8_t *)&size, sizeof(size));
+  m_engine.vortexLib().vcallbacks()->serialWrite((const uint8_t *)byteStream.rawData(), byteStream.rawSize());
 #else
   Serial.write((const uint8_t *)&size, sizeof(size));
   Serial.write((const uint8_t *)byteStream.rawData(), byteStream.rawSize());
@@ -113,7 +121,7 @@ void SerialComs::read(ByteStream &byteStream)
     return;
   }
 #ifdef VORTEX_LIB
-  uint32_t amt = Vortex::vcallbacks()->serialAvail();
+  uint32_t amt = m_engine.vortexLib().vcallbacks()->serialAvail();
 #else
   uint32_t amt = Serial.available();
 #endif
@@ -123,7 +131,7 @@ void SerialComs::read(ByteStream &byteStream)
   do {
     uint8_t byte = 0;
 #ifdef VORTEX_LIB
-    if (!Vortex::vcallbacks()->serialRead((char *)&byte, 1)) {
+    if (!m_engine.vortexLib().vcallbacks()->serialRead((char *)&byte, 1)) {
       return;
     }
 #else
@@ -141,7 +149,7 @@ bool SerialComs::dataReady()
     return false;
   }
 #ifdef VORTEX_LIB
-  return (Vortex::vcallbacks()->serialAvail() > 0);
+  return (m_engine.vortexLib().vcallbacks()->serialAvail() > 0);
 #else
   return (Serial.available() > 0);
 #endif

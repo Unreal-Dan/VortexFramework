@@ -34,6 +34,25 @@
 #include "Single/BlendPattern.h"
 #include "Single/SolidPattern.h"
 
+
+PatternBuilder::PatternBuilder(VortexEngine &engine) :
+  m_engine(engine)
+{
+}
+
+PatternBuilder::~PatternBuilder()
+{
+}
+
+bool PatternBuilder::init()
+{
+  return true;
+}
+
+void PatternBuilder::cleanup()
+{
+}
+
 Pattern *PatternBuilder::make(PatternID id, const PatternArgs *args)
 {
 #if VORTEX_SLIM == 0
@@ -128,10 +147,6 @@ Pattern *PatternBuilder::makeInternal(PatternID id, const PatternArgs *args)
   return pat;
 }
 
-// This is just the default arguments for any given pattern id
-// it will *not* indicate the true amount of arguments a pattern has
-// Some pattern ids are purely defined by their unique arguments
-// to a class, so calling them 'default' might be misleading
 PatternArgs PatternBuilder::getDefaultArgs(PatternID id)
 {
   switch (id) {
@@ -206,6 +221,16 @@ PatternArgs PatternBuilder::getDefaultArgs(PatternID id)
   return PatternArgs();
 }
 
+bool PatternBuilder::isDefaultArgs(PatternID id, const PatternArgs &args)
+{
+  PatternArgs defaultArgs = getDefaultArgs(id);
+  // force the number of args to match, the defaults returned from the above
+  // API will have the wrong number of args
+  defaultArgs.numArgs = args.numArgs;
+  // now compare them
+  return (args == defaultArgs);
+}
+
 uint8_t PatternBuilder::numDefaultArgs(PatternID id)
 {
   Pattern *pat = make(id);
@@ -249,40 +274,40 @@ Pattern *PatternBuilder::generate(PatternID id, const PatternArgs *userArgs)
     case PATTERN_DASHCYCLE:
     case PATTERN_TRACER:
     case PATTERN_RIBBON:
-    case PATTERN_MINIRIBBON: return new BasicPattern(args);
+    case PATTERN_MINIRIBBON: return new BasicPattern(m_engine, args);
     case PATTERN_BLEND:
     case PATTERN_BLENDSTROBE:
     case PATTERN_BLENDSTROBEGAP:
     case PATTERN_COMPLEMENTARY_BLEND:
     case PATTERN_COMPLEMENTARY_BLENDSTROBE:
-    case PATTERN_COMPLEMENTARY_BLENDSTROBEGAP: return new BlendPattern(args);
-    case PATTERN_SOLID: return new SolidPattern(args);
+    case PATTERN_COMPLEMENTARY_BLENDSTROBEGAP: return new BlendPattern(m_engine, args);
+    case PATTERN_SOLID: return new SolidPattern(m_engine, args);
 
     // =====================
     //  Multi Led Patterns:
 #if VORTEX_SLIM == 0
-    case PATTERN_HUE_SCROLL: return new HueShiftPattern(args);
-    case PATTERN_THEATER_CHASE: return new TheaterChasePattern(args);
-    case PATTERN_CHASER: return new ChaserPattern(args);
+    case PATTERN_HUE_SCROLL: return new HueShiftPattern(m_engine, args);
+    case PATTERN_THEATER_CHASE: return new TheaterChasePattern(m_engine, args);
+    case PATTERN_CHASER: return new ChaserPattern(m_engine, args);
     case PATTERN_ZIGZAG:
-    case PATTERN_ZIPFADE: return new ZigzagPattern(args);
-    case PATTERN_DRIP: return new DripPattern(args);
-    case PATTERN_DRIPMORPH: return new DripMorphPattern(args);
-    case PATTERN_CROSSDOPS: return new CrossDopsPattern(args);
-    case PATTERN_DOUBLESTROBE: return new DoubleStrobePattern(args);
-    case PATTERN_METEOR: return new MeteorPattern(args);
-    case PATTERN_SPARKLETRACE: return new SparkleTracePattern(args);
-    case PATTERN_VORTEXWIPE: return new VortexWipePattern(args);
-    case PATTERN_WARP: return new WarpPattern(args);
-    case PATTERN_WARPWORM: return new WarpWormPattern(args);
-    case PATTERN_SNOWBALL: return new SnowballPattern(args);
-    case PATTERN_LIGHTHOUSE: return new LighthousePattern(args);
-    case PATTERN_PULSISH: return new PulsishPattern(args);
-    case PATTERN_FILL: return new FillPattern(args);
-    case PATTERN_BOUNCE: return new BouncePattern(args);
+    case PATTERN_ZIPFADE: return new ZigzagPattern(m_engine, args);
+    case PATTERN_DRIP: return new DripPattern(m_engine, args);
+    case PATTERN_DRIPMORPH: return new DripMorphPattern(m_engine, args);
+    case PATTERN_CROSSDOPS: return new CrossDopsPattern(m_engine, args);
+    case PATTERN_DOUBLESTROBE: return new DoubleStrobePattern(m_engine, args);
+    case PATTERN_METEOR: return new MeteorPattern(m_engine, args);
+    case PATTERN_SPARKLETRACE: return new SparkleTracePattern(m_engine, args);
+    case PATTERN_VORTEXWIPE: return new VortexWipePattern(m_engine, args);
+    case PATTERN_WARP: return new WarpPattern(m_engine, args);
+    case PATTERN_WARPWORM: return new WarpWormPattern(m_engine, args);
+    case PATTERN_SNOWBALL: return new SnowballPattern(m_engine, args);
+    case PATTERN_LIGHTHOUSE: return new LighthousePattern(m_engine, args);
+    case PATTERN_PULSISH: return new PulsishPattern(m_engine, args);
+    case PATTERN_FILL: return new FillPattern(m_engine, args);
+    case PATTERN_BOUNCE: return new BouncePattern(m_engine, args);
     case PATTERN_SPLITSTROBIE:
-    case PATTERN_BACKSTROBE: return new BackStrobePattern(args);
-    case PATTERN_VORTEX: return new VortexPattern(args);
+    case PATTERN_BACKSTROBE: return new BackStrobePattern(m_engine, args);
+    case PATTERN_VORTEX: return new VortexPattern(m_engine, args);
     case PATTERN_NONE: return nullptr;
 #else
     // in vortex slim just use basic pattern for all multi led

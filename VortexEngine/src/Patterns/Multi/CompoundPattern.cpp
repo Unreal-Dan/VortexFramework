@@ -1,11 +1,13 @@
 #include "CompoundPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../Single/SingleLedPattern.h"
 #include "../../Colors/Colorset.h"
 #include "../PatternBuilder.h"
 
-CompoundPattern::CompoundPattern(const PatternArgs &args) :
-  MultiLedPattern(args),
+CompoundPattern::CompoundPattern(VortexEngine &engine, const PatternArgs &args) :
+  MultiLedPattern(engine, args),
   m_ledPatterns()
 {
   // Hybrid is an abstract class it cannot be directly
@@ -15,11 +17,9 @@ CompoundPattern::CompoundPattern(const PatternArgs &args) :
 CompoundPattern::~CompoundPattern()
 {
   // clean up all the sub patterns
-  for (LedPos pos = LED_FIRST; pos <= LED_LAST; pos++) {
-    if (m_ledPatterns[pos]) {
-      delete m_ledPatterns[pos];
-      m_ledPatterns[pos] = nullptr;
-    }
+  for (LedPos pos = LED_FIRST; pos < m_ledPatterns.size(); pos++) {
+    delete m_ledPatterns[pos];
+    m_ledPatterns[pos] = nullptr;
   }
 }
 
@@ -27,6 +27,9 @@ CompoundPattern::~CompoundPattern()
 void CompoundPattern::init()
 {
   MultiLedPattern::init();
+
+  // resize the pattern list to the number of leds
+  m_ledPatterns.resize(LED_COUNT);
 }
 
 // play the hybrid pattern (play all led patterns)
@@ -76,7 +79,7 @@ void CompoundPattern::setPatternAt(LedPos pos, PatternID id,
   if (pos >= LED_COUNT) {
     return;
   }
-  setPatternAt(pos, PatternBuilder::makeSingle(id, args), set);
+  setPatternAt(pos, m_engine.patternBuilder().makeSingle(id, args), set);
 }
 
 void CompoundPattern::setEvensOdds(PatternID evenPattern, PatternID oddPattern,
@@ -86,6 +89,6 @@ void CompoundPattern::setEvensOdds(PatternID evenPattern, PatternID oddPattern,
   for (LedPos p = LED_FIRST; p <= LED_LAST; p++) {
     const PatternArgs *args = isEven(p) ? evenArgs : oddArgs;
     PatternID id = isEven(p) ? evenPattern : oddPattern;
-    setPatternAt(p, PatternBuilder::makeSingle(id, args));
+    setPatternAt(p, m_engine.patternBuilder().makeSingle(id, args));
   }
 }

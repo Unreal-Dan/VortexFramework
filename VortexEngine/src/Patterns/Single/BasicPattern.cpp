@@ -1,5 +1,7 @@
 #include "BasicPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Time/TimeControl.h"
 #include "../../Colors/Colorset.h"
 #include "../../Leds/Leds.h"
@@ -31,8 +33,8 @@ static void printState(PatternState state)
 #define PRINT_STATE(state) // do nothing
 #endif
 
-BasicPattern::BasicPattern(const PatternArgs &args) :
-  SingleLedPattern(args),
+BasicPattern::BasicPattern(VortexEngine &engine, const PatternArgs &args) :
+  SingleLedPattern(engine, args),
   m_onDuration(0),
   m_offDuration(0),
   m_gapDuration(0),
@@ -40,7 +42,7 @@ BasicPattern::BasicPattern(const PatternArgs &args) :
   m_groupSize(0),
   m_groupCounter(0),
   m_state(STATE_BLINK_ON),
-  m_blinkTimer()
+  m_blinkTimer(engine)
 {
   m_patternID = PATTERN_STROBE;
   REGISTER_ARG(m_onDuration);
@@ -169,23 +171,23 @@ replay:
 void BasicPattern::onBlinkOn()
 {
   PRINT_STATE(STATE_ON);
-  Leds::setIndex(m_ledPos, m_colorset.getNext());
+  m_engine.leds().setIndex(m_ledPos, m_colorset.getNext());
 }
 
 void BasicPattern::onBlinkOff()
 {
   PRINT_STATE(STATE_OFF);
-  Leds::clearIndex(m_ledPos);
+  m_engine.leds().clearIndex(m_ledPos);
 }
 
 void BasicPattern::beginGap()
 {
   PRINT_STATE(STATE_IN_GAP);
-  Leds::clearIndex(m_ledPos);
+  m_engine.leds().clearIndex(m_ledPos);
 }
 
 void BasicPattern::beginDash()
 {
   PRINT_STATE(STATE_IN_DASH);
-  Leds::setIndex(m_ledPos, m_colorset.getNext());
+  m_engine.leds().setIndex(m_ledPos, m_colorset.getNext());
 }

@@ -8,7 +8,7 @@
 class SparkleTracePattern : public BlinkStepPattern
 {
 public:
-  SparkleTracePattern(const PatternArgs &args);
+  SparkleTracePattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~SparkleTracePattern();
 
 protected:

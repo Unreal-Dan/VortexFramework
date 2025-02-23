@@ -18,14 +18,8 @@
 #include "../Leds/Leds.h"
 #include "../Log/Log.h"
 
-// static members
-Menus::MenuState Menus::m_menuState = MENU_STATE_NOT_OPEN;
-uint8_t Menus::m_selection = 0;
-uint32_t Menus::m_openTime = 0;
-Menu *Menus::m_pCurMenu = nullptr;
-
 // typedef for the menu initialization function
-typedef Menu *(*initMenuFn_t)(const RGBColor &col, bool advanced);
+typedef Menu *(*initMenuFn_t)(VortexEngine &engine, const RGBColor &col, bool advanced);
 
 // entries for the ring menu
 struct MenuEntry {
@@ -39,7 +33,7 @@ struct MenuEntry {
 
 // a template to initialize ringmenu functions
 template <typename T>
-Menu *initMenu(const RGBColor &col, bool advanced) { return new T(col, advanced); }
+Menu *initMenu(VortexEngine &engine, const RGBColor &col, bool advanced) { return new T(engine, col, advanced); }
 
 // a simple macro to simplify the entries in the menu list
 #if LOGGING_LEVEL > 2
@@ -66,6 +60,19 @@ const MenuEntry menuList[] = {
 
 // the number of menus in the above array
 #define NUM_MENUS (sizeof(menuList) / sizeof(menuList[0]))
+
+Menus::Menus(VortexEngine &engine) :
+  m_engine(engine),
+  m_menuState(MENU_STATE_NOT_OPEN),
+  m_selection(0),
+  m_openTime(0),
+  m_pCurMenu(nullptr)
+{
+}
+
+Menus::~Menus()
+{
+}
 
 bool Menus::init()
 {
@@ -102,7 +109,7 @@ bool Menus::run()
 
 bool Menus::runMenuSelection()
 {
-  if (g_pButton->onShortClick()) {
+  if (m_engine.button().onShortClick()) {
     // otherwise increment selection and wrap around at num menus
     m_selection = (m_selection + 1) % NUM_MENUS;
 #if ENABLE_EDITOR_CONNECTION == 1
@@ -115,25 +122,25 @@ bool Menus::runMenuSelection()
 #endif
     DEBUG_LOGF("Cyling to ring menu %u", m_selection);
     // reset the open time so that it starts again
-    m_openTime = Time::getCurtime();
+    m_openTime = m_engine.time().getCurtime();
     // clear the leds
-    Leds::clearAll();
+    m_engine.leds().clearAll();
     return true;
   }
   // clear the leds so it always fills instead of replacing
-  Leds::clearAll();
+  m_engine.leds().clearAll();
   // timings for blink later
   uint8_t offtime = 200;
   uint8_t ontime = 200;
   // whether advanced menus are enabled
-  bool advMenus = Modes::advancedMenusEnabled();
+  bool advMenus = m_engine.modes().advancedMenusEnabled();
   // if the button was long pressed then select this menu, but we
   // need to check the presstime to ensure we don't catch the initial
   // release after opening the ringmenu
-  if (g_pButton->pressTime() >= m_openTime) {
+  if (m_engine.button().pressTime() >= m_openTime) {
     // whether to open advanced menus or not
-    bool openAdv = (g_pButton->holdDuration() > ADV_MENU_DURATION_TICKS) && advMenus;
-    if (g_pButton->onLongClick()) {
+    bool openAdv = (m_engine.button().holdDuration() > ADV_MENU_DURATION_TICKS) && advMenus;
+    if (m_engine.button().onLongClick()) {
       // ringmenu is open so select the menu
       DEBUG_LOGF("Selected ringmenu %s", menuList[m_selection].menuName);
       // open the menu we have selected
@@ -145,7 +152,7 @@ bool Menus::runMenuSelection()
       return true;
     }
     // if holding down to select the menu option
-    if (g_pButton->isPressed() && openAdv) {
+    if (m_engine.button().isPressed() && openAdv) {
       // make it strobe aw yiss
       offtime = HYPERSTROBE_OFF_DURATION;
       ontime = HYPERSTROBE_ON_DURATION;
@@ -154,20 +161,20 @@ bool Menus::runMenuSelection()
   // blink every even/odd of every pair
   for (Pair p = PAIR_FIRST; p < PAIR_COUNT; ++p) {
     if (pairEven(p) < LED_COUNT) {
-      Leds::blinkIndex(pairEven(p), offtime, ontime, menuList[m_selection].color);
+      m_engine.leds().blinkIndex(pairEven(p), offtime, ontime, menuList[m_selection].color);
     }
     if (pairOdd(p) < LED_COUNT) {
-      Leds::setIndex(pairOdd(p), menuList[m_selection].color);
-      Leds::blinkIndex(pairOdd(p), offtime, ontime, RGB_OFF);
+      m_engine.leds().setIndex(pairOdd(p), menuList[m_selection].color);
+      m_engine.leds().blinkIndex(pairOdd(p), offtime, ontime, RGB_OFF);
     }
   }
   // check if the advanced menus have been enabled
-  if (g_pButton->onConsecutivePresses(ADVANCED_MENU_CLICKS)) {
+  if (m_engine.button().onConsecutivePresses(ADVANCED_MENU_CLICKS)) {
     // toggle the advanced menu
-    Modes::setAdvancedMenus(!advMenus);
+    m_engine.modes().setAdvancedMenus(!advMenus);
     // display a pink or red depending on whether the menu was enabled
     for (uint16_t i = 0; i < 2; ++i) {
-      Leds::holdAll(advMenus ? RGB_RED : RGB_PINK);
+      m_engine.leds().holdAll(advMenus ? RGB_RED : RGB_PINK);
     }
   }
   // show when the user selects a menu option
@@ -191,10 +198,10 @@ bool Menus::runCurMenu()
     return false;
   case Menu::MENU_CONTINUE:
     // if Menu continue run the click handlers for the menu
-    if (g_pButton->onShortClick()) {
+    if (m_engine.button().onShortClick()) {
       m_pCurMenu->onShortClick();
     }
-    if (g_pButton->onLongClick()) {
+    if (m_engine.button().onLongClick()) {
       m_pCurMenu->onLongClick();
     }
     break;
@@ -214,11 +221,11 @@ bool Menus::openMenuSelection()
     return false;
   }
   // save the time of when we open the menu so we can fill based on curtime from then
-  m_openTime = Time::getCurtime();
+  m_openTime = m_engine.time().getCurtime();
   // open the menu
   m_menuState = MENU_STATE_MENU_SELECTION;
   // clear the leds
-  Leds::clearAll();
+  m_engine.leds().clearAll();
   return true;
 }
 
@@ -228,7 +235,7 @@ bool Menus::openMenu(uint32_t index, bool advanced)
     return false;
   }
   m_selection = index;
-  Menu *newMenu = menuList[m_selection].initMenu(menuList[m_selection].color, advanced);
+  Menu *newMenu = menuList[m_selection].initMenu(m_engine, menuList[m_selection].color, advanced);
   if (!newMenu) {
     return false;
   }
@@ -246,7 +253,7 @@ bool Menus::openMenu(uint32_t index, bool advanced)
   m_pCurMenu = newMenu;
   // and the menus are open just in case
   // clear all the leds
-  Leds::clearAll();
+  m_engine.leds().clearAll();
   m_menuState = MENU_STATE_IN_MENU;
   return true;
 }
@@ -255,16 +262,16 @@ void Menus::showSelection(RGBColor colval)
 {
   // blink the tip led white for 150ms when the short
   // click threshold has been surpassed
-  if (g_pButton->isPressed() &&
-    g_pButton->holdDuration() > SHORT_CLICK_THRESHOLD_TICKS &&
-    g_pButton->holdDuration() < (SHORT_CLICK_THRESHOLD_TICKS + MS_TO_TICKS(250))) {
-    Leds::setAll(colval);
+  if (m_engine.button().isPressed() &&
+    m_engine.button().holdDuration() > SHORT_CLICK_THRESHOLD_TICKS &&
+    m_engine.button().holdDuration() < (SHORT_CLICK_THRESHOLD_TICKS + MS_TO_TICKS(250))) {
+    m_engine.leds().setAll(colval);
   }
 }
 
 bool Menus::checkOpen()
 {
-  return m_menuState != MENU_STATE_NOT_OPEN && g_pButton->releaseTime() > m_openTime;
+  return m_menuState != MENU_STATE_NOT_OPEN && m_engine.button().releaseTime() > m_openTime;
 }
 
 bool Menus::checkInMenu()
@@ -292,5 +299,5 @@ void Menus::closeCurMenu()
   m_menuState = MENU_STATE_NOT_OPEN;
   m_selection = 0;
   // clear the leds
-  Leds::clearAll();
+  m_engine.leds().clearAll();
 }

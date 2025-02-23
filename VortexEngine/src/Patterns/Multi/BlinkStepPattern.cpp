@@ -1,17 +1,19 @@
 #include "BlinkStepPattern.h"
 
+#include "../../VortexEngine.h"
+
 #include "../../Serial/ByteStream.h"
 #include "../../Time/TimeControl.h"
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-BlinkStepPattern::BlinkStepPattern(const PatternArgs &args) :
-  MultiLedPattern(args),
+BlinkStepPattern::BlinkStepPattern(VortexEngine &engine, const PatternArgs &args) :
+  MultiLedPattern(engine, args),
   m_blinkOnDuration(0),
   m_blinkOffDuration(0),
   m_stepDuration(0),
-  m_blinkTimer(),
-  m_stepTimer()
+  m_blinkTimer(engine),
+  m_stepTimer(engine)
 {
   // BlinkStep is an abstract class it cannot be directly
   // instantiated so we do not need to assign a pattern id
@@ -74,7 +76,7 @@ void BlinkStepPattern::blinkOn()
 void BlinkStepPattern::blinkOff()
 {
   // override me
-  Leds::clearAll();
+  m_engine.leds().clearAll();
 }
 
 void BlinkStepPattern::prestep()

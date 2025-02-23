@@ -27,52 +27,56 @@ enum MenuEntryID
   MENU_COUNT
 };
 
+class VortexEngine;
 class Menu;
 
 class Menus
 {
-  // private unimplemented constructor
-  Menus();
-
 public:
-  // opting for static class here because there should only ever be one
+  Menus(VortexEngine &engine);
+  ~Menus();
+
+  // opting for class here because there should only ever be one
   // Menu control object and I don't like singletons
-  static bool init();
-  static void cleanup();
+  bool init();
+  void cleanup();
 
   // Run the menus returns true if the menu remains open, false if closed
-  static bool run();
+  bool run();
 
   // open the ring menu
-  static bool openMenuSelection();
+  bool openMenuSelection();
 
   // open a menu by index in the menu table, optionally specify to
   // open the advanced version of the menu (default basic version)
-  static bool openMenu(uint32_t index, bool advanced = false);
+  bool openMenu(uint32_t index, bool advanced = false);
 
   // if you call this then a blink will be shown when the user has
   // held the button for at least the long click duration
-  static void showSelection(RGBColor colval = RGB_WHITE5);
+  void showSelection(RGBColor colval = RGB_WHITE5);
 
   // whether the menus are actually open (The user has let go after opening)
-  static bool checkOpen();
+  bool checkOpen();
   // whether the user is actually in a menu
-  static bool checkInMenu();
-  static Menu *curMenu();
-  static MenuEntryID curMenuID();
+  bool checkInMenu();
+  Menu *curMenu();
+  MenuEntryID curMenuID();
 
 private:
   // run the currently open menu
-  static bool runCurMenu();
+  bool runCurMenu();
   // run the ring filling logic
-  static bool runMenuSelection();
+  bool runMenuSelection();
   // helper to calculate the relative hold time for the current menu
-  static LedPos calcLedPos();
+  LedPos calcLedPos();
   // close the currently open menu
-  static void closeCurMenu();
+  void closeCurMenu();
 
   // =====================
   //  private members
+
+  // reference to engine
+  VortexEngine &m_engine;
 
   enum MenuState {
     // menus aren't open at all
@@ -86,14 +90,14 @@ private:
   };
 
   // the current menus states
-  static MenuState m_menuState;
+  MenuState m_menuState;
 
   // the ring menu section
-  static uint8_t m_selection;
+  uint8_t m_selection;
   // the time when we first opened the ringmenu
-  static uint32_t m_openTime;
+  uint32_t m_openTime;
   // the current sub menu that is open
-  static Menu *m_pCurMenu;
+  Menu *m_pCurMenu;
 };
 
 #endif

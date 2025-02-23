@@ -13,7 +13,7 @@ struct default_mode_entry
 };
 
 // exposed global array of default modes
-extern const default_mode_entry default_modes[MAX_MODES];
+extern const default_mode_entry default_modes[];
 
 // exposed size of the default modes array
 extern const uint8_t num_default_modes;

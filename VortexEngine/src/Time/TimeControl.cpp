@@ -12,27 +12,9 @@
 #if !defined(_WIN32) || defined(WASM)
 #include <unistd.h>
 #include <time.h>
-uint64_t start = 0;
 // convert seconds and nanoseconds to microseconds
 #define SEC_TO_US(sec) ((sec)*1000000)
 #define NS_TO_US(ns) ((ns)/1000)
-#else
-#include <Windows.h>
-static LARGE_INTEGER tps;
-static LARGE_INTEGER start;
-#endif
-
-// static members
-#if VARIABLE_TICKRATE == 1
-uint32_t Time::m_tickrate = DEFAULT_TICKRATE;
-#endif
-uint32_t Time::m_curTick = 0;
-uint32_t Time::m_prevTime = 0;
-uint32_t Time::m_firstTime = 0;
-#ifdef VORTEX_LIB
-uint32_t Time::m_simulationTick = 0;
-bool Time::m_isSimulation = false;
-bool Time::m_instantTimestep = false;
 #endif
 
 // Within this file TICKRATE may refer to the variable member
@@ -42,6 +24,32 @@ bool Time::m_instantTimestep = false;
 #else
 #define TICKRATE DEFAULT_TICKRATE
 #endif
+
+Time::Time(VortexEngine &engine) :
+  m_engine(engine),
+#if !defined(_WIN32) || defined(WASM)
+  start(0),
+#else
+  tps(),
+  start(),
+#endif
+#if VARIABLE_TICKRATE == 1
+  m_tickrate(DEFAULT_TICKRATE),
+#endif
+  m_curTick(0),
+  m_prevTime(0),
+  m_firstTime(0),
+#ifdef VORTEX_LIB
+  m_simulationTick(0),
+  m_isSimulation(false),
+  m_instantTimestep(false)
+#endif
+{
+}
+
+Time::~Time()
+{
+}
 
 bool Time::init()
 {

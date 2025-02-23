@@ -9,7 +9,7 @@
 class ZigzagPattern : public MultiLedPattern
 {
 public:
-  ZigzagPattern(const PatternArgs &args);
+  ZigzagPattern(VortexEngine &engine, const PatternArgs &args);
   virtual ~ZigzagPattern();
 
   // init the pattern to initial state
@@ -22,7 +22,7 @@ private:
 
   class Snake {
   public:
-    Snake();
+    Snake(VortexEngine &engine);
 
     void init(uint8_t onDuration, uint8_t offDuration, const Colorset &colorset, uint32_t colorOffset,
       uint8_t step = 0, uint8_t snakeSize = 1, uint8_t fadeAmount = 55, uint8_t changeBoundary = 3);
@@ -32,6 +32,7 @@ private:
   private:
     void drawSnake();
 
+    VortexEngine &m_engine;
     Timer m_blinkTimer;
     Colorset m_colorset;
     uint8_t m_step;
