@@ -33,9 +33,15 @@ public:
   static void setPair(Pair pair, RGBColor col);
   static void setPairs(Pair first, Pair last, RGBColor col);
 
+  // set a single finger to a color
+  static void setFinger(Finger finger, RGBColor col);
+
   // Turn off both LEDs on a pair, these are appropriate for use in internal pattern logic
   static void clearPair(Pair pair) { setPair(pair, RGB_OFF); }
   static void clearPairs(Pair first, Pair last) { setPairs(first, last, RGB_OFF); }
+
+  // clear the led on a single finger
+  static void clearFinger(Finger finger) { setFinger(finger, RGB_OFF); }
 
   // Controll pair evens
   static void setRangeEvens(Pair first, Pair last, RGBColor);
@@ -78,6 +84,7 @@ public:
   // is unpredictable whether they will blink on or off first
   static void blinkIndexOffset(LedPos target, uint32_t time, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkRangeOffset(LedPos first, LedPos last, uint32_t time, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
+  static void blinkFingerOffset(Finger target, uint32_t time, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkIndex(LedPos target, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkRange(LedPos first, LedPos last, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
   static void blinkMap(LedMap targets, uint16_t offMs = 250, uint16_t onMs = 500, RGBColor col = RGB_OFF);
@@ -91,6 +98,8 @@ public:
   static void breatheIndex(LedPos target, uint8_t hue, uint32_t variance,
     uint32_t magnitude = 15, uint8_t sat = 255, uint8_t val = 210);
   static void breatheRange(LedPos first, LedPos last, uint8_t hue, uint32_t variance,
+    uint32_t magnitude = 15, uint8_t sat = 255, uint8_t val = 210);
+  static void breatheFinger(Finger finger, uint8_t hue, uint32_t variance,
     uint32_t magnitude = 15, uint8_t sat = 255, uint8_t val = 210);
   static void breatheIndexSat(LedPos target, uint8_t hue, uint32_t variance,
     uint32_t magnitude = 15, uint8_t sat = 255, uint8_t val = 210);
@@ -117,7 +126,10 @@ private:
     if (pos > LED_LAST) {
       pos = LED_LAST;
     }
-    return m_ledColors[pos];
+    // FLIP THE INDEXES because we want our enums to go from
+    // PINKIE to INDEX for sake of simple iteration in menus
+    // but the current hardware configuration is flipped
+    return m_ledColors[LED_LAST - pos];
   }
 
   // the global brightness

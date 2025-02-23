@@ -17,24 +17,24 @@ public:
   void onLongClick() override;
 
 private:
-  void beginSendingVL();
-  void beginSendingIR();
-  void continueSendingVL();
-  void continueSendingIR();
-  void beginReceivingIR();
-  void receiveModeIR();
+  void beginSending();
+  void continueSending();
+  void receiveMode();
 
-  void showSendModeVL();
-  void showSendModeIR();
+  void showSendMode();
   void showReceiveMode();
 
+  // override showExit so it isn't displayed on thumb
+  virtual void showExit() override;
+
   enum class ModeShareState {
-    SHARE_SEND_IR,  // send mode over ir
-    SHARE_SEND_VL,  // send mode over vl
+    SHARE_SEND,     // send mode
     SHARE_RECEIVE,  // receive mode
   };
 
   ModeShareState m_sharingMode;
+  // last time data was sent
+  uint64_t m_lastActionTime;
 
   // the start time when checking for timing out
   uint32_t m_timeOutStartTime;

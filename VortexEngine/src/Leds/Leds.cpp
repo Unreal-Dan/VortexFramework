@@ -12,6 +12,54 @@
 #include "../../VortexLib/VortexLib.h"
 #endif
 
+#ifdef VORTEX_EMBEDDED
+#include <Arduino.h>
+#include <FastLED.h>
+#include <SPI.h>
+#define LED_DATA_PIN  4
+#define ONBOARD_LED_SCK 8
+#define ONBOARD_LED_MOSI 7
+static void transfer(uint8_t byte)
+{
+  uint8_t startbit = 0x80;
+  bool lastmosi = !(byte & startbit);
+  for (uint8_t b = startbit; b != 0; b = b >> 1) {
+    delayMicroseconds(4);
+    bool towrite = byte & b;
+    if (lastmosi != towrite) {
+      digitalWrite(ONBOARD_LED_MOSI, towrite);
+      lastmosi = towrite;
+    }
+    digitalWrite(ONBOARD_LED_SCK, HIGH);
+    delayMicroseconds(4);
+    digitalWrite(ONBOARD_LED_SCK, LOW);
+  }
+}
+static void turnOffOnboardLED()
+{
+  // spi device begin
+  pinMode(ONBOARD_LED_SCK, OUTPUT);
+  digitalWrite(ONBOARD_LED_SCK, LOW);
+  pinMode(ONBOARD_LED_MOSI, OUTPUT);
+  digitalWrite(ONBOARD_LED_MOSI, HIGH);
+  SPI.begin();
+  // Begin transaction, setting SPI frequency
+  static const SPISettings mySPISettings(8000000, MSBFIRST, SPI_MODE0);
+  SPI.beginTransaction(mySPISettings);
+  for (uint8_t i = 0; i < 4; i++) {
+    transfer(0x00); // begin frame
+  }
+  transfer(0xFF); //  Pixel start
+  for (uint8_t i = 0; i < 3; i++) {
+    transfer(0x00); // R,G,B
+  }
+  transfer(0xFF); // end frame
+  SPI.endTransaction();
+
+  SPI.end();
+}
+#endif
+
 // global brightness
 uint8_t Leds::m_brightness = DEFAULT_BRIGHTNESS;
 // array of led color values
@@ -19,6 +67,14 @@ RGBColor Leds::m_ledColors[LED_COUNT] = { RGB_OFF };
 
 bool Leds::init()
 {
+#ifdef VORTEX_EMBEDDED
+  // setup leds on data pin 4
+  FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>((CRGB *)m_ledColors, LED_COUNT);
+  // get screwed fastled, don't throttle us!
+  FastLED.setMaxRefreshRate(0, false);
+  turnOffOnboardLED();
+  pinMode(LED_DATA_PIN, OUTPUT);
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsInit(m_ledColors, LED_COUNT);
 #endif
@@ -63,6 +119,11 @@ void Leds::setPairs(Pair first, Pair last, RGBColor col)
 {
   // start from tip and go to top
   setRange(pairEven(first), pairOdd(last), col);
+}
+
+void Leds::setFinger(Finger finger, RGBColor col)
+{
+  setRange(fingerTip(finger), fingerTop(finger), col);
 }
 
 void Leds::setRangeEvens(Pair first, Pair last, RGBColor col)
@@ -185,6 +246,11 @@ void Leds::blinkRangeOffset(LedPos first, LedPos last, uint32_t time, uint16_t o
   }
 }
 
+void Leds::blinkFingerOffset(Finger target, uint32_t time, uint16_t offMs, uint16_t onMs, RGBColor col)
+{
+  blinkRangeOffset(fingerTip(target), fingerTop(target), time, offMs, onMs, col);
+}
+
 void Leds::blinkIndex(LedPos target, uint16_t offMs, uint16_t onMs, RGBColor col)
 {
   if ((Time::getCurtime() % MS_TO_TICKS(offMs + onMs)) < MS_TO_TICKS(onMs)) {
@@ -241,6 +307,11 @@ void Leds::breatheRange(LedPos first, LedPos last, uint8_t hue, uint32_t varianc
   setRange(first, last, HSVColor((uint8_t)(hue + ((sin(variance * 0.0174533) + 1) * magnitude)), sat, val));
 }
 
+void Leds::breatheFinger(Finger finger, uint8_t hue, uint32_t variance, uint32_t magnitude, uint8_t sat, uint8_t val)
+{
+  breatheRange(fingerTip(finger), fingerTop(finger), hue, variance, magnitude, sat, val);
+}
+
 void Leds::breatheIndexSat(LedPos target, uint8_t hue, uint32_t variance, uint32_t magnitude, uint8_t sat, uint8_t val)
 {
   setIndex(target, HSVColor(hue, 255 - (uint8_t)(sat + 128 + ((sin(variance * 0.0174533) + 1) * magnitude)), val));
@@ -260,6 +331,9 @@ void Leds::holdAll(RGBColor col)
 
 void Leds::update()
 {
+#ifdef VORTEX_EMBEDDED
+  FastLED.show(m_brightness);
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsShow();
 #endif

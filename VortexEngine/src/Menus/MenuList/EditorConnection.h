@@ -49,6 +49,9 @@ private:
   ReturnCode receiveMessage(const char *message);
   ReturnCode receiveBrightness();
 
+  // override showExit so it isn't displayed on thumb
+  virtual void showExit() override;
+
   enum EditorConnectionState {
     // the editor is not connected
     STATE_DISCONNECTED,

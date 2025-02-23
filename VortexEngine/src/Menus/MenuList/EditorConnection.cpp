@@ -413,6 +413,11 @@ void EditorConnection::showEditor()
   }
 }
 
+// override showExit so it isn't displayed on thumb
+void EditorConnection::showExit()
+{
+}
+
 void EditorConnection::receiveData()
 {
   // read more data into the receive buffer

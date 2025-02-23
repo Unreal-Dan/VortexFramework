@@ -23,14 +23,27 @@ public:
   void onLongClick() override;
 
 private:
+  void showListSelection();
+  void showPatternSelection();
   void nextPatternID();
   void nextPattern();
 
+  void showExit() override;
+
+  // private enumeration for internal state of pattern selection
+  enum PatternSelectState : uint32_t
+  {
+    // currently picking the list of patterns
+    STATE_PICK_LIST,
+    // currently picking a pattern in the list
+    STATE_PICK_PATTERN
+  };
+
+  // the current state of the pattern selection menu
+  PatternSelectState m_state;
+
   // the patternid of the current demo
   PatternID m_newPatternID;
-
-  // helpful member
-  LedPos m_srcLed;
 
   // the pat select starts by showing the current pattern
   // then the first click begin cycling the list of pats

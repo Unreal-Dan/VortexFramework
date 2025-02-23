@@ -1,0 +1,182 @@
+name: Gloves Build
+
+on:
+  push:
+    branches: [ "gloves" ]
+  pull_request:
+    branches: [ "gloves" ]
+  workflow_dispatch: # manual trigger
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      vortex_version_major: ${{ steps.set_version.outputs.vortex_version_major }}
+      vortex_version_minor: ${{ steps.set_version.outputs.vortex_version_minor }}
+      vortex_build_number: ${{ steps.set_version.outputs.vortex_build_number }}
+      vortex_version_number: ${{ steps.set_version.outputs.vortex_version_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches all history for all branches and tags
+      - name: Determine Version and Build Number
+        id: set_version
+        run: |
+          BRANCH_SUFFIX="g"
+          # Fetch all tags
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          # Get the latest tag that matches the branch suffix
+          LATEST_TAG=$(git tag --list "*${BRANCH_SUFFIX}" | sort -V | tail -n1)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No matching tags found. Setting default version."
+            VERSION_MAJOR="0"
+            VERSION_MINOR="1"
+            BUILD_NUMBER="0"
+          else
+            echo "Found latest tag: $LATEST_TAG"
+            VERSION_NUMBER=$(echo $LATEST_TAG | sed "s/${BRANCH_SUFFIX}//g")
+            VERSION_MAJOR=$(echo $VERSION_NUMBER | cut -d. -f1)
+            VERSION_MINOR=$(echo $VERSION_NUMBER | cut -d. -f2)
+            BUILD_NUMBER=$(git rev-list --count $LATEST_TAG..HEAD)
+          fi
+          FULL_VERSION="$VERSION_MAJOR.$VERSION_MINOR.$BUILD_NUMBER"
+          echo "vortex_version_major=$VERSION_MAJOR" >> $GITHUB_OUTPUT
+          echo "vortex_version_minor=$VERSION_MINOR" >> $GITHUB_OUTPUT
+          echo "vortex_build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "vortex_version_number=$FULL_VERSION" >> $GITHUB_OUTPUT
+          echo "Version Number: $FULL_VERSION"
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+      - name: Update Package Lists
+        run: sudo apt-get update
+      - name: Install Dependencies
+        run: sudo apt-get install valgrind g++ make --fix-missing
+      - name: Build
+        run: |
+          export VORTEX_VERSION_MAJOR=${{ needs.setup.outputs.vortex_version_major }}
+          export VORTEX_VERSION_MINOR=${{ needs.setup.outputs.vortex_version_minor }}
+          export VORTEX_BUILD_NUMBER=${{ needs.setup.outputs.vortex_build_number }}
+          export VORTEX_VERSION_NUMBER=${{ needs.setup.outputs.vortex_version_number }}
+          make -j
+        working-directory: VortexEngine
+      - name: Set execute permissions for test script
+        run: chmod +x ./runtests.sh
+        working-directory: VortexEngine/tests
+      - name: Run general tests
+        run: ./runtests.sh --general
+        working-directory: VortexEngine/tests
+
+  embedded:
+    needs: [setup, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install Dependencies
+        run: make install
+      - name: Build Binary
+        run: |
+          export VORTEX_VERSION_MAJOR=${{ needs.setup.outputs.vortex_version_major }}
+          export VORTEX_VERSION_MINOR=${{ needs.setup.outputs.vortex_version_minor }}
+          export VORTEX_BUILD_NUMBER=${{ needs.setup.outputs.vortex_build_number }}
+          export VORTEX_VERSION_NUMBER=${{ needs.setup.outputs.vortex_version_number }}
+          make build
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: embedded firmware
+          path: |
+            build/VortexEngine.ino.bin
+            build/VortexEngine.ino.elf
+            build/VortexEngine.ino.map
+            build/VortexEngine.ino.hex
+            build/VortexEngine.ino.uf2
+      - name: Archive production artifacts for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-artifact
+          path: build/VortexEngine.ino.uf2
+
+  wasm:
+    needs: [setup, test, embedded]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+      - name: Update Package Lists
+        run: sudo apt-get update
+      - name: Install Emscripten
+        run: |
+          sudo apt install -y cmake python3
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+        working-directory: VortexEngine/VortexLib
+      - name: Build Webassembly
+        run: |
+          source ./emsdk/emsdk_env.sh
+          export VORTEX_VERSION_MAJOR=${{ needs.setup.outputs.vortex_version_major }}
+          export VORTEX_VERSION_MINOR=${{ needs.setup.outputs.vortex_version_minor }}
+          export VORTEX_BUILD_NUMBER=${{ needs.setup.outputs.vortex_build_number }}
+          export VORTEX_VERSION_NUMBER=${{ needs.setup.outputs.vortex_version_number }}
+          make -j wasm
+        working-directory: VortexEngine/VortexLib
+
+  docs:
+    needs: [setup, test, embedded, wasm]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/gloves'
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+      - name: Update Package Lists
+        run: sudo apt-get update
+      - name: Install Dependencies
+        run: sudo apt-get install doxygen graphviz texlive --fix-missing
+      - name: Checkout doxygen-awesome
+        run: git clone https://github.com/jothepro/doxygen-awesome-css.git doxygen-awesome-css
+      - name: Generate Documentation
+        run: |
+          mkdir -p docs/gloves
+          doxygen Doxyfile
+          echo "Listing contents of docs/gloves:"
+          ls -R docs/gloves || echo "No files found in docs/gloves"
+      - name: Upload Doxygen Documentation as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-docs-gloves
+          path: docs/gloves
+
+  deploy:
+    needs: [setup, test, embedded, wasm, docs]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/gloves'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: firmware-artifact
+          path: build
+      - name: Rename and Deploy Firmware
+        run: |
+          DEVICE_TYPE="gloves"
+          VERSIONED_FILENAME="VortexEngine-${DEVICE_TYPE}-${{ needs.setup.outputs.vortex_version_number }}.uf2"
+          mv build/VortexEngine.ino.uf2 build/$VERSIONED_FILENAME
+          echo "Version is ${{ needs.setup.outputs.vortex_version_number }}"
+          echo "Filename is is $VERSIONED_FILENAME"
+          curl -X POST \
+            -F "file=@build/$VERSIONED_FILENAME" \
+            -F "device=$DEVICE_TYPE" \
+            -F "version=${{ needs.setup.outputs.vortex_version_number }}" \
+            -F "category=firmware" \
+            -F "clientApiKey=${{ secrets.VORTEX_COMMUNITY_API_KEY }}" \
+            https://vortex.community/firmware/upload

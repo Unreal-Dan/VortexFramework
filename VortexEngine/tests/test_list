@@ -1,207 +1,221 @@
-w300cw300cw300cw300cw300         | Cycle all modes                                                 | Cycle through all mode slots
-w300mw300                        | Enter Menus                                                     | Hold button to enter menus
-r10w5000                         | Start Auto-cycle                                                | begin the auto-cycle mode
-r10w5000r10w5000                 | End Auto-cycle                                                  | end the auto-cycle mode
-mw300cw300cw300cw300cw300cw300   | Cycle through Menu List                                         | cycle through menu list options
-mw30r10300                       | Activate Adv Menus                                              | unlock advanced menus
-mw30lw300                        | Enter Randomizer                                                | go to the randomizer menu
-mw30cw300lw300                   | Enter Mode Share Menu                                           | go to the mode sharing menu
-mw30c2w300lw300                  | Enter Color Select Menu                                         | go to the color select menu
-mw30c3w300lw300                  | Enter Pattern Select Menu                                       | go to the pattern select menu
-mw30c4w300lw300                  | Enter Brightness Menu                                           | go to the brightness menu
-mw30c5w300lw300                  | Enter Factory Reset Menu                                        | go to the facory reset menu
-mw30aw300                        | Enter Adv Randomizer                                            | go to the adv randomizer menu
-mw30caw300                       | Enter Adv Mode Share                                            | go to the adv mode sharing menu
-mw30c2aw300                      | Enter Adv Color Select                                          | go to the adv color select menu
-mw30c3aw300                      | Enter Adv Pattern Select                                        | go to the adv pattern select menu
-mw30c4aw300                      | Enter Adv Brightness                                            | go to the adv brightness menu
-mw30c5aw300                      | Enter Adv Factory Reset                                         | go to the adv facory reset menu
-mwlcw300cw300cw300               | Cycle bulbs in Randomizer                                       | cycle through the bulb options in randomizer
-mwllcw300                        | Randomize Both Bulbs                                            | enter randomizer select both bulbs randomize
-mwllcw100lw300                   | Save Randomization to Both Bulbs                                | enter randomizer select both bulbs randomize save
-mwllr3w3000                      | Start Auto-randomizer Both Bulbs                                | enter randomizer select both bulbs start auto-randomizer
-mwllr3w3000r3w3000               | Stop Auto-randomizer Both Bulbs                                 | enter randomizer select both bulbs stop auto-randomizer
-mwlclcw300                       | Randomize Front Bulb                                            | enter randomizer select front bulb randomize
-mlclw100cw100lw300               | Save Randomization to Front Bulb                                | enter randomizer select front bulb randomize save
-mlclr3w5000                      | Start Auto-randomizer Front Bulb                                | enter randomizer select front bulb start auto-randomizer
-mlclr3w3000r3w3000               | Stop Auto-randomizer Front Bulb                                 | enter randomizer select front bulb stop auto-randomizer
-mlc2lcw300                       | Randomize Top Bulb                                              | enter randomizer select top bulb randomize
-mlc2lw100cw100lw300              | Save Randomization to Top Bulb                                  | enter randomizer select top bulb randomize save
-mlc2lr3w5000                     | Start Auto-randomizer Top Bulb                                  | enter randomizer select top bulb start auto-randomizer
-mlc2lr3w3000r3w3000              | Stop Auto-randomizer Top Bulb                                   | enter randomizer select top bulb stop auto-randomizer
-maw300c300c300c300               | Cycle bulbs in Adv Randomizer                                   | cycle through the bulb options in randomizer
-maw30lcw300cw300cw300            | Cycle Randomizer Types Both Bulbs                               | enter adv randomizer select both bulbs cycle randomizer types
-maw30lw30lcw300cw300             | Randomize Color Only Both Bulbs                                 | enter adv randomizer select both bulbs select color only randomize
-mallclw300                       | Save Color Only Randomization to Both Bulbs                     | enter adv randomizer select both bulbs select color only randomize save
-mallr3w5000                      | Start Color Only Auto-randomizer Both Bulbs                     | enter adv randomizer select both bulbs select color only start auto-randomizer
-mallr3w3000r3w3000               | Stop Color Only Auto-randomizer Both Bulbs                      | enter adv randomizer select both bulbs select color only stop auto-randomizer
-malclcw300cw300cw300             | Randomize Pattern Only Both Bulbs                               | enter adv randomizer select both bulbs select pattern only randomize
-malclclw300                      | Save Pattern Only Randomization to Both Bulbs                   | enter adv randomizer select both bulbs select pattern only randomize save
-malclr3w5000                     | Start Pattern Only Auto-randomizer Both Bulbs                   | enter adv randomizer select both bulbs select pattern only start auto-randomizer
-malclr3w3000r3w3000              | Stop Pattern Only Auto-randomizer Both Bulbs                    | enter adv randomizer select both bulbs select pattern only stop auto-randomizer
-malc2lcw300cw300cw300            | Randomize Color and Pattern Both Bulbs                          | enter adv randomizer select both bulbs select color and pattern randomize
-malc2lclw300                     | Save Color and Pattern Randomization to Both Bulbs              | enter adv randomizer select both bulbs select color and pattern randomize save
-malc2lr3w5000                    | Start Color and Pattern Auto-randomizer Both Bulbs              | enter adv randomizer select both bulbs select color and pattern start auto-randomizer
-malc2lr3w3000r3w3000             | Stop Color and Pattern Auto-randomizer Both Bulbs               | enter adv randomizer select both bulbs select color and pattern stop auto-randomizer
-maclcw300cw300cw300              | Cycle Randomizer Types Front Bulb                               | enter adv randomizer select front bulb cycle randomizer types
-macllcw300cw300cw300             | Randomize Color Only Front Bulb                                 | enter adv randomizer select front bulb select color only randomize
-macllclw300                      | Save Color Only Randomization to Front Bulb                     | enter adv randomizer select front bulb select color only randomize save
-macllcr3w5000                    | Start Color Only Auto-randomizer Front Bulb                     | enter adv randomizer select front bulb select color only start auto-randomizer
-macllcr3w3000r3w3000             | Stop Color Only Auto-randomizer Front Bulb                      | enter adv randomizer select front bulb select color only stop auto-randomizer
-maclclcw300cw300cw300            | Randomize Pattern Only Front Bulb                               | enter adv randomizer select front bulb select pattern only randomize
-maclclclw300                     | Save Pattern Only Randomization to Front Bulb                   | enter adv randomizer select front bulb select pattern only randomize save
-maclclr3w5000                    | Start Pattern Only Auto-randomizer Front Bulb                   | enter adv randomizer select front bulb select pattern only start auto-randomizer
-maclclr3w3000r3w3000             | Stop Pattern Only Auto-randomizer Front Bulb                    | enter adv randomizer select front bulb select pattern only stop auto-randomizer
-maclc2lcw300cw300cw300           | Randomize Color and Pattern Front Bulb                          | enter adv randomizer select front bulb select color and pattern randomize
-maclc2lclw300                    | Save Color and Pattern Randomization to Front Bulb              | enter adv randomizer select front bulb select color and pattern randomize save
-maclc2lr3w5000                   | Start Color and Pattern Auto-randomizer Front Bulb              | enter adv randomizer select front bulb select color and pattern start auto-randomizer
-maclc2lr3w3000r3w3000            | Stop Color and Pattern Auto-randomizer Front Bulb               | enter adv randomizer select front bulb select color and pattern stop auto-randomizer
-mac2lcw300cw300cw300             | Cycle Randomizer Types Top Bulb                                 | enter adv randomizer select top bulb cycle randomizer types
-mac2llcw300cw300cw300            | Randomize Color Only Top Bulb                                   | enter adv randomizer select top bulb select color only randomize'
-mac2llclw300                     | Save Color Only Randomization to Top Bulb                       | enter adv randomizer select top bulb select color only randomize save
-mac2llr3w5000                    | Start Color Only Auto-randomizer Top Bulb                       | enter adv randomizer select top bulb select color only start auto-randomizer
-mac2llr3w3000r3w3000             | Stop Color Only Auto-randomizer Top Bulb                        | enter adv randomizer select top bulb select color only stop auto-randomizer
-mac2lclcw300                     | Randomize Pattern Only Top Bulb                                 | enter adv randomizer select top bulb select pattern only randomize
-mac2lclclw300                    | Save Pattern Only Randomization to Top Bulb                     | enter adv randomizer select top bulb select pattern only randomize save
-mac2lclr3w5000                   | Start Pattern Only Auto-randomizer Top Bulb                     | enter adv randomizer select top bulb select pattern only start auto-randomizer
-mac2lclr3w3000r3w3000            | Stop Pattern Only Auto-randomizer Top Bulb                      | enter adv randomizer select top bulb select pattern only stop auto-randomizer
-mac2lc2lcw300cw300cw300          | Randomize Color and Pattern Top Bulb                            | enter adv randomizer select top bulb select color and pattern randomize
-mac2lc2lclw300                   | Save Color and Pattern Randomization to Top Bulb                | enter adv randomizer select top bulb select color and pattern randomize save
-mac2lc2lr3w5000                  | Start Color and Pattern Auto-randomizer Top Bulb                | enter adv randomizer select top bulb select color and pattern start auto-randomizer
-mac2lc2lr3w3000r3w3000           | Stop Color and Pattern Auto-randomizer Top Bulb                 | enter adv randomizer select top bulb select color and pattern stop auto-randomizer
-mclw300                          | Receive a mode                                                  | enter mode sharing receive a mode
-mcllw300                         | Exit mode sharing                                               | enter mode shring exit mode sharing
-mcaw300                          | Reveice a mode in adv mode sharing                              | enter adv mode sharing receive a mode
-mcalw300                         | Exit adv mode sharing                                           | enter adv mode shring exit adv mode sharing
-mc2lcw300cw300cw300              | Cycle bulbs in Color Select                                     | cycle through the bulb options in color select
-mc2l2cw300cw300cw300cw300cw300   | Cycle Color Slots in Color Select Both Bulbs                    | enter color select select both bulbs cycle through color slots
-mc2l3cw300cw300cw300cw300cw300   | Cycle Rainbow Sections in Color Select Both Bulbs               | enter color select select both bulbs select first slot cycle through rainbow sections
-mc2l4cw300cw300cw300cw300cw300   | Cycle Hue Selection in Color Select Both Bulbs                  | enter color select select both bulbs select first slot select first rainbow cycle hue selection
-mc2l5cw300cw300cw300cw300cw300   | Cycle Sat Selection in Color Select Both Bulbs                  | enter color select select both bulbs select first slot select first rainbow select first hue cycle sat selection
-mc2l6cw300cw300cw300cw300cw300   | Cycle Val Selection in Color Select Both Bulbs                  | enter color select select both bulbs select first slot select first rainbow select first hue select first sat cycle val selection
-mc2lw30lw30lw30lw30lw30lw30lw30w300| Select Color in Color Select Both Bulbs                         | enter color select select both bulbs select first slot select first rainbow select first hue select first sat select first val
-mc2l6c3lw300                     | Select Blank in Color Select Both Bulbs                         | enter color select select both bulbs select first slot select first rainbow select first hue select first sat select last val
-mc2l6c4lw300                     | Return to Sat Selection from Val Selection Both Bulbs           | enter color select select both bulbs select first slot select first rainbow select first hue select first sat select return to sat
-mc2l5c3lw300                     | Select White in Color Select Both Bulbs                         | enter color select select both bulbs select first slot select first rainbow select first hue select last sat
-mc2l5c4lw300                     | Return to Hue Selection from Sat Selection Both Bulbs           | enter color select select both bulbs select first slot select first rainbow select first hue select return to hue
-mc2l4c4lw300                     | Return to Rainbow Selection from Hue Selection Both Bulbs       | enter color select select both bulbs select first slot select first rainbow select return to rainbow
-mc2l3c4lw300                     | Return to Slot Selection from Rainbow Selection Both Bulbs      | enter color select select both bulbs select first slot select return to slots
-mc2l2c3lw300                     | Select Add Color in Color Select Both Bulbs                     | enter color select select both bulbs select add color
-mc2l2c3l5w300                    | Add a New Color in Color Select Both Bulbs                      | enter color select select both bulbs select add color select first rainbot select first hue select first sat select first val
-mc2l2c4lw300                     | Select Save and Exit in Color Select Both Bulbs                 | enter color select select both bulbs select save and exit
-mc2l2dw300                       | Delete a Color in Color Select Both Bulbs                       | enter color select select both bulbs delete a color
-mc2l2c3l5cl5cl5cl5cl5clw300      | Save an 8 Color set in Color Select Both Bulbs                  | enter color select select both bulbs add 5 new colors save and exit
-mc2l2d3clw300                    | Delete All Colors in Color Select Both Bulbs                    | enter color select select both bulbs delete 3 colors save and exit
-mc2lclc5w300                     | Cycle Color Slots in Color Select Front Bulb                    | enter color select select front bulb cycle through color slots
-mc2lcl2c5w300                    | Cycle Rainbow Sections in Color Select Front Bulb               | enter color select select front bulb select first slot cycle through rainbow sections
-mc2lcl3c5w300                    | Cycle Hue Selection in Color Select Front Bulb                  | enter color select select front bulb select first slot select first rainbow cycle hue selection
-mc2lcl4c5w300                    | Cycle Sat Selection in Color Select Front Bulb                  | enter color select select front bulb select first slot select first rainbow select first hue cycle sat selection
-mc2lcl5c5w300                    | Cycle Val Selection in Color Select Front Bulb                  | enter color select select front bulb select first slot select first rainbow select first hue select first sat cycle val selection
-mc2lcl6w300                      | Select Color in Color Select Front Bulb                         | enter color select select front bulb select first slot select first rainbow select first hue select first sat select first val
-mc2lcl5c3lw300                   | Select Blank in Color Select Front Bulb                         | enter color select select front bulb select first slot select first rainbow select first hue select first sat select last val
-mc2lcl5c4lw300                   | Return to Sat Selection from Val Selection Front Bulb           | enter color select select front bulb select first slot select first rainbow select first hue select first sat select return to sat
-mc2lcl4c3lw300                   | Select White in Color Select Front Bulb                         | enter color select select front bulb select first slot select first rainbow select first hue select last sat
-mc2lcl4c4lw300                   | Return to Hue Selection from Sat Selection Front Bulb           | enter color select select front bulb select first slot select first rainbow select first hue select return to hue
-mc2lcl3c4lw300                   | Return to Rainbow Selection from Hue Selection Front Bulb       | enter color select select front bulb select first slot select first rainbow select return to rainbow
-mc2lcl2c4lw300                   | Return to Slot Selection from Rainbow Selection Front Bulb      | enter color select select front bulb select first slot select return to slots
-mc2lclc3lw300                    | Select Add Color in Color Select Front Bulb                     | enter color select select front bulb select add color
-mc2lclc3l5w300                   | Add a New Color in Color Select Front Bulb                      | enter color select select front bulb select add color select first rainbot select first hue select first sat select first val
-mc2lclc4lw300                    | Select Save and Exit in Color Select Front Bulb                 | enter color select select front bulb select save and exit
-mc2lcldw300                      | Delete a Color in Color Select Front Bulb                       | enter color select select front bulb delete a color
-mc2lclc3l5cl5cl5cl5cl5clw300     | Save an 8 Color set in Color Select Front Bulb                  | enter color select select front bulb add 5 new colors save and exit
-mc2lcld3clw300                   | Delete All Colors in Color Select Front Bulb                    | enter color select select front bulb delete 3 colors save and exit
-mc2lc2lc5w300                    | Cycle Color Slots in Color Select Top Bulb                      | enter color select select top bulb cycle through color slots
-mc2lc2l2c5w300                   | Cycle Rainbow Sections in Color Select Top Bulb                 | enter color select select top bulb select first slot cycle through rainbow sections
-mc2lc2l3c5w300                   | Cycle Hue Selection in Color Select Top Bulb                    | enter color select select top bulb select first slot select first rainbow cycle hue selection
-mc2lc2l4c5w300                   | Cycle Sat Selection in Color Select Top Bulb                    | enter color select select top bulb select first slot select first rainbow select first hue cycle sat selection
-mc2lc2l5c5w300                   | Cycle Val Selection in Color Select Top Bulb                    | enter color select select top bulb select first slot select first rainbow select first hue select first sat cycle val selection
-mc2lc2l6w300                     | Select Color in Color Select Top Bulb                           | enter color select select top bulb select first slot select first rainbow select first hue select first sat select first val
-mc2lc2l5c3lw300                  | Select Blank in Color Select Top Bulb                           | enter color select select top bulb select first slot select first rainbow select first hue select first sat select last val
-mc2lc2l5c4lw300                  | Return to Sat Selection from Val Selection Top Bulb             | enter color select select top bulb select first slot select first rainbow select first hue select first sat select return to sat
-mc2lc2l4c3lw300                  | Select White in Color Select Top Bulb                           | enter color select select top bulb select first slot select first rainbow select first hue select last sat
-mc2lc2l4c4lw300                  | Return to Hue Selection from Sat Selection Top Bulb             | enter color select select top bulb select first slot select first rainbow select first hue select return to hue
-mc2lc2l3c4lw300                  | Return to Rainbow Selection from Hue Selection Top Bulb         | enter color select select top bulb select first slot select first rainbow select return to rainbow
-mc2lc2l2c4lw300                  | Return to Slot Selection from Rainbow Selection Top Bulb        | enter color select select top bulb select first slot select return to slots
-mc2lc2lc3lw300                   | Select Add Color in Color Select Top Bulb                       | enter color select select top bulb select add color
-mc2lc2lc3l5w300                  | Add a New Color in Color Select Top Bulb                        | enter color select select top bulb select add color select first rainbot select first hue select first sat select first val
-mc2lc2lc4lw300                   | Select Save and Exit in Color Select Top Bulb                   | enter color select select top bulb select save and exit
-mc2lc2ldw300                     | Delete a Color in Color Select Top Bulb                         | enter color select select top bulb delete a color
-mc2lc2lc3l5cl5cl5cl5cl5clw300    | Save an 8 Color set in Color Select Top Bulb                    | enter color select select top bulb add 5 new colors save and exit
-mc2lc2ld3clw300                  | Delete All Colors in Color Select Top Bulb                      | enter color select select top bulb delete 3 colors save and exit
-mc3lc3w300                       | Cycle bulbs in Pattern Select                                   | cycle through the bulb options in pattern select
-mc3l2c9c9c9c3w300                | Cycle Patterns in Pattern Select Both Bulbs                     | enter pattern select select both bulbs cycle through all patterns
-mc3l3w300                        | Select Pattern in Pattern Select Both Bulbs                     | enter pattern select select both bulbs select first pattern
-mc3lclc9c9c9c3w300               | Cycle Patterns in Pattern Select Top Bulb                       | enter pattern select select top bulb cycle through all patterns
-mc3lcl2w300                      | Select Pattern in Pattern Select Top Bulb                       | enter pattern select select top bulb select first pattern
-mc3lc2lc9c9c9c3w300              | Cycle Patterns in Pattern Select Front Bulb                     | enter pattern select select front bulb cycle through all patterns
-mc3lc2l2w300                     | Select Pattern in Pattern Select Front Bulb                     | enter pattern select select front bulb select first pattern
-mc3acw300cw300cw300              | Cycle bulbs in Adv Pattern Select                               | cycle through the bulb options in adv pattern select
-mc3alcw300                       | Increase Param 1 in Adv Pattern Select Both Bulbs               | enter adv pattern select select both bulbs increase param 1
-mc3alr2w300                      | Increase Param 1 to next 10 in Adv Pattern Select Both Bulbs    | enter adv pattern select select both bulbs increase param 1 to next 10
-mc3al2cw300                      | Increase Param 2 in Adv Pattern Select Both Bulbs               | enter adv pattern select select both bulbs select param 1 increase param 2
-mc3al2r2w300                     | Increase Param 2 to next 10 in Adv Pattern Select Both Bulbs    | enter adv pattern select select both bulbs select param 1 increase param 2 to next 10
-mc3al3cw300                      | Increase Param 3 in Adv Pattern Select Both Bulbs               | enter adv pattern select select both bulbs select param 1 select param 2 increase param 3
-mc3al3r2w300                     | Increase Param 3 to next 10 in Adv Pattern Select Both Bulbs    | enter adv pattern select select both bulbs select param 1 select param 2 increase param 3 to next 10
-mc3al4cw300                      | Increase Param 4 in Adv Pattern Select Both Bulbs               | enter adv pattern select select both bulbs select param 1 select param 2 select param 3 increase param 4
-mc3al4r2w300                     | Increase Param 4 to next 10 in Adv Pattern Select Both Bulbs    | enter adv pattern select select both bulbs select param 1 select param 2 select param 3 increase param 4 to next 10
-mc3al5cw300                      | Increase Param 5 in Adv Pattern Select Both Bulbs               | enter adv pattern select select both bulbs select param 1 select param 2 select param 3 select param 4 increase param 5
-mc3al5r2w300                     | Increase Param 5 to next 10 in Adv Pattern Select Both Bulbs    | enter adv pattern select select both bulbs select param 1 select param 2 select param 3 select param 4 increase param 5 to next 10
-mc3al6w300                       | Save Custom Pattern in Adv Pattern Select Both Bulbs            | enter adv pattern select select both bulbs select param 1 select param 2 select param 3 select param 4 select param 5
-mc3al5c9w300                     | Cycle Through Param 5 Options in Adv Pattern Select Both Bulbs  | enter adv pattern select select both bulbs select param 1 select param 2 select param 3 select param 4 cycle all options
-mc3al4r2r2r2r2r2r2r2r2r2r2w300   | Cycle Through Param 4 Options in Adv Pattern Select Both Bulbs  | enter adv pattern select select both bulbs select param 1 select param 2 select param 3 cycle all options
-mc3al3r2r2r2r2r2r2r2r2r2r2w300   | Cycle Through Param 3 Options in Adv Pattern Select Both Bulbs  | enter adv pattern select select both bulbs select param 1 select param 2 cycle all options
-mc3al2r2r2r2r2r2r2r2r2r2r2w300   | Cycle Through Param 2 Options in Adv Pattern Select Both Bulbs  | enter adv pattern select select both bulbs select param 1 cycle all options
-mc3alr2r2r2r2r2r2r2r2r2r2w300    | Cycle Through Param 1 Options in Adv Pattern Select Both Bulbs  | enter adv pattern select select both bulbs cycle all options
-mc3aclcw300                      | Increase Param 1 in Adv Pattern Select Front Bulb               | enter adv pattern select select front bulb increase param 1
-mc3aclr2w300                     | Increase Param 1 to next 10 in Adv Pattern Select Front Bulb    | enter adv pattern select select front bulb increase param 1 to next 10
-mc3acl2cw300                     | Increase Param 2 in Adv Pattern Select Front Bulb               | enter adv pattern select select front bulb select param 1 increase param 2
-mc3acl2r2w300                    | Increase Param 2 to next 10 in Adv Pattern Select Front Bulb    | enter adv pattern select select front bulb select param 1 increase param 2 to next 10
-mc3acl3cw300                     | Increase Param 3 in Adv Pattern Select Front Bulb               | enter adv pattern select select front bulb select param 1 select param 2 increase param 3
-mc3acl3r2w300                    | Increase Param 3 to next 10 in Adv Pattern Select Front Bulb    | enter adv pattern select select front bulb select param 1 select param 2 increase param 3 to next 10
-mc3acl4cw300                     | Increase Param 4 in Adv Pattern Select Front Bulb               | enter adv pattern select select front bulb select param 1 select param 2 select param 3 increase param 4
-mc3acl4r2w300                    | Increase Param 4 to next 10 in Adv Pattern Select Front Bulb    | enter adv pattern select select front bulb select param 1 select param 2 select param 3 increase param 4 to next 10
-mc3acl5cw300                     | Increase Param 5 in Adv Pattern Select Front Bulb               | enter adv pattern select select front bulb select param 1 select param 2 select param 3 select param 4 increase param 5
-mc3acl5r2w300                    | Increase Param 5 to next 10 in Adv Pattern Select Front Bulb    | enter adv pattern select select front bulb select param 1 select param 2 select param 3 select param 4 increase param 5 to next 10
-mc3acl6w300                      | Save Custom Pattern in Adv Pattern Select Front Bulb            | enter adv pattern select select front bulb select param 1 select param 2 select param 3 select param 4 select param 5
-mc3acl5c9w300                    | Cycle Through Param 5 Options in Adv Pattern Select Front Bulb  | enter adv pattern select select front bulb select param 1 select param 2 select param 3 select param 4 cycle all options
-mc3acl4r2r2r2r2r2r2r2r2r2r2w300  | Cycle Through Param 4 Options in Adv Pattern Select Front Bulb  | enter adv pattern select select front bulb select param 1 select param 2 select param 3 cycle all options
-mc3acl3r2r2r2r2r2r2r2r2r2r2w300  | Cycle Through Param 3 Options in Adv Pattern Select Front Bulb  | enter adv pattern select select front bulb select param 1 select param 2 cycle all options
-mc3acl2r2r2r2r2r2r2r2r2r2r2w300  | Cycle Through Param 2 Options in Adv Pattern Select Front Bulb  | enter adv pattern select select front bulb select param 1 cycle all options
-mc3aclr2r2r2r2r2r2r2r2r2r2w300   | Cycle Through Param 1 Options in Adv Pattern Select Front Bulb  | enter adv pattern select select front bulb cycle all options
-mc3ac2lcw300                     | Increase Param 1 in Adv Pattern Select Top Bulb                 | enter adv pattern select select top bulb increase param 1
-mc3ac2lr2w300                    | Increase Param 1 to next 10 in Adv Pattern Select Top Bulb      | enter adv pattern select select top bulb increase param 1 to next 10
-mc3ac2l2cw300                    | Increase Param 2 in Adv Pattern Select Top Bulb                 | enter adv pattern select select top bulb select param 1 increase param 2
-mc3ac2l2r2w300                   | Increase Param 2 to next 10 in Adv Pattern Select Top Bulb      | enter adv pattern select select top bulb select param 1 increase param 2 to next 10
-mc3ac2l3cw300                    | Increase Param 3 in Adv Pattern Select Top Bulb                 | enter adv pattern select select top bulb select param 1 select param 2 increase param 3
-mc3ac2l3r2w300                   | Increase Param 3 to next 10 in Adv Pattern Select Top Bulb      | enter adv pattern select select top bulb select param 1 select param 2 increase param 3 to next 10
-mc3ac2l4cw300                    | Increase Param 4 in Adv Pattern Select Top Bulb                 | enter adv pattern select select top bulb select param 1 select param 2 select param 3 increase param 4
-mc3ac2l4r2w300                   | Increase Param 4 to next 10 in Adv Pattern Select Top Bulb      | enter adv pattern select select top bulb select param 1 select param 2 select param 3 increase param 4 to next 10
-mc3ac2l5cw300                    | Increase Param 5 in Adv Pattern Select Top Bulb                 | enter adv pattern select select top bulb select param 1 select param 2 select param 3 select param 4 increase param 5
-mc3ac2l5r2w300                   | Increase Param 5 to next 10 in Adv Pattern Select Top Bulb      | enter adv pattern select select top bulb select param 1 select param 2 select param 3 select param 4 increase param 5 to next 10
-mc3ac2l6w300                     | Save Custom Pattern in Adv Pattern Select Top Bulb              | enter adv pattern select select top bulb select param 1 select param 2 select param 3 select param 4 select param 5
-mc3ac2l5c9w300                   | Cycle Through Param 5 Options in Adv Pattern Select Top Bulb    | enter adv pattern select select top bulb select param 1 select param 2 select param 3 select param 4 cycle all options
-mc3ac2l4r2r2r2r2r2r2r2r2r2r2w300 | Cycle Through Param 4 Options in Adv Pattern Select Top Bulb    | enter adv pattern select select top bulb select param 1 select param 2 select param 3 cycle all options
-mc3ac2l3r2r2r2r2r2r2r2r2r2r2w300 | Cycle Through Param 3 Options in Adv Pattern Select Top Bulb    | enter adv pattern select select top bulb select param 1 select param 2 cycle all options
-mc3ac2l2r2r2r2r2r2r2r2r2r2r2w300 | Cycle Through Param 2 Options in Adv Pattern Select Top Bulb    | enter adv pattern select select top bulb select param 1 cycle all options
-mc3ac2lr2r2r2r2r2r2r2r2r2r2w300  | Cycle Through Param 1 Options in Adv Pattern Select Top Bulb    | enter adv pattern select select top bulb cycle all options
-mc4lc5w300                       | Cycle Brightness Options in Brightness Menu                     | enter brightness menu cycle all options
-mc4l2w300                        | Select Brightness in Brightness Menu                            | enter brightness menu select brightness
-mc4aw300                         | Start Keychain Mode                                             | enter adv brightness menu
-mc4acw300                        | Show Keychain Mode First Pattern                                | enter adv brightness menu start pattern 1
-mc4aw2000w300                    | Wait past Keychain Mode Timer                                   | enter adv brightness menu wait past keychain timer
-mc4acw300                        | Trigger before Keychain Mode Timer                              | enter adv brightness menu click before keychain timer
-mc4ar9w300                       | Exit Keychain Mode                                              | enter adv brightness menu exit adv brightness menu
-mc4ac3w100000w300                | Wait for Sleep in Keychain mode                                 | enter adv brightness menu wait for sleep
-mc5lc2w300                       | Cycle Options in Factory Reset Menu                             | enter factory reset menu cycle options
-mc5l2w300                        | Exit Factory Reset Menu                                         | enter factory reset menu exit factory reset menu
-mc5lch4000w300                   | Factory Reset                                                   | enter factory reset menu factory reset
-mc5ac3w300                       | Cycle bulbs in Adv Factory Reset Menu                           | cycle through the bulb options in adv factory reset menu
-mc5alc2w300                      | Cycle Options in Adv Factory Reset Menu Both Bulbs              | enter adv factory reset menu select both bulbs cycle options
-mc5al2w300                       | Exit Adv Factory Reset Menu Both Bulbs                          | enter adv factory reset menu select both bulbs exit adv factory reset menu
-mc5alch4000w300                  | Factory Reset Both Bulbs                                        | enter adv factory reset menu select both bulbs factory reset selected bulbs
-mc5aclc2w300                     | Cycle Options in Adv Factory Reset Menu Front Bulb              | enter adv factory reset menu select front bulb cycle options
-mc5acl2w300                      | Exit Adv Factory Reset Menu Front Bulb                          | enter adv factory reset menu select front bulb exit adv factory reset menu
-mc5aclch4000w300                 | Factory Reset Front Bulb                                        | enter adv factory reset menu select front bulb factory reset selected bulbs
-mc5ac2lc2w300                    | Cycle Options in Adv Factory Reset Menu Top Bulb                | enter adv factory reset menu select top bulb cycle options
-mc5ac2l2w300                     | Exit Adv Factory Reset Menu Top Bulb                            | enter adv factory reset menu select top bulb exit adv factory reset menu
-mc5ac2lch4000w300                | Factory Reset Top Bulb                                          | enter adv factory reset menu select top bulb factory reset selected bulbs
+w300cw300cw300cw300cw300q            | Cycle all modes                                                 | Cycle through all mode slots
+w300mw300q                           | Enter Menus                                                     | Hold button to enter menus
+r10w5000q                            | Start Auto-cycle                                                | begin the auto-cycle mode
+r10w5000r10w5000q                    | End Auto-cycle                                                  | end the auto-cycle mode
+mw300cw300cw300cw300cw300cw300q      | Cycle through Menu List                                         | cycle through menu list options
+mw30r10300q                          | Activate Adv Menus                                              | unlock advanced menus
+mw30lw300q                           | Enter Randomizer                                                | go to the randomizer menu
+mw30cw300lw300q                      | Enter Mode Share Menu                                           | go to the mode sharing menu
+mw30c2w300lw300q                     | Enter Color Select Menu                                         | go to the color select menu
+mw30c3w300lw300q                     | Enter Pattern Select Menu                                       | go to the pattern select menu
+mw30c4w300lw300q                     | Enter Brightness Menu                                           | go to the brightness menu
+mw30c5w300lw300q                     | Enter Factory Reset Menu                                        | go to the facory reset menu
+mw30aw300q                           | Enter Adv Randomizer                                            | go to the adv randomizer menu
+mw30caw300q                          | Enter Adv Mode Share                                            | go to the adv mode sharing menu
+mw30c5aw300q                         | Enter Adv Factory Reset                                         | go to the adv facory reset menu
+mwlcw300cw300cw300q                  | Cycle bulbs in Randomizer                                       | cycle through the bulb options in randomizer
+mwllcw300q                           | Randomize All Bulbs                                             | enter randomizer select all bulbs randomize
+mwllcw100lw300q                      | Save Randomization to All Bulbs                                 | enter randomizer select all bulbs randomize save
+mwllr3w3000q                         | Start Auto-randomizer All Bulbs                                 | enter randomizer select all bulbs start auto-randomizer
+mwllr3w3000cw3000q                   | Stop Auto-randomizer All Bulbs                                  | enter randomizer select all bulbs stop auto-randomizer
+mwlclcw300q                          | Randomize Multi Led                                             | enter randomizer select multi led randomize
+mlclw100cw100lw300q                  | Save Randomization to Multi Led                                 | enter randomizer select multi led randomize save
+mlclr3w5000q                         | Start Auto-randomizer Multi Led                                 | enter randomizer select multi led start auto-randomizer
+mlclr3w3000cw3000q                   | Stop Auto-randomizer Multi Led                                  | enter randomizer select multi led stop auto-randomizer
+mlc2lcw300q                          | Randomize All Tips                                              | enter randomizer select all tips randomize
+mlc2lw100cw100lw300q                 | Save Randomization to All Tips                                  | enter randomizer select all tips randomize save
+mlc2lr3w5000q                        | Start Auto-randomizer All Tips                                  | enter randomizer select all tips start auto-randomizer
+mlc2lr3w3000cw3000q                  | Stop Auto-randomizer All Tips                                   | enter randomizer select all tips stop auto-randomizer
+mlc3lcw300q                          | Randomize All Tops                                              | enter randomizer select all tops randomize
+mlc3lw100cw100lw300q                 | Save Randomization to All Tops                                  | enter randomizer select all tops randomize save
+mlc3lr3w5000q                        | Start Auto-randomizer All Tops                                  | enter randomizer select all tops start auto-randomizer
+mlc3lr3w3000cw3000q                  | Stop Auto-randomizer All Tops                                   | enter randomizer select all tops stop auto-randomizer
+mlc4lcw300q                          | Randomize All Odd Fingers                                       | enter randomizer select odd fingers randomize
+mlc4lw100cw100lw300q                 | Save Randomization to All Odd Fingers                           | enter randomizer select odd fingers randomize save
+mlc4lr3w5000q                        | Start Auto-randomizer All Odd Fingers                           | enter randomizer select odd fingers start auto-randomizer
+mlc4lr3w3000cw3000q                  | Stop Auto-randomizer All Odd Fingers                            | enter randomizer select odd fingers stop auto-randomizer
+mlc5lcw300q                          | Randomize All Even Fingers                                      | enter randomizer select even fingers randomize
+mlc5lw100cw100lw300q                 | Save Randomization to All Even Fingers                          | enter randomizer select even fingers randomize save
+mlc5lr3w5000q                        | Start Auto-randomizer All Even Fingers                          | enter randomizer select even fingers start auto-randomizer
+mlc5lr3w3000cw3000q                  | Stop Auto-randomizer All Even Fingers                           | enter randomizer select even fingers stop auto-randomizer
+mlc6lcw300q                          | Randomize Thumb                                                 | enter randomizer select thumb randomize
+mlc6lw100cw100lw300q                 | Save Randomization to Thumb                                     | enter randomizer select thumb randomize save
+mlc6lr3w5000q                        | Start Auto-randomizer Thumb                                     | enter randomizer select thumb start auto-randomizer
+mlc6lr3w3000cw3000q                  | Stop Auto-randomizer Thumb                                      | enter randomizer select thumb stop auto-randomizer
+mlc7lcw300q                          | Randomize Index                                                 | enter randomizer select index randomize
+mlc7lw100cw100lw300q                 | Save Randomization to Index                                     | enter randomizer select index randomize save
+mlc7lr3w5000q                        | Start Auto-randomizer Index                                     | enter randomizer select index start auto-randomizer
+mlc7lr3w3000cw3000q                  | Stop Auto-randomizer Index                                      | enter randomizer select index stop auto-randomizer
+mlc8lcw300q                          | Randomize Middle                                                | enter randomizer select middle randomize
+mlc8lw100cw100lw300q                 | Save Randomization to Middle                                    | enter randomizer select middle randomize save
+mlc8lr3w5000q                        | Start Auto-randomizer Middle                                    | enter randomizer select middle start auto-randomizer
+mlc8lr3w3000cw3000q                  | Stop Auto-randomizer Middle                                     | enter randomizer select middle stop auto-randomizer
+mlc9lcw300q                          | Randomize Ring                                                  | enter randomizer select ring randomize
+mlc9lw100cw100lw300q                 | Save Randomization to Ring                                      | enter randomizer select ring randomize save
+mlc9lr3w5000q                        | Start Auto-randomizer Ring                                      | enter randomizer select ring start auto-randomizer
+mlc9lr3w3000cw3000q                  | Stop Auto-randomizer Ring                                       | enter randomizer select ring stop auto-randomizer
+mlc10lcw300q                         | Randomize Pinky                                                 | enter randomizer select pinky randomize
+mlc10lw100cw100lw300q                | Save Randomization to Pinky                                     | enter randomizer select pinky randomize save
+mlc10lr3w5000q                       | Start Auto-randomizer Pinky                                     | enter randomizer select pinky start auto-randomizer
+mlc10lr3w3000cw3000q                 | Stop Auto-randomizer Pinky                                      | enter randomizer select pinky stop auto-randomizer
+mlc11lcw300q                         | Randomize Led 9                                                 | enter randomizer select led 9 randomize
+mlc11lw100cw100lw300q                | Save Randomization to Led 9                                     | enter randomizer select led 9 randomize save
+mlc11lr3w5000q                       | Start Auto-randomizer Led 9                                     | enter randomizer select led 9 start auto-randomizer
+mlc11lr3w3000cw3000q                 | Stop Auto-randomizer Led 9                                      | enter randomizer select led 9 stop auto-randomizer
+mlc12lcw300q                         | Randomize Led 8                                                 | enter randomizer select led 8 randomize
+mlc12lw100cw100lw300q                | Save Randomization to Led 8                                     | enter randomizer select led 8 randomize save
+mlc12lr3w5000q                       | Start Auto-randomizer Led 8                                     | enter randomizer select led 8 start auto-randomizer
+mlc12lr3w3000cw3000q                 | Stop Auto-randomizer Led 8                                      | enter randomizer select led 8 stop auto-randomizer
+mlc13lcw300q                         | Randomize Led 7                                                 | enter randomizer select led 7 randomize
+mlc13lw100cw100lw300q                | Save Randomization to Led 7                                     | enter randomizer select led 7 randomize save
+mlc13lr3w5000q                       | Start Auto-randomizer Led 7                                     | enter randomizer select led 7 start auto-randomizer
+mlc13lr3w3000cw3000q                 | Stop Auto-randomizer Led 7                                      | enter randomizer select led 7 stop auto-randomizer
+mlc14lcw300q                         | Randomize Led 6                                                 | enter randomizer select led 6 randomize
+mlc14lw100cw100lw300q                | Save Randomization to Led 6                                     | enter randomizer select led 6 randomize save
+mlc14lr3w5000q                       | Start Auto-randomizer Led 6                                     | enter randomizer select led 6 start auto-randomizer
+mlc14lr3w3000cw3000q                 | Stop Auto-randomizer Led 6                                      | enter randomizer select led 6 stop auto-randomizer
+mlc15lcw300q                         | Randomize Led 5                                                 | enter randomizer select led 5 randomize
+mlc15lw100cw100lw300q                | Save Randomization to Led 5                                     | enter randomizer select led 5 randomize save
+mlc15lr3w5000q                       | Start Auto-randomizer Led 5                                     | enter randomizer select led 5 start auto-randomizer
+mlc15lr3w3000cw3000q                 | Stop Auto-randomizer Led 5                                      | enter randomizer select led 5 stop auto-randomizer
+mlc16lcw300q                         | Randomize Led 4                                                 | enter randomizer select led 4 randomize
+mlc16lw100cw100lw300q                | Save Randomization to Led 4                                     | enter randomizer select led 4 randomize save
+mlc16lr3w5000q                       | Start Auto-randomizer Led 4                                     | enter randomizer select led 4 start auto-randomizer
+mlc16lr3w3000cw3000q                 | Stop Auto-randomizer Led 4                                      | enter randomizer select led 4 stop auto-randomizer
+mlc17lcw300q                         | Randomize Led 3                                                 | enter randomizer select led 3 randomize
+mlc17lw100cw100lw300q                | Save Randomization to Led 3                                     | enter randomizer select led 3 randomize save
+mlc17lr3w5000q                       | Start Auto-randomizer Led 3                                     | enter randomizer select led 3 start auto-randomizer
+mlc17lr3w3000cw3000q                 | Stop Auto-randomizer Led 3                                      | enter randomizer select led 3 stop auto-randomizer
+mlc18lcw300q                         | Randomize Led 2                                                 | enter randomizer select led 2 randomize
+mlc18lw100cw100lw300q                | Save Randomization to Led 2                                     | enter randomizer select led 2 randomize save
+mlc18lr3w5000q                       | Start Auto-randomizer Led 2                                     | enter randomizer select led 2 start auto-randomizer
+mlc18lr3w3000cw3000q                 | Stop Auto-randomizer Led 2                                      | enter randomizer select led 2 stop auto-randomizer
+mlc19lcw300q                         | Randomize Led 1                                                 | enter randomizer select led 1 randomize
+mlc19lw100cw100lw300q                | Save Randomization to Led 1                                     | enter randomizer select led 1 randomize save
+mlc19lr3w5000q                       | Start Auto-randomizer Led 1                                     | enter randomizer select led 1 start auto-randomizer
+mlc19lr3w3000cw3000q                 | Stop Auto-randomizer Led 1                                      | enter randomizer select led 1 stop auto-randomizer
+mlc20lcw300q                         | Randomize Led 0                                                 | enter randomizer select led 0 randomize
+mlc20lw100cw100lw300q                | Save Randomization to Led 0                                     | enter randomizer select led 0 randomize save
+mlc20lr3w5000q                       | Start Auto-randomizer Led 0                                     | enter randomizer select led 0 start auto-randomizer
+mlc20lr3w3000cw3000q                 | Stop Auto-randomizer Led 0                                      | enter randomizer select led 0 stop auto-randomizer
+maw300c300c300c300q                  | Cycle bulbs in Adv Randomizer                                   | cycle through the bulb options in randomizer
+maw30lcw300cw300cw300q               | Cycle Randomizer Types All Bulbs                                | enter adv randomizer select all bulbs cycle randomizer types
+maw30lw30lcw300cw300q                | Randomize Color Only All Bulbs                                  | enter adv randomizer select all bulbs select color only randomize
+mallclw300q                          | Save Color Only Randomization to All Bulbs                      | enter adv randomizer select all bulbs select color only randomize save
+mallr3w5000q                         | Start Color Only Auto-randomizer All Bulbs                      | enter adv randomizer select all bulbs select color only start auto-randomizer
+mallr3w3000cw3000q                   | Stop Color Only Auto-randomizer All Bulbs                       | enter adv randomizer select all bulbs select color only stop auto-randomizer
+malclcw300cw300cw300q                | Randomize Pattern Only All Bulbs                                | enter adv randomizer select all bulbs select pattern only randomize
+malclclw300q                         | Save Pattern Only Randomization to All Bulbs                    | enter adv randomizer select all bulbs select pattern only randomize save
+malclr3w5000q                        | Start Pattern Only Auto-randomizer All Bulbs                    | enter adv randomizer select all bulbs select pattern only start auto-randomizer
+malclr3w3000cw3000q                  | Stop Pattern Only Auto-randomizer All Bulbs                     | enter adv randomizer select all bulbs select pattern only stop auto-randomizer
+malc2lcw300cw300cw300q               | Randomize Color and Pattern All Bulbs                           | enter adv randomizer select all bulbs select color and pattern randomize
+malc2lclw300q                        | Save Color and Pattern Randomization to All Bulbs               | enter adv randomizer select all bulbs select color and pattern randomize save
+malc2lr3w5000q                       | Start Color and Pattern Auto-randomizer All Bulbs               | enter adv randomizer select all bulbs select color and pattern start auto-randomizer
+malc2lr3w3000cw3000q                 | Stop Color and Pattern Auto-randomizer All Bulbs                | enter adv randomizer select all bulbs select color and pattern stop auto-randomizer
+maclcw300cw300cw300q                 | Cycle Randomizer Types Multi Led                                | enter adv randomizer select multi led cycle randomizer types
+macllcw300cw300cw300q                | Randomize Color Only Multi Led                                  | enter adv randomizer select multi led select color only randomize
+macllclw300q                         | Save Color Only Randomization to Multi Led                      | enter adv randomizer select multi led select color only randomize save
+macllcr3w5000q                       | Start Color Only Auto-randomizer Multi Led                      | enter adv randomizer select multi led select color only start auto-randomizer
+macllcr3w3000cw3000q                 | Stop Color Only Auto-randomizer Multi Led                       | enter adv randomizer select multi led select color only stop auto-randomizer
+maclclcw300cw300cw300q               | Randomize Pattern Only Multi Led                                | enter adv randomizer select multi led select pattern only randomize
+maclclclw300q                        | Save Pattern Only Randomization to Multi Led                    | enter adv randomizer select multi led select pattern only randomize save
+maclclr3w5000q                       | Start Pattern Only Auto-randomizer Multi Led                    | enter adv randomizer select multi led select pattern only start auto-randomizer
+maclclr3w3000cw3000q                 | Stop Pattern Only Auto-randomizer Multi Led                     | enter adv randomizer select multi led select pattern only stop auto-randomizer
+maclc2lcw300cw300cw300q              | Randomize Color and Pattern Multi Led                           | enter adv randomizer select multi led select color and pattern randomize
+maclc2lclw300q                       | Save Color and Pattern Randomization to Multi Led               | enter adv randomizer select multi led select color and pattern randomize save
+maclc2lr3w5000q                      | Start Color and Pattern Auto-randomizer Multi Led               | enter adv randomizer select multi led select color and pattern start auto-randomizer
+maclc2lr3w3000cw3000q                | Stop Color and Pattern Auto-randomizer Multi Led                | enter adv randomizer select multi led select color and pattern stop auto-randomizer
+mac2lcw300cw300cw300q                | Cycle Randomizer Types All Tips                                 | enter adv randomizer select all tips cycle randomizer types
+mac2llcw300cw300cw300q               | Randomize Color Only All Tips                                   | enter adv randomizer select all tips select color only randomize'
+mac2llclw300q                        | Save Color Only Randomization to All Tips                       | enter adv randomizer select all tips select color only randomize save
+mac2llr3w5000q                       | Start Color Only Auto-randomizer All Tips                       | enter adv randomizer select all tips select color only start auto-randomizer
+mac2llr3w3000cw3000q                 | Stop Color Only Auto-randomizer All Tips                        | enter adv randomizer select all tips select color only stop auto-randomizer
+mac2lclcw300q                        | Randomize Pattern Only All Tips                                 | enter adv randomizer select all tips select pattern only randomize
+mac2lclclw300q                       | Save Pattern Only Randomization to All Tips                     | enter adv randomizer select all tips select pattern only randomize save
+mac2lclr3w5000q                      | Start Pattern Only Auto-randomizer All Tips                     | enter adv randomizer select all tips select pattern only start auto-randomizer
+mac2lclr3w3000cw3000q                | Stop Pattern Only Auto-randomizer All Tips                      | enter adv randomizer select all tips select pattern only stop auto-randomizer
+mac2lc2lcw300cw300cw300q             | Randomize Color and Pattern All Tips                            | enter adv randomizer select all tips select color and pattern randomize
+mac2lc2lclw300q                      | Save Color and Pattern Randomization to All Tips                | enter adv randomizer select all tips select color and pattern randomize save
+mac2lc2lr3w5000q                     | Start Color and Pattern Auto-randomizer All Tips                | enter adv randomizer select all tips select color and pattern start auto-randomizer
+mac2lc2lr3w3000cw3000q               | Stop Color and Pattern Auto-randomizer All Tips                 | enter adv randomizer select all tips select color and pattern stop auto-randomizer
+mclw300q                             | Receive a mode                                                  | enter mode sharing receive a mode
+mcllw300q                            | Exit mode sharing                                               | enter mode shring exit mode sharing
+mcaw300q                             | Reveice a mode in adv mode sharing                              | enter adv mode sharing receive a mode
+mcalw300q                            | Exit adv mode sharing                                           | enter adv mode shring exit adv mode sharing
+mc3lcw300cw300cw300q                 | Cycle bulbs in Color Select                                     | cycle through the bulb options in color select
+mc3l2cw300cw300cw300cw300cw300q      | Cycle Color Slots in Color Select All Bulbs                     | enter color select select all bulbs cycle through color slots
+mc3l3cw300cw300cw300cw300cw300q      | Cycle Rainbow Sections in Color Select All Bulbs                | enter color select select all bulbs select first slot cycle through rainbow sections
+mc3l4cw300cw300cw300cw300cw300q      | Cycle Hue Selection in Color Select All Bulbs                   | enter color select select all bulbs select first slot select first rainbow cycle hue selection
+mc3l5cw300cw300cw300cw300cw300q      | Cycle Sat Selection in Color Select All Bulbs                   | enter color select select all bulbs select first slot select first rainbow select first hue cycle sat selection
+mc3l6cw300cw300cw300cw300cw300q      | Cycle Val Selection in Color Select All Bulbs                   | enter color select select all bulbs select first slot select first rainbow select first hue select first sat cycle val selection
+mc3lw30lw30lw30lw30lw30lw30lw30w300q | Select Color in Color Select All Bulbs                          | enter color select select all bulbs select first slot select first rainbow select first hue select first sat select first val
+mc3l6c3lw300q                        | Select Blank in Color Select All Bulbs                          | enter color select select all bulbs select first slot select first rainbow select first hue select first sat select last val
+mc3l6c4lw300q                        | Return to Sat Selection from Val Selection All Bulbs            | enter color select select all bulbs select first slot select first rainbow select first hue select first sat select return to sat
+mc3l5c3lw300q                        | Select White in Color Select All Bulbs                          | enter color select select all bulbs select first slot select first rainbow select first hue select last sat
+mc3l5c4lw300q                        | Return to Hue Selection from Sat Selection All Bulbs            | enter color select select all bulbs select first slot select first rainbow select first hue select return to hue
+mc3l4c4lw300q                        | Return to Rainbow Selection from Hue Selection All Bulbs        | enter color select select all bulbs select first slot select first rainbow select return to rainbow
+mc3l3c4lw300q                        | Return to Slot Selection from Rainbow Selection All Bulbs       | enter color select select all bulbs select first slot select return to slots
+mc3l2c3lw300q                        | Select Add Color in Color Select All Bulbs                      | enter color select select all bulbs select add color
+mc3l2c3l5w300q                       | Add a New Color in Color Select All Bulbs                       | enter color select select all bulbs select add color select first rainbot select first hue select first sat select first val
+mc3l2c4lw300q                        | Select Save and Exit in Color Select All Bulbs                  | enter color select select all bulbs select save and exit
+mc3l2dw300q                          | Delete a Color in Color Select All Bulbs                        | enter color select select all bulbs delete a color
+mc3l2c3l5cl5cl5cl5cl5clw300q         | Save an 8 Color set in Color Select All Bulbs                   | enter color select select all bulbs add 5 new colors save and exit
+mc3l2d3clw300q                       | Delete All Colors in Color Select All Bulbs                     | enter color select select all bulbs delete 3 colors save and exit
+mc3lclc5w300q                        | Cycle Color Slots in Color Select Multi Led                     | enter color select select multi led cycle through color slots
+mc3lcl2c5w300q                       | Cycle Rainbow Sections in Color Select Multi Led                | enter color select select multi led select first slot cycle through rainbow sections
+mc3lcl3c5w300q                       | Cycle Hue Selection in Color Select Multi Led                   | enter color select select multi led select first slot select first rainbow cycle hue selection
+mc3lcl4c5w300q                       | Cycle Sat Selection in Color Select Multi Led                   | enter color select select multi led select first slot select first rainbow select first hue cycle sat selection
+mc3lcl5c5w300q                       | Cycle Val Selection in Color Select Multi Led                   | enter color select select multi led select first slot select first rainbow select first hue select first sat cycle val selection
+mc3lcl6w300q                         | Select Color in Color Select Multi Led                          | enter color select select multi led select first slot select first rainbow select first hue select first sat select first val
+mc3lcl5c3lw300q                      | Select Blank in Color Select Multi Led                          | enter color select select multi led select first slot select first rainbow select first hue select first sat select last val
+mc3lcl5c4lw300q                      | Return to Sat Selection from Val Selection Multi Led            | enter color select select multi led select first slot select first rainbow select first hue select first sat select return to sat
+mc3lcl4c3lw300q                      | Select White in Color Select Multi Led                          | enter color select select multi led select first slot select first rainbow select first hue select last sat
+mc3lcl4c4lw300q                      | Return to Hue Selection from Sat Selection Multi Led            | enter color select select multi led select first slot select first rainbow select first hue select return to hue
+mc3lcl3c4lw300q                      | Return to Rainbow Selection from Hue Selection Multi Led        | enter color select select multi led select first slot select first rainbow select return to rainbow
+mc3lcl2c4lw300q                      | Return to Slot Selection from Rainbow Selection Multi Led       | enter color select select multi led select first slot select return to slots
+mc3lclc3lw300q                       | Select Add Color in Color Select Multi Led                      | enter color select select multi led select add color
+mc3lclc3l5w300q                      | Add a New Color in Color Select Multi Led                       | enter color select select multi led select add color select first rainbot select first hue select first sat select first val
+mc3lclc4lw300q                       | Select Save and Exit in Color Select Multi Led                  | enter color select select multi led select save and exit
+mc3lcldw300q                         | Delete a Color in Color Select Multi Led                        | enter color select select multi led delete a color
+mc3lclc3l5cl5cl5cl5cl5clw300q        | Save an 8 Color set in Color Select Multi Led                   | enter color select select multi led add 5 new colors save and exit
+mc3lcld3clw300q                      | Delete All Colors in Color Select Multi Led                     | enter color select select multi led delete 3 colors save and exit
+mc3lc2lc5w300q                       | Cycle Color Slots in Color Select All Tips                      | enter color select select all tips cycle through color slots
+mc3lc2l2c5w300q                      | Cycle Rainbow Sections in Color Select All Tips                 | enter color select select all tips select first slot cycle through rainbow sections
+mc3lc2l3c5w300q                      | Cycle Hue Selection in Color Select All Tips                    | enter color select select all tips select first slot select first rainbow cycle hue selection
+mc3lc2l4c5w300q                      | Cycle Sat Selection in Color Select All Tips                    | enter color select select all tips select first slot select first rainbow select first hue cycle sat selection
+mc3lc2l5c5w300q                      | Cycle Val Selection in Color Select All Tips                    | enter color select select all tips select first slot select first rainbow select first hue select first sat cycle val selection
+mc3lc2l6w300q                        | Select Color in Color Select All Tips                           | enter color select select all tips select first slot select first rainbow select first hue select first sat select first val
+mc3lc2l5c3lw300q                     | Select Blank in Color Select All Tips                           | enter color select select all tips select first slot select first rainbow select first hue select first sat select last val
+mc3lc2l5c4lw300q                     | Return to Sat Selection from Val Selection All Tips             | enter color select select all tips select first slot select first rainbow select first hue select first sat select return to sat
+mc3lc2l4c3lw300q                     | Select White in Color Select All Tips                           | enter color select select all tips select first slot select first rainbow select first hue select last sat
+mc3lc2l4c4lw300q                     | Return to Hue Selection from Sat Selection All Tips             | enter color select select all tips select first slot select first rainbow select first hue select return to hue
+mc3lc2l3c4lw300q                     | Return to Rainbow Selection from Hue Selection All Tips         | enter color select select all tips select first slot select first rainbow select return to rainbow
+mc3lc2l2c4lw300q                     | Return to Slot Selection from Rainbow Selection All Tips        | enter color select select all tips select first slot select return to slots
+mc3lc2lc3lw300q                      | Select Add Color in Color Select All Tips                       | enter color select select all tips select add color
+mc3lc2lc3l5w300q                     | Add a New Color in Color Select All Tips                        | enter color select select all tips select add color select first rainbot select first hue select first sat select first val
+mc3lc2lc4lw300q                      | Select Save and Exit in Color Select All Tips                   | enter color select select all tips select save and exit
+mc3lc2ldw300q                        | Delete a Color in Color Select All Tips                         | enter color select select all tips delete a color
+mc3lc2lc3l5cl5cl5cl5cl5clw300q       | Save an 8 Color set in Color Select All Tips                    | enter color select select all tips add 5 new colors save and exit
+mc3lc2ld3clw300q                     | Delete All Colors in Color Select All Tips                      | enter color select select all tips delete 3 colors save and exit
+mc4lc3w300q                          | Cycle bulbs in Pattern Select                                   | cycle through the bulb options in pattern select
+mc4l2c9c9c9c3w300q                   | Cycle Patterns in Pattern Select All Bulbs                      | enter pattern select select all bulbs cycle through all patterns
+mc4l3w300q                           | Select Pattern in Pattern Select All Bulbs                      | enter pattern select select all bulbs select first pattern
+mc4lclc9c9c9c3w300q                  | Cycle Patterns in Pattern Select All Tips                       | enter pattern select select all tips cycle through all patterns
+mc4lcl2w300q                         | Select Pattern in Pattern Select All Tips                       | enter pattern select select all tips select first pattern
+mc4lc2lc9c9c9c3w300q                 | Cycle Patterns in Pattern Select Multi Led                      | enter pattern select select multi led cycle through all patterns
+mc4lc2l2w300q                        | Select Pattern in Pattern Select Multi Led                      | enter pattern select select multi led select first pattern
+mc5lc5w300q                          | Cycle Brightness Options in Brightness Menu                     | enter brightness menu cycle all options
+mc5l2w300q                           | Select Brightness in Brightness Menu                            | enter brightness menu select brightness
+mc6lc2w300q                          | Cycle Options in Factory Reset Menu                             | enter factory reset menu cycle options
+mc6l2w300q                           | Exit Factory Reset Menu                                         | enter factory reset menu exit factory reset menu
+mc6lch4000w300q                      | Factory Reset                                                   | enter factory reset menu factory reset
+mc6ac3w300q                          | Cycle bulbs in Adv Factory Reset Menu                           | cycle through the bulb options in adv factory reset menu
+mc6alc2w300q                         | Cycle Options in Adv Factory Reset Menu All Bulbs               | enter adv factory reset menu select all bulbs cycle options
+mc6al2w300q                          | Exit Adv Factory Reset Menu All Bulbs                           | enter adv factory reset menu select all bulbs exit adv factory reset menu
+mc6alch4000w300q                     | Factory Reset All Bulbs                                         | enter adv factory reset menu select all bulbs factory reset selected bulbs
+mc6aclc2w300q                        | Cycle Options in Adv Factory Reset Menu Multi Led               | enter adv factory reset menu select multi led cycle options
+mc6acl2w300q                         | Exit Adv Factory Reset Menu Multi Led                           | enter adv factory reset menu select multi led exit adv factory reset menu
+mc6aclch4000w300q                    | Factory Reset Multi Led                                         | enter adv factory reset menu select multi led factory reset selected bulbs
+mc6ac2lc2w300q                       | Cycle Options in Adv Factory Reset Menu All Tips                | enter adv factory reset menu select all tips cycle options
+mc6ac2l2w300q                        | Exit Adv Factory Reset Menu All Tips                            | enter adv factory reset menu select all tips exit adv factory reset menu
+mc6ac2lch4000w300q                   | Factory Reset All Tips                                          | enter adv factory reset menu select all tips factory reset selected bulbs

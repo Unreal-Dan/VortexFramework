@@ -24,6 +24,18 @@ const default_mode_entry default_modes[MAX_MODES] = {
     }
   },
   {
+    PATTERN_SNOWBALL, 8, {
+      RGB_BLUE,
+      0xABAA00,
+      RGB_BLUE,
+      RGB_RED,
+      RGB_GREEN,
+      RGB_BLUE,
+      RGB_GREEN,
+      RGB_BLUE
+    }
+  },
+  {
     PATTERN_WARPWORM, 2, {
       RGB_GREEN,
       0x26004B,
@@ -114,6 +126,16 @@ const default_mode_entry default_modes[MAX_MODES] = {
       0x00AB55,
       0x7F0081,
       0xAA381C,
+    }
+  },
+  {
+    PATTERN_BLINKIE, 6, {
+      RGB_BLUE,
+      RGB_RED,
+      RGB_GREEN,
+      RGB_BLUE,
+      RGB_GREEN,
+      RGB_BLUE,
     }
   },
   {

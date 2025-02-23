@@ -19,6 +19,14 @@ const LedPos ZigzagPattern::ledStepPositions[] = {
   LED_4,
   LED_2,
   LED_0,
+
+  // PaLm LiGhTs?>??!?
+#if USE_PALM_LIGHTS == 1
+  PALM_LEFT,
+  PALM_UP,
+  PALM_RIGHT,
+  PALM_DOWN
+#endif
 };
 
 // There just happens to be LED_COUNT steps in the pattern
