@@ -38,7 +38,7 @@
 
 // the engine flavour, this should change for each device/flavour
 // of the engine that branches off from the main indefinitely
-#define VORTEX_NAME "Core"
+#define VORTEX_NAME "Handle"
 
 // the full name of this build for ex:
 //    Vortex Engine v1.0 'Igneous' (built Tue Jan 31 19:03:55 2023)
@@ -57,8 +57,8 @@
 
 // Menu Trigger Threshold (in milliseconds)
 //
-// How long the button must be held to trigger menu selection and
-// begin blinking the first menu color
+// How long the button must be held to trigger ring menu and begin
+// filling the first menu color
 #define MENU_TRIGGER_TIME     1000
 
 // Short Click Threshold (in milliseconds)
@@ -176,7 +176,7 @@
 // This should not be set to 0, it should be a specific maximum for
 // each separate device
 //
-#define MAX_MODES             13
+#define MAX_MODES             14
 
 // Default Tickrate in Ticks Per Second (TPS)
 //

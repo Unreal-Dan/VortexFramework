@@ -24,6 +24,9 @@ ifndef WASM
 CFLAGS += -g
 endif
 
+# The branch/tag suffix for this device
+BRANCH_SUFFIX=h
+
 # compiler defines
 DEFINES=\
 	-D VORTEX_LIB \
@@ -146,9 +149,9 @@ clean:
 
 # calculate the version number of the build
 compute_version:
-	$(eval LATEST_TAG ?= $(shell git fetch --depth=1 origin +refs/tags/*:refs/tags/* &> /dev/null && git tag --list | grep --invert-match '[a-zA-Z]' | sort -V | tail -n1))
+	$(eval LATEST_TAG ?= $(shell git fetch --depth=1 origin +refs/tags/*:refs/tags/* &> /dev/null && git tag --list "*$(BRANCH_SUFFIX)" | sort -V | tail -n1))
 	$(eval VORTEX_VERSION_MAJOR ?= $(shell echo $(LATEST_TAG) | cut -d. -f1))
-	$(eval VORTEX_VERSION_MINOR ?= $(shell echo $(LATEST_TAG) | cut -d. -f2))
+	$(eval VORTEX_VERSION_MINOR ?= $(shell echo $(LATEST_TAG) | sed 's/$(BRANCH_SUFFIX)$$//' | cut -d. -f2))
 	$(eval VORTEX_BUILD_NUMBER ?= $(shell git rev-list --count $(LATEST_TAG)..HEAD))
 	$(eval VORTEX_VERSION_MAJOR := $(if $(VORTEX_VERSION_MAJOR),$(VORTEX_VERSION_MAJOR),0))
 	$(eval VORTEX_VERSION_MINOR := $(if $(VORTEX_VERSION_MINOR),$(VORTEX_VERSION_MINOR),1))

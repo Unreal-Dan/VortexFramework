@@ -9,6 +9,10 @@
 
 #include "../Leds/Leds.h"
 
+#ifdef VORTEX_EMBEDDED
+#include <Arduino.h>
+#endif
+
 #if !defined(_WIN32) || defined(WASM)
 #include <unistd.h>
 #include <time.h>
@@ -190,7 +194,7 @@ uint32_t Time::microseconds()
 
 void Time::delayMicroseconds(uint32_t us)
 {
-#ifdef _WIN32
+#if defined(VORTEX_EMBEDDED) || defined(_WIN32)
   uint32_t newtime = microseconds() + us;
   while (microseconds() < newtime) {
     // busy loop

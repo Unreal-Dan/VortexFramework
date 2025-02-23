@@ -38,6 +38,10 @@ private:
 
   // the start time when checking for timing out
   uint32_t m_timeOutStartTime;
+  uint32_t m_lastSendTime;
+
+  // whether to end the next send and go back to receive
+  bool m_shouldEndSend;
 };
 
 #endif

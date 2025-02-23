@@ -16,13 +16,6 @@ enum LedPos : uint8_t
   LED_0 = LED_FIRST,
   LED_1,
   LED_2,
-  LED_3,
-  LED_4,
-  LED_5,
-  LED_6,
-  LED_7,
-  LED_8,
-  LED_9,
 
   // the number of entries above
   LED_COUNT,
@@ -63,6 +56,10 @@ enum LedPos : uint8_t
   // LED_ODDS = (LED_COUNT + 3),
 };
 
+// some helpers for microlight code
+#define LED_TIP LED_0
+#define LED_TOP LED_1
+
 enum Pair : uint8_t
 {
   PAIR_FIRST = 0,
@@ -70,16 +67,26 @@ enum Pair : uint8_t
   // one pair for each pair of leds, adjust this to be 2x the LED_COUNT
   PAIR_0 = PAIR_FIRST,
   PAIR_1,
-  PAIR_2,
-  PAIR_3,
-  PAIR_4,
 
   PAIR_COUNT,
   PAIR_LAST = (PAIR_COUNT - 1),
 };
 
 // Compile-time check on the number of pairs and leds
-static_assert(LED_COUNT == (PAIR_COUNT * 2), "Incorrect number of Pairs for Leds! Adjust the Led enum or Pair enum to match");
+// The handle only has 3 leds so the pair check is a little offset
+static_assert(LED_COUNT == ((PAIR_COUNT * 2) - 1), "Incorrect number of Pairs for Leds! Adjust the Led enum or Pair enum to match");
+
+// backwards compatibility for multi led patterns
+#define LED_3 LED_0
+#define LED_4 LED_1
+#define LED_5 LED_2
+#define LED_6 LED_0
+#define LED_7 LED_1
+#define LED_8 LED_2
+#define LED_9 LED_0
+#define PAIR_2 PAIR_0
+#define PAIR_3 PAIR_1
+#define PAIR_4 PAIR_0
 
 // check if an led is even or odd
 #define isEven(pos) ((pos % 2) == 0)
@@ -158,6 +165,9 @@ inline LedPos ledmapGetNextLed(LedMap map, LedPos pos)
 
 #define MAP_PAIR_EVEN_EVENS (MAP_PAIR_EVEN(PAIR_3) | MAP_PAIR_EVEN(PAIR_1))
 #define MAP_PAIR_EVEN_ODDS (MAP_PAIR_ODD(PAIR_3) | MAP_PAIR_ODD(PAIR_1))
+
+// ledmap of the side leds
+#define MAP_SIDES (MAP_LED(LED_0) | MAP_LED(LED_2))
 
 // set a single led
 inline void ledmapSetLed(LedMap &map, LedPos pos)

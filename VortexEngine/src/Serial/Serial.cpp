@@ -3,6 +3,7 @@
 #include "../Serial/ByteStream.h"
 #include "../Time/TimeControl.h"
 #include "../Time/Timings.h"
+#include "../Menus/Menus.h"
 #include "../Log/Log.h"
 
 #include "../VortexEngine.h"
@@ -12,14 +13,19 @@
 #include <stdio.h>
 #endif
 
+#ifdef VORTEX_EMBEDDED
+#include <Arduino.h>
+#endif
+
 bool SerialComs::m_serialConnected = false;
 uint32_t SerialComs::m_lastCheck = 0;
+uint32_t SerialComs::m_lastConnected = 0;
 
 // init serial
 bool SerialComs::init()
 {
   // Try connecting serial ?
-  //checkSerial();
+  checkSerial();
   return true;
 }
 
@@ -29,7 +35,31 @@ void SerialComs::cleanup()
 
 bool SerialComs::isConnected()
 {
+#ifdef VORTEX_EMBEDDED
+  if (!Serial) {
+    m_serialConnected = false;
+    return false;
+  }
+  if (!isConnectedReal()) {
+    return false;
+  }
+#endif
   return m_serialConnected;
+}
+
+bool SerialComs::isConnectedReal()
+{
+#ifdef VORTEX_EMBEDDED
+  uint32_t now = Time::getCurtime();
+  if (!Serial.usb.connected()) {
+    m_lastConnected = now;
+  } else {
+    if (m_lastConnected && (now - m_lastConnected) > 1800) {
+      return false;
+    }
+  }
+#endif
+  return true;
 }
 
 // check for any serial connection or messages
@@ -39,6 +69,9 @@ bool SerialComs::checkSerial()
   if (isConnected()) {
     // already connected
     return true;
+  }
+  if (m_serialConnected) {
+    return isConnectedReal();
   }
   uint32_t now = Time::getCurtime();
   // don't check for serial too fast
@@ -54,17 +87,22 @@ bool SerialComs::checkSerial()
   Vortex::vcallbacks()->serialBegin(SERIAL_BAUD_RATE);
 #else
   // This will check if the serial communication is open
-  if (!Serial.available()) {
+  if (!Serial) {
     // serial is not connected
     return false;
   }
-  // Begin serial communications
+  // Begin serial communications (turns out this is actually a NO-OP in trinket source)
   Serial.begin(SERIAL_BAUD_RATE);
+  if (Menus::curMenuID() != MENU_EDITOR_CONNECTION) {
+    // directly open the editor connection menu because we are connected to USB serial
+    Menus::openMenu(MENU_EDITOR_CONNECTION);
+  }
 #endif
 #endif
   // serial is now connected
   m_serialConnected = true;
-  return true;
+  // rely on the low level 'real' connection now
+  return isConnectedReal();
 }
 
 void SerialComs::write(const char *msg, ...)

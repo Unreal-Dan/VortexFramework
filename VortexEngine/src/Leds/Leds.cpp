@@ -12,6 +12,49 @@
 #include "../../VortexLib/VortexLib.h"
 #endif
 
+#ifdef VORTEX_EMBEDDED
+#include <SPI.h>
+#define ONBOARD_LED_SCK 8
+#define ONBOARD_LED_MOSI 7
+static void transfer(uint8_t byte)
+{
+  uint8_t startbit = 0x80;
+  bool lastmosi = !(byte & startbit);
+  for (uint8_t b = startbit; b != 0; b = b >> 1) {
+    delayMicroseconds(4);
+    bool towrite = byte & b;
+    if (lastmosi != towrite) {
+      digitalWrite(ONBOARD_LED_MOSI, towrite);
+      lastmosi = towrite;
+    }
+    digitalWrite(ONBOARD_LED_SCK, HIGH);
+    delayMicroseconds(4);
+    digitalWrite(ONBOARD_LED_SCK, LOW);
+  }
+}
+static void turnOffOnboardLED()
+{
+  // spi device begin
+  pinMode(ONBOARD_LED_SCK, OUTPUT);
+  digitalWrite(ONBOARD_LED_SCK, LOW);
+  pinMode(ONBOARD_LED_MOSI, OUTPUT);
+  digitalWrite(ONBOARD_LED_MOSI, HIGH);
+
+  // Begin transaction, setting SPI frequency
+  static const SPISettings mySPISettings(8000000, MSBFIRST, SPI_MODE0);
+  SPI.beginTransaction(mySPISettings);
+  for (uint8_t i = 0; i < 4; i++) {
+    transfer(0x00); // begin frame
+  }
+  transfer(0xFF); //  Pixel start
+  for (uint8_t i = 0; i < 3; i++) {
+    transfer(0x00); // R,G,B
+  }
+  transfer(0xFF); // end frame
+  SPI.endTransaction();
+}
+#endif
+
 // global brightness
 uint8_t Leds::m_brightness = DEFAULT_BRIGHTNESS;
 // array of led color values
@@ -19,6 +62,10 @@ RGBColor Leds::m_ledColors[LED_COUNT] = { RGB_OFF };
 
 bool Leds::init()
 {
+#ifdef VORTEX_EMBEDDED
+  turnOffOnboardLED();
+  SPI.begin();
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsInit(m_ledColors, LED_COUNT);
 #endif
@@ -27,6 +74,9 @@ bool Leds::init()
 
 void Leds::cleanup()
 {
+#ifdef VORTEX_EMBEDDED
+  SPI.end();
+#endif
   for (uint8_t i = 0; i < LED_COUNT; ++i) {
     m_ledColors[i].clear();
   }
@@ -260,6 +310,27 @@ void Leds::holdAll(RGBColor col)
 
 void Leds::update()
 {
+#ifdef VORTEX_EMBEDDED
+  // the transaction prevents this from interfering with other communications
+  // on the pins that are used for SPI, for example IR is on pin 2
+  static const SPISettings mySPISettings(12000000, MSBFIRST, SPI_MODE0);
+  SPI.beginTransaction(mySPISettings);
+  // Double start frame, normally 4, idk why it's double
+  for (uint8_t i = 0; i < 8; i++) {
+    SPI.transfer(0);
+  }
+  // Adjust brightness to 5 bits
+  uint8_t adjustedBrightness = 0b11100000 | ((m_brightness >> 3) & 0b00011111);
+  // LED frames
+  for (LedPos pos = LED_FIRST; pos < LED_COUNT; pos++) {
+    SPI.transfer(adjustedBrightness);     // brightness
+    SPI.transfer(m_ledColors[pos].blue);  // blue
+    SPI.transfer(m_ledColors[pos].green); // green
+    SPI.transfer(m_ledColors[pos].red);   // red
+  }
+  // don't need to end the SPI frame apparently, just end transaction
+  SPI.endTransaction();
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsShow();
 #endif

@@ -233,7 +233,6 @@ void ColorSelect::showSelection(ColorSelectState mode)
     return;
   case STATE_PICK_HUE2:
     hue = m_targetHue1 * (255 / 4) + (m_curSelection * (255 / 16));
-    Leds::setIndex(LED_1, RGB_WHITE0);
     // force sat at hue level2
     sat = 255;
     break;
@@ -244,7 +243,7 @@ void ColorSelect::showSelection(ColorSelectState mode)
     val = vals[m_curSelection];
     break;
   }
-  Leds::setMap(MAP_PAIR_EVENS, HSVColor(hue, sat, val));
+  Leds::setAll(HSVColor(hue, sat, val));
 }
 
 void ColorSelect::showFullSet(uint8_t offMs, uint8_t onMs)
@@ -258,6 +257,7 @@ void ColorSelect::showFullSet(uint8_t offMs, uint8_t onMs)
   if ((now % offOnMs) < MS_TO_TICKS(onMs)) {
     Leds::setAll(m_colorset.get((now / offOnMs) % numCols));
   }
+  Leds::setIndex(LED_1, 0x001000);
 }
 
 bool ColorSelect::isValidLedSelection(LedMap selection) const
