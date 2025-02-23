@@ -149,6 +149,9 @@
     <ClCompile Include="src\Buttons\Buttons.cpp" />
     <ClCompile Include="src\Colors\Colorset.cpp" />
     <ClCompile Include="src\Colors\ColorTypes.cpp" />
+    <ClCompile Include="src\Menus\MainMenu.cpp" />
+    <ClCompile Include="src\Modes\DuoDefaultModes.cpp" />
+    <ClCompile Include="src\UPDI\updi.cpp" />
     <ClCompile Include="src\Wireless\IRReceiver.cpp" />
     <ClCompile Include="src\Wireless\IRSender.cpp" />
     <ClCompile Include="src\Leds\Leds.cpp" />
@@ -218,6 +221,9 @@
     <ClInclude Include="src\Colors\ColorConstants.h" />
     <ClInclude Include="src\Colors\Colorset.h" />
     <ClInclude Include="src\Colors\ColorTypes.h" />
+    <ClInclude Include="src\Menus\MainMenu.h" />
+    <ClInclude Include="src\Modes\DuoDefaultModes.h" />
+    <ClInclude Include="src\UPDI\updi.h" />
     <ClInclude Include="src\Wireless\IRConfig.h" />
     <ClInclude Include="src\Wireless\IRReceiver.h" />
     <ClInclude Include="src\Wireless\IRSender.h" />

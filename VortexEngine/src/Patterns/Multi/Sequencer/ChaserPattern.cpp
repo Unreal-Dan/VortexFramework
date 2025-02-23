@@ -1,7 +1,7 @@
 #include "ChaserPattern.h"
 
 // This controls the ratio of chaser dots to LED_COUNT. Default 1 chaser per 7 LEDs. Range: 1-LED_COUNT.
-#define CHASER_RATIO 7
+#define CHASER_RATIO 5
 
 
 // This pattern aims to be a demonstration of the sequencer.

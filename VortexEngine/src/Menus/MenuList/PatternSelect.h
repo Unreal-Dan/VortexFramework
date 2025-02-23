@@ -19,12 +19,16 @@ public:
   void onLedSelected() override;
 
   // handlers for clicks
-  void onShortClick() override;
-  void onLongClick() override;
+  void onShortClickL() override;
+  void onShortClickR() override;
+  void onShortClickM() override;
+  void onLongClickM() override;
 
 private:
   void nextPatternID();
   void nextPattern();
+  void previousPatternID();
+  void previousPattern();
 
   // the patternid of the current demo
   PatternID m_newPatternID;

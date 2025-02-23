@@ -9,6 +9,10 @@
 
 #if VL_ENABLE_RECEIVER == 1
 
+#ifdef VORTEX_EMBEDDED
+#include <Arduino.h>
+#endif
+
 class ByteStream;
 class Mode;
 
@@ -72,6 +76,10 @@ private:
 
   // used to compare if received data has changed since last checking
   static uint32_t m_previousBytes;
+
+#ifdef VORTEX_EMBEDDED
+  static void adcCheckTimerCallback(void *arg);
+#endif
 
 #ifdef VORTEX_LIB
   friend class Vortex;

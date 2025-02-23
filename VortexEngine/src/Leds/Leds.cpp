@@ -12,6 +12,12 @@
 #include "../../VortexLib/VortexLib.h"
 #endif
 
+#ifdef VORTEX_EMBEDDED
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#include <FastLED.h>
+#define LED_PIN     0
+#endif
+
 // global brightness
 uint8_t Leds::m_brightness = DEFAULT_BRIGHTNESS;
 // array of led color values
@@ -19,6 +25,10 @@ RGBColor Leds::m_ledColors[LED_COUNT] = { RGB_OFF };
 
 bool Leds::init()
 {
+#ifdef VORTEX_EMBEDDED
+  FastLED.addLeds<WS2812B, LED_PIN, GRB>((CRGB *)m_ledColors, LED_COUNT);
+  FastLED.setMaxRefreshRate(0);
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsInit(m_ledColors, LED_COUNT);
 #endif
@@ -63,6 +73,19 @@ void Leds::setPairs(Pair first, Pair last, RGBColor col)
 {
   // start from tip and go to top
   setRange(pairEven(first), pairOdd(last), col);
+}
+
+void Leds::setRadial(Radial radial, RGBColor col)
+{
+  setIndex(radialInner(radial), col);
+  setIndex(radialOuter(radial), col);
+}
+
+void Leds::setRadials(Radial first, Radial last, RGBColor col)
+{
+  for (Radial rad = first; rad < last; rad++) {
+    setRadial(rad, col);
+  }
 }
 
 void Leds::setRangeEvens(Pair first, Pair last, RGBColor col)
@@ -260,6 +283,9 @@ void Leds::holdAll(RGBColor col)
 
 void Leds::update()
 {
+#ifdef VORTEX_EMBEDDED
+  FastLED.show(m_brightness);
+#endif
 #ifdef VORTEX_LIB
   Vortex::vcallbacks()->ledsShow();
 #endif

@@ -5,19 +5,7 @@
 #include "../../Leds/Leds.h"
 #include "../../Log/Log.h"
 
-const LedPos VortexWipePattern::ledStepPositions[] = {
-  LED_9,
-  LED_7,
-  LED_5,
-  LED_3,
-  LED_1,
-
-  LED_0,
-  LED_2,
-  LED_4,
-  LED_6,
-  LED_8
-};
+#define VORTEX_WIPE_STEPS (LED_COUNT/2)
 
 VortexWipePattern::VortexWipePattern(const PatternArgs &args) :
   BlinkStepPattern(args),
@@ -43,17 +31,15 @@ void VortexWipePattern::init()
 
 void VortexWipePattern::blinkOn()
 {
-  for (int index = 0; index < m_progress; ++index) {
-    Leds::setIndex(ledStepPositions[index], m_colorset.peekNext());
-  }
-  for (int index = m_progress; index < LED_COUNT; ++index) {
-    Leds::setIndex(ledStepPositions[index], m_colorset.cur());
-  }
+  Leds::setRange(LED_FIRST, (LedPos)m_progress, m_colorset.peekNext());
+  Leds::setRange((LedPos)(LED_COUNT/2), (LedPos)((LED_COUNT/2) + m_progress), m_colorset.peekNext());
+  Leds::setRange((LedPos)m_progress, (LedPos)((LED_COUNT/2) - 1), m_colorset.cur());  
+  Leds::setRange((LedPos)((LED_COUNT / 2) + m_progress), (LedPos)(LED_COUNT - 1), m_colorset.cur());
 }
 
 void VortexWipePattern::poststep()
 {
-  m_progress = (m_progress + 1) % LED_COUNT;
+  m_progress = (m_progress + 1) % VORTEX_WIPE_STEPS;
   if (m_progress == 0) {
     m_colorset.getNext();
   }

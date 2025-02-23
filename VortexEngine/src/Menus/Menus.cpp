@@ -102,7 +102,7 @@ bool Menus::run()
 
 bool Menus::runMenuSelection()
 {
-  if (g_pButton->onShortClick()) {
+  if (g_pButtonR->onShortClick()) {
     // otherwise increment selection and wrap around at num menus
     m_selection = (m_selection + 1) % NUM_MENUS;
 #if ENABLE_EDITOR_CONNECTION == 1
@@ -120,6 +120,24 @@ bool Menus::runMenuSelection()
     Leds::clearAll();
     return true;
   }
+  if (g_pButtonL->onShortClick()) {
+    // decrement selection and wrap around at num menus
+    m_selection = m_selection ? m_selection - 1 : NUM_MENUS - 1;
+#if ENABLE_EDITOR_CONNECTION == 1
+    // Hide the editor connection menu because it opens automatically
+    // TODO: Create a better way to hide this menu color, this menu
+    //       will automatically open when the device is plugged in
+    if (m_selection == MENU_EDITOR_CONNECTION) {
+      m_selection = MENU_EDITOR_CONNECTION - 1;
+    }
+#endif
+    DEBUG_LOGF("Cyling backwards to ring menu %u", m_selection);
+    // reset the open time so that it starts again
+    m_openTime = Time::getCurtime();
+    // clear the leds
+    Leds::clearAll();
+    return true;
+  }
   // clear the leds so it always fills instead of replacing
   Leds::clearAll();
   // timings for blink later
@@ -130,10 +148,10 @@ bool Menus::runMenuSelection()
   // if the button was long pressed then select this menu, but we
   // need to check the presstime to ensure we don't catch the initial
   // release after opening the ringmenu
-  if (g_pButton->pressTime() >= m_openTime) {
+  if (g_pButtonM->pressTime() >= m_openTime) {
     // whether to open advanced menus or not
-    bool openAdv = (g_pButton->holdDuration() > ADV_MENU_DURATION_TICKS) && advMenus;
-    if (g_pButton->onLongClick()) {
+    bool openAdv = (g_pButtonM->holdDuration() > ADV_MENU_DURATION_TICKS) && advMenus;
+    if (g_pButtonM->onRelease()) {
       // ringmenu is open so select the menu
       DEBUG_LOGF("Selected ringmenu %s", menuList[m_selection].menuName);
       // open the menu we have selected
@@ -145,7 +163,7 @@ bool Menus::runMenuSelection()
       return true;
     }
     // if holding down to select the menu option
-    if (g_pButton->isPressed() && openAdv) {
+    if (g_pButtonM->isPressed() && openAdv) {
       // make it strobe aw yiss
       offtime = HYPERSTROBE_OFF_DURATION;
       ontime = HYPERSTROBE_ON_DURATION;
@@ -162,7 +180,7 @@ bool Menus::runMenuSelection()
     }
   }
   // check if the advanced menus have been enabled
-  if (g_pButton->onConsecutivePresses(ADVANCED_MENU_CLICKS)) {
+  if (g_pButtonR->onConsecutivePresses(ADVANCED_MENU_CLICKS)) {
     // toggle the advanced menu
     Modes::setAdvancedMenus(!advMenus);
     // display a pink or red depending on whether the menu was enabled
@@ -191,11 +209,23 @@ bool Menus::runCurMenu()
     return false;
   case Menu::MENU_CONTINUE:
     // if Menu continue run the click handlers for the menu
-    if (g_pButton->onShortClick()) {
-      m_pCurMenu->onShortClick();
+    if (g_pButtonL->onShortClick()) {
+      m_pCurMenu->onShortClickL();
     }
-    if (g_pButton->onLongClick()) {
-      m_pCurMenu->onLongClick();
+    if (g_pButtonL->onLongClick()) {
+      m_pCurMenu->onLongClickL();
+    }
+    if (g_pButtonM->onShortClick()) {
+      m_pCurMenu->onShortClickM();
+    }
+    if (g_pButtonM->onLongClick()) {
+      m_pCurMenu->onLongClickM();
+    }
+    if (g_pButtonR->onShortClick()) {
+      m_pCurMenu->onShortClickR();
+    }
+    if (g_pButtonR->onLongClick()) {
+      m_pCurMenu->onLongClickR();
     }
     break;
   case Menu::MENU_SKIP:
@@ -255,16 +285,16 @@ void Menus::showSelection(RGBColor colval)
 {
   // blink the tip led white for 150ms when the short
   // click threshold has been surpassed
-  if (g_pButton->isPressed() &&
-    g_pButton->holdDuration() > SHORT_CLICK_THRESHOLD_TICKS &&
-    g_pButton->holdDuration() < (SHORT_CLICK_THRESHOLD_TICKS + MS_TO_TICKS(250))) {
+  if (g_pButtonM->isPressed() &&
+    g_pButtonM->holdDuration() > SHORT_CLICK_THRESHOLD_TICKS &&
+    g_pButtonM->holdDuration() < (SHORT_CLICK_THRESHOLD_TICKS + MS_TO_TICKS(250))) {
     Leds::setAll(colval);
   }
 }
 
 bool Menus::checkOpen()
 {
-  return m_menuState != MENU_STATE_NOT_OPEN && g_pButton->releaseTime() > m_openTime;
+  return m_menuState != MENU_STATE_NOT_OPEN && g_pButtonM->releaseTime() > m_openTime;
 }
 
 bool Menus::checkInMenu()

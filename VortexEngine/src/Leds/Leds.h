@@ -37,6 +37,14 @@ public:
   static void clearPair(Pair pair) { setPair(pair, RGB_OFF); }
   static void clearPairs(Pair first, Pair last) { setPairs(first, last, RGB_OFF); }
 
+  // control two LEDs on a pair, these are appropriate for use in internal pattern logic
+  static void setRadial(Radial radial, RGBColor col);
+  static void setRadials(Radial first, Radial last, RGBColor col);
+
+  // Turn off both LEDs on a pair, these are appropriate for use in internal pattern logic
+  static void clearRadial(Radial radial) { setRadial(radial, RGB_OFF); }
+  static void clearRadials(Radial first, Radial last) { setRadials(first, last, RGB_OFF); }
+
   // Controll pair evens
   static void setRangeEvens(Pair first, Pair last, RGBColor);
   static void setAllEvens(RGBColor col);

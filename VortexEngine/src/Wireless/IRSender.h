@@ -27,6 +27,12 @@ public:
   static uint32_t percentDone() { return (uint32_t)(((float)m_writeCounter / (float)m_size) * 100.0); }
 
 private:
+#ifdef VORTEX_EMBEDDED
+  static void initPWM();
+  static void startPWM();
+  static void stopPWM();
+#endif
+
   // sender functions
   static void beginSend();
   // send a full 8 bits in a tight loop

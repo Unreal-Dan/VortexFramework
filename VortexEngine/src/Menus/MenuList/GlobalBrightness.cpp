@@ -49,13 +49,28 @@ Menu::MenuAction GlobalBrightness::run()
   return MENU_CONTINUE;
 }
 
-void GlobalBrightness::onShortClick()
+void GlobalBrightness::onShortClickR()
 {
   // include one extra option for the exit slot
   m_curSelection = (m_curSelection + 1) % (NUM_BRIGHTNESS_OPTIONS + 1);
 }
 
-void GlobalBrightness::onLongClick()
+void GlobalBrightness::onShortClickL()
+{
+  // include one extra option for the exit slot
+  if (!m_curSelection) {
+    m_curSelection = NUM_BRIGHTNESS_OPTIONS;
+  } else {
+    m_curSelection = m_curSelection - 1;
+  }
+}
+
+void GlobalBrightness::onShortClickM()
+{
+  onLongClickM();
+}
+
+void GlobalBrightness::onLongClickM()
 {
   if (m_curSelection >= NUM_BRIGHTNESS_OPTIONS) {
     // no save exit

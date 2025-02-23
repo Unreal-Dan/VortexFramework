@@ -18,8 +18,8 @@ public:
   MenuAction run() override;
 
   // handlers for clicks
-  void onShortClick() override;
-  void onLongClick() override;
+  void onShortClickM() override;
+  void onLongClickM() override;
 
   // re-roll a new randomization with a given context on an led
   bool reRoll();
